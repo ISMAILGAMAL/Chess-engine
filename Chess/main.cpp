@@ -4,17 +4,23 @@
 
 using namespace std;
 
-int board[8][8];
-pair<int, int> king_black, king_white;
-bool rook_moved[4], king_moved[2]; // Two boolean arrays to check for castling rights.
+struct GameState {
 
-pair<pair<int, int>, bool> en_passant = {{-1, -1}, 0}; // A pair that keeps track of available en passants which can only be one at a time.
-            // The first pair stores the x and y coordinates and the bool is like a one turn counter for resetting the move.
-            
-// Moves are stored in a map whose key is a pair of x and y values denoting the index in the board
-// and whose value is a vector of pair of x and y values denoting the indices of the legal moves that
-// that specific piece can move to.
-map<pair<int, int>, vector<pair<int, int>>> white_possible_moves, black_possible_moves;
+    int board[8][8];
+    pair<int, int> king_black, king_white;
+
+    // Two boolean arrays to check for castling rights.
+    bool rook_moved[4], king_moved[2]; 
+
+    // A pair that keeps track of available en passants which can only be one at a time.
+    // The first pair stores the x and y coordinates and the bool is like a one turn counter for resetting the move.
+    pair<pair<int, int>, bool> en_passant = { {-1, -1}, 0 };
+
+    // Moves are stored in a map whose key is a pair of x and y values denoting the index in the board
+    // and whose value is a vector of pair of x and y values denoting the indices of the legal moves that
+    // that specific piece can move to.
+    map<pair<int, int>, vector<pair<int, int>>> white_possible_moves, black_possible_moves;
+}current_state;
 
 // The pieces are encoded as follows:
 //// 1 -> king

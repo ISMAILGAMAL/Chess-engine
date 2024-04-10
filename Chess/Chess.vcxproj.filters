@@ -15,16 +15,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="bassmala.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="joudy.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="main.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="check.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
