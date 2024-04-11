@@ -1,3 +1,4 @@
+#pragma once
 #include <iostream>
 #include <vector>
 #include <map>
@@ -15,7 +16,7 @@ bool in_board(int x, int y) {
 
 // Checks if two pieces are of the same type.
 bool same_type(int type, int num) {
-    if ((type == 1 && num > 0) || (type == 2 && num < 0))   //  type 1  (+)  / type 2  (-)
+    if (type * num > 0)   //  type 1  (+)  / type 2  (-)
         return 1;
     return 0;
 }
@@ -246,12 +247,6 @@ struct GameState {
 
         // And the king's in the king_moved array are: Black -> 0, White -> 1
 
-
-        // An annoying detail not yet implemented is that
-        // The king does not pass through or finish on a square that is attacked by an enemy piece.
-        // Waiting for the function that checks for a checkmate.
-
-
         if (team == 1) {
             if (!board[7][1] && !board[7][2] && !board[7][3] && !rook_moved[2] && !king_moved[1])
                 if (!checked(7, 3, 1) && !checked(x, y, 1))
@@ -386,6 +381,7 @@ struct GameState {
     // Loops over the board to generate all the possible moves for each piece storing it 
     // in the object's white_possible_moves and black_possible_moves.
     void generate_all_possible_moves() {
+        white_possible_moves.clear(); black_possible_moves.clear();
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 8; j++) {
                 int type = board[i][j];
@@ -393,7 +389,7 @@ struct GameState {
                     generate_piece_moves(i, j, 1, type);
                 }
                 else if (board[i][j] < 0) {
-                    generate_piece_moves(i, j, 2, abs(type));
+                    generate_piece_moves(i, j, -1, abs(type));
                 }
             }
         }
@@ -550,7 +546,6 @@ struct GameState {
     // (Used in checking for checkmates and the minimax recursion).
     GameState simulate_move(int from_x, int from_y, int target_x, int target_y) {
         GameState new_state = *this;
-        int team = new_state.board[from_x][from_y] > 0;
         new_state.update_board(from_x, from_y, target_x, target_y);
         return new_state;
     }
@@ -570,10 +565,8 @@ struct GameState {
             kingy = new_state.black_king.second;
         }
 
-        new_state.show();
-        cout << team << " " << new_state.board[target_x][target_y] << endl;
-        cout << kingx <<  " " << kingy << endl;
-        if (new_state.checked(kingx, kingy, team)) { cout << "REJECTED" << endl; return false; }
+
+        if (new_state.checked(kingx, kingy, team)) {  return false; }
         return true;
     }
 
@@ -603,16 +596,76 @@ struct GameState {
 
 
 
-////////// WHAT REMAINS:
-// A way to test all the functions and to play a couple of games to test the logic.
-// A way to simulate a move and then undo it.
-// Checkmates to generate legal moves.
-// AI.
+
+
+
+
+
+
+int evaluation(GameState& state) {
+
+    return int(state.white_possible_moves.size()) - int(state.black_possible_moves.size());
+}
+
+pair<int, int> best_move_from, best_move_to;
+
+int minimax(GameState& state, int depth = 0) {
+
+    if (depth == 3) {
+        int eval = evaluation(state);
+        //cout << eval << endl;
+        return eval;
+    }
+
+    if (state.player) {
+        int maximum = INT_MIN;
+        for (auto& piece : state.white_possible_moves) {
+            int from_x = piece.first.first, from_y = piece.first.second;
+            for (auto& move : piece.second) {
+                int target_x = move.first, target_y = move.second;
+                GameState new_state = state.simulate_move(from_x, from_y, target_x, target_y);
+                new_state.black_possible_moves.clear(); new_state.white_possible_moves.clear();
+                new_state.generate_all_possible_moves();
+                int score = minimax(new_state, depth + 1);
+                if (score > maximum) {
+                    maximum = score;
+                    if (depth == 0) {
+                        best_move_from = piece.first;
+                        best_move_to = move;
+                    }
+                }
+            }
+        }
+        return maximum;
+    }
+    else {
+        int minimum = INT_MAX;
+
+        for (auto& piece : state.black_possible_moves) {
+            int from_x = piece.first.first, from_y = piece.first.second;
+            for (auto& move : piece.second) {
+                int target_x = move.first, target_y = move.second;
+                GameState new_state = state.simulate_move(from_x, from_y, target_x, target_y);
+                new_state.black_possible_moves.clear(); new_state.white_possible_moves.clear();
+                new_state.generate_all_possible_moves();
+                int score = minimax(new_state, depth + 1);
+                if (score < minimum) {
+                    minimum = score;
+                    if (depth == 0) {
+                        best_move_from = piece.first;
+                        best_move_to = move;
+                    }
+                }
+            }
+        }
+        return minimum;
+    }
+}
 
 
 
 int main() {
-    current_state.initialize_board("5K2/8/5R2/5R2/4B3/8/7p/6k1 w - - 0 1");
+    current_state.initialize_board("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
 
     int player=1;
     int from_x, from_y, target_x, target_y;
@@ -628,12 +681,20 @@ int main() {
             cout << "Checkmate!! White Wins!!" << endl;
         }
 
-        string input;
-        cout << "Please input the move in this format (e2e4)..." << endl;
-        cin >> input;
+        if (current_state.player){
+            string input;
+            cout << "Please input the move in this format (e2e4)..." << endl;
+            cin >> input;
 
-        from_y = input[0] - 'a';  from_x = 8 - (input[1] - '0');
-        target_y = input[2] - 'a';  target_x = 8 - (input[3] - '0');
+            from_y = input[0] - 'a';  from_x = 8 - (input[1] - '0');
+            target_y = input[2] - 'a';  target_x = 8 - (input[3] - '0');
+        }
+        else {
+            minimax(current_state, 0);
+            tie(from_x, from_y) = best_move_from;
+            tie(target_x, target_y) = best_move_to;
+            cout << from_x << " " << from_y << " " << target_x << " " << target_y << endl;
+        }
         
 
 

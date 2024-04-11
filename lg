@@ -1,0 +1,468 @@
+[1mdiff --git a/Chess/Chess.vcxproj b/Chess/Chess.vcxproj[m
+[1mindex c2ea8b4..6331b12 100644[m
+[1m--- a/Chess/Chess.vcxproj[m
+[1m+++ b/Chess/Chess.vcxproj[m
+[36m@@ -76,12 +76,12 @@[m
+       <SDLCheck>true</SDLCheck>[m
+       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>[m
+       <ConformanceMode>true</ConformanceMode>[m
+[31m-      <AdditionalIncludeDirectories>D:\CourseStuff\SP project\Chess\include</AdditionalIncludeDirectories>[m
+[32m+[m[32m      <AdditionalIncludeDirectories>D:\CourseStuff\SP_project\Chess\include</AdditionalIncludeDirectories>[m
+     </ClCompile>[m
+     <Link>[m
+       <SubSystem>Console</SubSystem>[m
+       <GenerateDebugInformation>true</GenerateDebugInformation>[m
+[31m-      <AdditionalLibraryDirectories>D:\CourseStuff\SP project\Chess\lib</AdditionalLibraryDirectories>[m
+[32m+[m[32m      <AdditionalLibraryDirectories>D:\CourseStuff\SP_project\Chess\lib</AdditionalLibraryDirectories>[m
+       <AdditionalDependencies>sfml-graphics-d.lib;sfml-window-d.lib;sfml-system-d.lib;sfml-audio-d.lib;sfml-network-d.lib;%(AdditionalDependencies)</AdditionalDependencies>[m
+     </Link>[m
+   </ItemDefinitionGroup>[m
+[36m@@ -93,14 +93,14 @@[m
+       <SDLCheck>true</SDLCheck>[m
+       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>[m
+       <ConformanceMode>true</ConformanceMode>[m
+[31m-      <AdditionalIncludeDirectories>D:\CourseStuff\SP project\Chess\include</AdditionalIncludeDirectories>[m
+[32m+[m[32m      <AdditionalIncludeDirectories>D:\CourseStuff\SP_project\Chess\include</AdditionalIncludeDirectories>[m
+     </ClCompile>[m
+     <Link>[m
+       <SubSystem>Console</SubSystem>[m
+       <EnableCOMDATFolding>true</EnableCOMDATFolding>[m
+       <OptimizeReferences>true</OptimizeReferences>[m
+       <GenerateDebugInformation>true</GenerateDebugInformation>[m
+[31m-      <AdditionalLibraryDirectories>D:\CourseStuff\SP project\Chess\lib</AdditionalLibraryDirectories>[m
+[32m+[m[32m      <AdditionalLibraryDirectories>D:\CourseStuff\SP_project\Chess\lib</AdditionalLibraryDirectories>[m
+     </Link>[m
+   </ItemDefinitionGroup>[m
+   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">[m
+[36m@@ -109,12 +109,12 @@[m
+       <SDLCheck>true</SDLCheck>[m
+       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>[m
+       <ConformanceMode>true</ConformanceMode>[m
+[31m-      <AdditionalIncludeDirectories>D:\CourseStuff\SP project\Chess\include</AdditionalIncludeDirectories>[m
+[32m+[m[32m      <AdditionalIncludeDirectories>D:\CourseStuff\SP_project\Chess\include</AdditionalIncludeDirectories>[m
+     </ClCompile>[m
+     <Link>[m
+       <SubSystem>Console</SubSystem>[m
+       <GenerateDebugInformation>true</GenerateDebugInformation>[m
+[31m-      <AdditionalLibraryDirectories>D:\CourseStuff\SP project\Chess\lib</AdditionalLibraryDirectories>[m
+[32m+[m[32m      <AdditionalLibraryDirectories>D:\CourseStuff\SP_project\Chess\lib</AdditionalLibraryDirectories>[m
+       <AdditionalDependencies>sfml-graphics-d.lib;sfml-window-d.lib;sfml-system-d.lib;sfml-audio-d.lib;sfml-network-d.lib;%(AdditionalDependencies)</AdditionalDependencies>[m
+     </Link>[m
+   </ItemDefinitionGroup>[m
+[36m@@ -126,19 +126,25 @@[m
+       <SDLCheck>true</SDLCheck>[m
+       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>[m
+       <ConformanceMode>true</ConformanceMode>[m
+[31m-      <AdditionalIncludeDirectories>D:\CourseStuff\SP project\Chess\include</AdditionalIncludeDirectories>[m
+[32m+[m[32m      <AdditionalIncludeDirectories>D:\CourseStuff\SP_project\Chess\include</AdditionalIncludeDirectories>[m
+     </ClCompile>[m
+     <Link>[m
+       <SubSystem>Console</SubSystem>[m
+       <EnableCOMDATFolding>true</EnableCOMDATFolding>[m
+       <OptimizeReferences>true</OptimizeReferences>[m
+       <GenerateDebugInformation>true</GenerateDebugInformation>[m
+[31m-      <AdditionalLibraryDirectories>D:\CourseStuff\SP project\Chess\lib</AdditionalLibraryDirectories>[m
+[32m+[m[32m      <AdditionalLibraryDirectories>D:\CourseStuff\SP_project\Chess\lib</AdditionalLibraryDirectories>[m
+     </Link>[m
+   </ItemDefinitionGroup>[m
+   <ItemGroup>[m
+[32m+[m[32m    <ClCompile Include="AI.cpp" />[m
+[32m+[m[32m    <ClCompile Include="GameLogic.cpp" />[m
+     <ClCompile Include="main.cpp" />[m
+   </ItemGroup>[m
+[32m+[m[32m  <ItemGroup>[m
+[32m+[m[32m    <ClInclude Include="AI.h" />[m
+[32m+[m[32m    <ClInclude Include="GameLogic.h" />[m
+[32m+[m[32m  </ItemGroup>[m
+   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />[m
+   <ImportGroup Label="ExtensionTargets">[m
+   </ImportGroup>[m
+[1mdiff --git a/Chess/Chess.vcxproj.filters b/Chess/Chess.vcxproj.filters[m
+[1mindex ce0c35c..ebaf09c 100644[m
+[1m--- a/Chess/Chess.vcxproj.filters[m
+[1m+++ b/Chess/Chess.vcxproj.filters[m
+[36m@@ -18,5 +18,19 @@[m
+     <ClCompile Include="main.cpp">[m
+       <Filter>Source Files</Filter>[m
+     </ClCompile>[m
+[32m+[m[32m    <ClCompile Include="AI.cpp">[m
+[32m+[m[32m      <Filter>Source Files</Filter>[m
+[32m+[m[32m    </ClCompile>[m
+[32m+[m[32m    <ClCompile Include="GameLogic.cpp">[m
+[32m+[m[32m      <Filter>Source Files</Filter>[m
+[32m+[m[32m    </ClCompile>[m
+[32m+[m[32m  </ItemGroup>[m
+[32m+[m[32m  <ItemGroup>[m
+[32m+[m[32m    <ClInclude Include="GameLogic.h">[m
+[32m+[m[32m      <Filter>Header Files</Filter>[m
+[32m+[m[32m    </ClInclude>[m
+[32m+[m[32m    <ClInclude Include="AI.h">[m
+[32m+[m[32m      <Filter>Header Files</Filter>[m
+[32m+[m[32m    </ClInclude>[m
+   </ItemGroup>[m
+ </Project>[m
+\ No newline at end of file[m
+[1mdiff --git a/Chess/Chess.vcxproj.user b/Chess/Chess.vcxproj.user[m
+[1mindex ef54f7d..c990098 100644[m
+[1m--- a/Chess/Chess.vcxproj.user[m
+[1m+++ b/Chess/Chess.vcxproj.user[m
+[36m@@ -1,11 +1,11 @@[m
+ ﻿<?xml version="1.0" encoding="utf-8"?>[m
+ <Project ToolsVersion="Current" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">[m
+   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">[m
+[31m-    <LocalDebuggerEnvironment>PATH=D:\CourseStuff\SP project\Chess\bin</LocalDebuggerEnvironment>[m
+[32m+[m[32m    <LocalDebuggerEnvironment>PATH=D:\CourseStuff\SP_project\Chess\bin</LocalDebuggerEnvironment>[m
+     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>[m
+   </PropertyGroup>[m
+   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">[m
+[31m-    <LocalDebuggerEnvironment>PATH=D:\CourseStuff\SP project\Chess\bin</LocalDebuggerEnvironment>[m
+[32m+[m[32m    <LocalDebuggerEnvironment>PATH=D:\CourseStuff\SP_project\Chess\bin</LocalDebuggerEnvironment>[m
+     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>[m
+   </PropertyGroup>[m
+ </Project>[m
+\ No newline at end of file[m
+[1mdiff --git a/Chess/main.cpp b/Chess/main.cpp[m
+[1mindex 0411ad2..82f9087 100644[m
+[1m--- a/Chess/main.cpp[m
+[1m+++ b/Chess/main.cpp[m
+[36m@@ -2,602 +2,11 @@[m
+ #include <iostream>[m
+ #include <vector>[m
+ #include <map>[m
+[31m-#include "ai.cpp"[m
+[32m+[m[32m#include "GameLogic.h"[m
+[32m+[m[32m#include "AI.h"[m
+ [m
+ using namespace std;[m
+ [m
+[31m-// Some helper functions.[m
+[31m-[m
+[31m-// Checks if index is in range of the board.[m
+[31m-bool in_board(int x, int y) {[m
+[31m-    if (x < 0 || y < 0 || x>7 || y>7)[m
+[31m-        return 0;[m
+[31m-    return 1;[m
+[31m-}[m
+[31m-[m
+[31m-// Checks if two pieces are of the same type.[m
+[31m-bool same_type(int type, int num) {[m
+[31m-    if ((type == 1 && num > 0) || (type == 2 && num < 0))   //  type 1  (+)  / type 2  (-)[m
+[31m-        return 1;[m
+[31m-    return 0;[m
+[31m-}[m
+[31m-[m
+[31m-char match_to_char(int piece) {[m
+[31m-    char piece_char;[m
+[31m-    if (abs(piece) == 1) piece_char = 'k';[m
+[31m-    else if (abs(piece) == 2) piece_char = 'q';[m
+[31m-    else if (abs(piece) == 3) piece_char = 'r';[m
+[31m-    else if (abs(piece) == 4) piece_char = 'n';[m
+[31m-    else if (abs(piece) == 5) piece_char = 'b';[m
+[31m-    else if (abs(piece) == 6) piece_char = 'p';[m
+[31m-    else return '.';[m
+[31m-    if (piece > 0) return toupper(piece_char);[m
+[31m-    return piece_char;[m
+[31m-}[m
+[31m-[m
+[31m-struct GameState {[m
+[31m-[m
+[31m-    int player = 1;[m
+[31m-    int board[8][8];[m
+[31m-    pair<int, int> black_king, white_king;[m
+[31m-[m
+[31m-    // Two boolean arrays to check for castling rights.[m
+[31m-    bool rook_moved[4], king_moved[2]; [m
+[31m-[m
+[31m-    // A pair that keeps track of available en passants which can only be one at a time.[m
+[31m-    // The first pair stores the x and y coordinates and the bool is like a one turn counter for resetting the move.[m
+[31m-    pair<pair<int, int>, bool> en_passant = { {-1, -1}, 0 };[m
+[31m-[m
+[31m-    // Moves are stored in a map whose key is a pair of x and y values denoting the index in the board[m
+[31m-    // and whose value is a vector of pair of x and y values denoting the indices of the legal moves that[m
+[31m-    // that specific piece can move to.[m
+[31m-    map<pair<int, int>, vector<pair<int, int>>> white_possible_moves, black_possible_moves;[m
+[31m-[m
+[31m-    // The pieces are encoded as follows:[m
+[31m-    //// 1 -> king[m
+[31m-    //// 2 -> queen[m
+[31m-    //// 3 -> rook[m
+[31m-    //// 4 -> knight[m
+[31m-    //// 5 -> bishop[m
+[31m-    //// 6 -> pawn [m
+[31m-    //// Negative represents black and positive represents white.[m
+[31m-[m
+[31m-    void initialize_board() {[m
+[31m-[m
+[31m-        //  resetting everything by initializing all the board's and array's values to zero.[m
+[31m-        black_king = { 0,4 };[m
+[31m-        white_king = { 7,4 };[m
+[31m-        memset(board, 0, sizeof(board));[m
+[31m-        memset(rook_moved, 0, sizeof(rook_moved));[m
+[31m-        memset(king_moved, 0, sizeof(king_moved));[m
+[31m-[m
+[31m-        // Initializing the new board to standard beginning chess position.[m
+[31m-        int z = 0;[m
+[31m-        for (int i = 0; i < 8; i++) {[m
+[31m-            board[1][i] = -6;[m
+[31m-        }[m
+[31m-        for (int i = 0; i < 8; i++) {[m
+[31m-            board[6][i] = 6;[m
+[31m-        }[m
+[31m-        board[0][0] = -3; board[0][7] = -3; // rooks[m
+[31m-        board[7][0] = 3; board[7][7] = 3;[m
+[31m-        board[0][1] = -4; board[0][6] = -4; // knights[m
+[31m-        board[7][1] = 4; board[7][6] = 4;[m
+[31m-        board[0][2] = -5; board[0][5] = -5; // bishops[m
+[31m-        board[7][2] = 5; board[7][5] = 5;[m
+[31m-        board[0][3] = -2;  board[7][3] = 2; // queens[m
+[31m-        board[0][4] = -1; board[7][4] = 1; // kings[m
+[31m-    }[m
+[31m-[m
+[31m-    void initialize_board(string FEN) {[m
+[31m-        string board_fen = "", player_fen = "", castling_fen = "", en_passant_fen = "";[m
+[31m-        int num_break = 0;[m
+[31m-[m
+[31m-        // Parses the fen into four strings.[m
+[31m-        for (int i = 0; i < FEN.size(); i++) {[m
+[31m-            if (FEN[i] == ' ') { num_break++; continue; }[m
+[31m-            if (num_break == 0) board_fen.push_back(FEN[i]);[m
+[31m-            else if (num_break == 1) player_fen.push_back(FEN[i]);[m
+[31m-            else if (num_break == 2) castling_fen.push_back(FEN[i]);[m
+[31m-            else if (num_break == 3) en_passant_fen.push_back(FEN[i]);[m
+[31m-            else break;[m
+[31m-        }[m
+[31m-[m
+[31m-        memset(board, 0, sizeof(board));[m
+[31m-        memset(rook_moved, true, sizeof(rook_moved));[m
+[31m-        memset(king_moved, true, sizeof(king_moved));[m
+[31m-[m
+[31m-        int i = 0, j = 0;[m
+[31m-[m
+[31m-        // Fills the board according to the parsed FEN.[m
+[31m-        // You can read more on FENs from here: https://www.chess.com/terms/fen-chess[m
+[31m-        for (int k = 0; k < board_fen.size(); k++) {[m
+[31m-            if (board_fen[k] == '/') { j = 0; i++; continue; }[m
+[31m-            else if (board_fen[k] < 58) { j += int(board_fen[k] - '0'); continue; }// If it's a number skip that amount of squares.[m
+[31m-            else if (toupper(board_fen[k]) == 'K') { [m
+[31m-                board[i][j] = 1;[m
+[31m-                if (board_fen[k] == 'K') white_king = { i, j };[m
+[31m-                else black_king = { i, j };[m
+[31m-            }[m
+[31m-            else if (toupper(board_fen[k]) == 'Q') board[i][j] = 2;[m
+[31m-            else if (toupper(board_fen[k]) == 'R') board[i][j] = 3;[m
+[31m-            else if (toupper(board_fen[k]) == 'N') board[i][j] = 4;[m
+[31m-            else if (toupper(board_fen[k]) == 'B') board[i][j] = 5;[m
+[31m-            else if (toupper(board_fen[k]) == 'P') board[i][j] = 6;[m
+[31m-            if (islower(board_fen[k])) board[i][j] *= -1;[m
+[31m-            j++;[m
+[31m-        }[m
+[31m-[m
+[31m-        // Assigning the player from the parsed FEN[m
+[31m-        if (player_fen == "w") player = 1;[m
+[31m-        else player = 0;[m
+[31m-[m
+[31m-        // Assigning castling rights according to the FEN[m
+[31m-        for (int i = 0; i < castling_fen.size(); i++) {[m
+[31m-            if (castling_fen[i] == 'q') { rook_moved[0] = false; king_moved[0] = false; }[m
+[31m-            else if (castling_fen[i] == 'k') { rook_moved[1] = false; king_moved[0] = false; }[m
+[31m-            else if (castling_fen[i] == 'Q') { rook_moved[2] = false; king_moved[1] = false; }[m
+[31m-            else if (castling_fen[i] == 'K') { rook_moved[3] = false; king_moved[1] = false; }[m
+[31m-        }[m
+[31m-[m
+[31m-        // Same as castling but for en passant[m
+[31m-        if (en_passant_fen.size() > 1) {[m
+[31m-            int rank = 8 - int(en_passant_fen[1] - '0'), file = 8 - int(en_passant_fen[0] - 'a');[m
+[31m-            en_passant = { {rank, file}, 0 };[m
+[31m-        }[m
+[31m-    }[m
+[31m-[m
+[31m-    // The following functions all Generate pseudo-legal moves for the pieces and push it to the object's maps[m
+[31m-    // that stores all the possible moves after validiting that it's legal using the check_legal function.[m
+[31m-[m
+[31m-    // Generate legal moves for the pawn.[m
+[31m-    void pawn_moves(int x, int y, int team) {[m
+[31m-        vector<pair<int, int>> moves;[m
+[31m-[m
+[31m-        if (team == 1) {[m
+[31m-[m
+[31m-            if (in_board(x - 1, y) && board[x - 1][y] == 0) // Moving once.[m
+[31m-                moves.push_back({ x - 1, y });[m
+[31m-            if (in_board(x - 2, y) && board[x - 2][y] == 0 && board[x - 1][y] == 0 && x == 6) // Moving twice.[m
+[31m-                moves.push_back({ x - 2, y });[m
+[31m-[m
+[31m-            if (in_board(x - 1, y - 1) && board[x - 1][y - 1] < 0)[m
+[31m-                moves.push_back({ x - 1, y - 1 });                    // Diagonal piece capturing.[m
+[31m-            if (in_board(x - 1, y + 1) && board[x - 1][y + 1] < 0)[m
+[31m-                moves.push_back({ x - 1, y + 1 });[m
+[31m-[m
+[31m-            if (en_passant.first.first == x - 1 && en_passant.first.second == y - 1)[m
+[31m-                moves.push_back({ x - 1, y - 1 });                                   // En passant[m
+[31m-            if (en_passant.first.first == x - 1 && en_passant.first.second == y + 1)[m
+[31m-                moves.push_back({ x - 1, y + 1 });[m
+[31m-[m
+[31m-            for (int i = 0; i < moves.size(); i++)[m
+[31m-                if (check_legal(x, y, moves[i].first, moves[i].second, 1))[m
+[31m-                    white_possible_moves[{x, y}].push_back(moves[i]);[m
+[31m-        }[m
+[31m-        else {[m
+[31m-            if (in_board(x + 1, y) && board[x + 1][y] == 0)[m
+[31m-                moves.push_back({ x + 1, y });[m
+[31m-            if (in_board(x + 2, y) && board[x + 2][y] == 0 && board[x + 1][y] == 0 && x == 1)[m
+[31m-                moves.push_back({ x + 2, y });[m
+[31m-[m
+[31m-            if (in_board(x + 1, y - 1) && board[x + 1][y - 1] > 0)[m
+[31m-                moves.push_back({ x + 1, y - 1 });[m
+[31m-            if (in_board(x + 1, y + 1) && board[x + 1][y + 1] > 0)[m
+[31m-                moves.push_back({ x + 1, y + 1 });[m
+[31m-[m
+[31m-            if (en_passant.first.first == x + 1 && en_passant.first.second == y - 1)[m
+[31m-                moves.push_back({ x + 1, y - 1 });[m
+[31m-            if (en_passant.first.first == x + 1 && en_passant.first.second == y + 1)[m
+[31m-                moves.push_back({ x + 1, y + 1 });[m
+[31m-[m
+[31m-            for (int i = 0; i < moves.size(); i++)[m
+[31m-                if (check_legal(x, y, moves[i].first, moves[i].second, -1))[m
+[31m-                    black_possible_moves[{x, y}].push_back(moves[i]);[m
+[31m-        }[m
+[31m-    }[m
+[31m-[m
+[31m-    // Generate legal moves for the rook.[m
+[31m-    void rook_moves(int x, int y, int team) {[m
+[31m-        int x_offsets[] = { 0, 0, 1, -1 }; // defining an array of offsets to loop over and generate moves  [m
+[31m-        int y_offsets[] = { 1, -1, 0, 0 }; // in the four vertical and horizontal directions.[m
+[31m-        vector<pair<int, int>> moves;[m
+[31m-[m
+[31m-        for (int i = 0; i < 4; i++) {[m
+[31m-            int target_x = x + x_offsets[i], target_y = y + y_offsets[i];[m
+[31m-            while (in_board(target_x, target_y)) {[m
+[31m-                if (same_type(team, board[target_x][target_y])) break; // breaking before pushing the position of a friendly piece.[m
+[31m-                moves.push_back({ target_x, target_y });[m
+[31m-                if (!same_type(team, board[target_x][target_y]) && board[target_x][target_y] != 0) break; // breaking after pushing the position [m
+[31m-                target_x += x_offsets[i]; target_y += y_offsets[i];                           // of exactly one enemy piece.[m
+[31m-            }[m
+[31m-        }[m
+[31m-[m
+[31m-        if (team == 1) {[m
+[31m-            for (int i = 0; i < moves.size(); i++)[m
+[31m-                if (check_legal(x, y, moves[i].first, moves[i].second, 1))[m
+[31m-                    white_possible_moves[{x, y}].push_back(moves[i]);[m
+[31m-        }[m
+[31m-        else {[m
+[31m-            for (int i = 0; i < moves.size(); i++)[m
+[31m-                if (check_legal(x, y, moves[i].first, moves[i].second, -1))[m
+[31m-                    black_possible_moves[{x, y}].push_back(moves[i]);[m
+[31m-        }[m
+[31m-    }[m
+[31m-[m
+[31m-    // Generate legal moves for the king.[m
+[31m-    void king_moves(int x, int y, int team) {[m
+[31m-        int x_offsets[] = { 1, 1, 1, -1, -1, -1, 0, 0 };[m
+[31m-        int y_offsets[] = { -1, 0, 1, -1, 0, 1, 1, -1 };[m
+[31m-        vector<pair<int, int>> moves;[m
+[31m-[m
+[31m-        // Castling:[m
+[31m-        //      a b c d e f g h[m
+[31m-        // [m
+[31m-        //  8   r n b q k b n r[m
+[31m-        //  7   p p p p p p p p[m
+[31m-        //  6   . . . . . . . .[m
+[31m-        //  5   . . . . . . . .[m
+[31m-        //  4   . . . . . . . .[m
+[31m-        //  3   . . . . . . . .[m
+[31m-        //  2   P P P P P P P P[m
+[31m-        //  1   R N B Q K B N R[m
+[31m-[m
+[31m-        // In the rook_moved boolean array to check for castling rights the rook's indices are as follows:[m
+[31m-        // a8 -> 0, h8 -> 1, a1 -> 2, h1 -> 3[m
+[31m-[m
+[31m-        // And the king's in the king_moved array are: Black -> 0, White -> 1[m
+[31m-[m
+[31m-        if (team == 1) {[m
+[31m-            if (!board[7][1] && !board[7][2] && !board[7][3] && !rook_moved[2] && !king_moved[1])[m
+[31m-                if (!checked(7, 3, 1) && !checked(x, y, 1))[m
+[31m-                    moves.push_back({ 7, 2 });[m
+[31m-            if (!board[7][5] && !board[7][6] && !rook_moved[3] && !king_moved[1])[m
+[31m-                if (!checked(7, 5, 1) && !checked(x, y, 1))[m
+[31m-                    moves.push_back({ 7, 6 });[m
+[31m-        }[m
+[31m-        else {[m
+[31m-            if (!board[0][1] && !board[0][2] && !board[0][3] && !rook_moved[0] && !king_moved[0])[m
+[31m-                if (!checked(0, 3, -1) && !checked(x, y, -1))[m
+[31m-                    moves.push_back({ 0, 2 });[m
+[31m-            if (!board[0][5] && !board[0][6] && !rook_moved[1] && !king_moved[0])[m
+[31m-                if (!checked(0, 5, -1) && !checked(x, y, -1))[m
+[31m-                    moves.push_back({ 0, 6 });[m
+[31m-        }[m
+[31m-[m
+[31m-        for (int i = 0; i < 8; i++) {[m
+[31m-            int target_x = x + x_offsets[i], target_y = y + y_offsets[i];[m
+[31m-            if (in_board(target_x, target_y) && !same_type(team, board[target_x][target_y]))[m
+[31m-                moves.push_back({ target_x, target_y });[m
+[31m-        }[m
+[31m-[m
+[31m-        if (team == 1) {[m
+[31m-            for (int i = 0; i < moves.size(); i++)[m
+[31m-                if (check_legal(x, y, moves[i].first, moves[i].second, 1))[m
+[31m-                    white_possible_moves[{x, y}].push_back(moves[i]);[m
+[31m-        }[m
+[31m-        else {[m
+[31m-            for (int i = 0; i < moves.size(); i++)[m
+[31m-                if (check_legal(x, y, moves[i].first, moves[i].second, -1))[m
+[31m-                    black_possible_moves[{x, y}].push_back(moves[i]);[m
+[31m-        }[m
+[31m-    }[m
+[31m-[m
+[31m-    // Generate legal moves for the knight.[m
+[31m-    void knight_moves(int x, int y, int team) {[m
+[31m-        int x_offsets[] = { -2, -1, -2, -1, 1, 1, 2, 2 };[m
+[31m-        int y_offsets[] = { 1, 2, -1, -2, -2, 2, -1, 1 };[m
+[31m-        vector<pair<int, int>> moves;[m
+[31m-[m
+[31m-        for (int i = 0; i < 8; i++) {[m
+[31m-            int target_x = x + x_offsets[i], target_y = y + y_offsets[i];[m
+[31m-            if (in_board(target_x, target_y) && !same_type(team, board[target_x][target_y]))[m
+[31m-                moves.push_back({ target_x, target_y });[m
+[31m-        }[m
+[31m-[m
+[31m-        if (team == 1) {[m
+[31m-            for (int i = 0; i < moves.size(); i++)[m
+[31m-                if (check_legal(x, y, moves[i].first, moves[i].second, 1))[m
+[31m-                    white_possible_moves[{x, y}].push_back(moves[i]);[m
+[31m-        }[m
+[31m-        else {[m
+[31m-            for (int i = 0; i < moves.size(); i++)[m
+[31m-                if (check_legal(x, y, moves[i].first, moves[i].second, -1))[m
+[31m-                    black_possible_moves[{x, y}].push_back(moves[i]);[m
+[31m-        }[m
+[31m-    }[m
+[31m-[m
+[31m-    // Generate legal moves for the bishop.[m
+[31m-    void bishop_moves(int x, int y, int team) {[m
+[31m-        int x_offsets[] = { 1, 1, -1, -1 }; // defining an array of offsets like the rook function but[m
+[31m-        int y_offsets[] = { 1, -1, 1, -1 }; // in the four diagonal directions.[m
+[31m-        vector<pair<int, int>> moves;[m
+[31m-[m
+[31m-        for (int i = 0; i < 4; i++) {[m
+[31m-            int target_x = x + x_offsets[i], target_y = y + y_offsets[i];[m
+[31m-            while (in_board(target_x, target_y)) {[m
+[31m-                if (same_type(team, board[target_x][target_y])) break;[m
+[31m-                moves.push_back({ target_x, target_y });[m
+[31m-                if (!same_type(team, board[target_x][target_y]) && board[target_x][target_y] != 0) break;[m
+[31m-                target_x += x_offsets[i]; target_y += y_offsets[i];[m
+[31m-            }[m
+[31m-        }[m
+[31m-        if (team == 1) {[m
+[31m-            for (int i = 0; i < moves.size(); i++)[m
+[31m-                if (check_legal(x, y, moves[i].first, moves[i].second, 1))[m
+[31m-                    white_possible_moves[{x, y}].push_back(moves[i]);[m
+[31m-        }[m
+[31m-        else {[m
+[31m-            for (int i = 0; i < moves.size(); i++)[m
+[31m-                if (check_legal(x, y, moves[i].first, moves[i].second, -1))[m
+[31m-                    black_possible_moves[{x, y}].push_back(moves[i]);[m
+[31m-        }[m
+[31m-    }[m
+[31m-[m
+[31m-    // Generate legal moves for the queen.[m
+[31m-    void queen_moves(int x, int y, int team) {[m
+[31m-        int x_offsets[] = { 1, 1, -1, -1, 0, 0, 1, -1 }; // defini
