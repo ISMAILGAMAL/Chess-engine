@@ -1,2 +1,4 @@
 ﻿  main.cpp
+D:\CourseStuff\SP_project\Chess\Chess\main.cpp(657,34): warning C4267: '+=': conversion from 'size_t' to 'int', possible loss of data
+D:\CourseStuff\SP_project\Chess\Chess\main.cpp(660,34): warning C4267: '-=': conversion from 'size_t' to 'int', possible loss of data
   Chess.vcxproj -> D:\CourseStuff\SP_project\Chess\x64\Debug\Chess.exe
