@@ -2,6 +2,9 @@
 #include <iostream>
 #include <vector>
 #include <map>
+#include <chrono>
+#include <algorithm>
+#include "pcsq.h"
 
 using namespace std;
 
@@ -14,18 +17,20 @@ bool in_board(int x, int y) {
     return 1;
 }
 
-// Checks if two pieces are of the same type.
-bool same_type(int type, int num) {
-    if (type * num > 0)   //  type 1  (+)  / type 2  (-)
-        return 1;
-    return 0;
+string to_uci(int from_x, int from_y, int target_x, int target_y) {
+    string s = "";
+    s += char(from_y + 'a');
+    s += char((8 - from_x) + '0');
+    s += char(target_y + 'a');
+    s += char((8 - target_x) + '0');
+    return s;
 }
 
-string to_uci(int x, int y) {
-    string s = "";
-    s += char(y + 'a');
-    s += char((8 - x) + '0');
-    return s;
+pair<int, int> to_index(char file, char rank) {
+    int x, y;
+    x = 8 - int(rank - '0');
+    y = int(file - 'a');
+    return { x, y };
 }
 
 char match_to_char(int piece) {
@@ -57,7 +62,7 @@ struct GameState {
     // Moves are stored in a map whose key is a pair of x and y values denoting the index in the board
     // and whose value is a vector of pair of x and y values denoting the indices of the legal moves that
     // that specific piece can move to.
-    map<pair<int, int>, vector<pair<int, int>>> white_possible_moves, black_possible_moves;
+    vector<string> white_possible_moves, black_possible_moves;
 
     // The pieces are encoded as follows:
     //// 1 -> king
@@ -179,7 +184,7 @@ struct GameState {
 
             for (int i = 0; i < moves.size(); i++)
                 if (check_legal(x, y, moves[i].first, moves[i].second, 1))
-                    white_possible_moves[{x, y}].push_back(moves[i]);
+                    white_possible_moves.push_back(to_uci(x, y, moves[i].first, moves[i].second));
         }
         else {
             if (in_board(x + 1, y) && board[x + 1][y] == 0)
@@ -199,7 +204,7 @@ struct GameState {
 
             for (int i = 0; i < moves.size(); i++)
                 if (check_legal(x, y, moves[i].first, moves[i].second, -1))
-                    black_possible_moves[{x, y}].push_back(moves[i]);
+                    black_possible_moves.push_back(to_uci(x, y, moves[i].first, moves[i].second));
         }
     }
 
@@ -212,22 +217,23 @@ struct GameState {
         for (int i = 0; i < 4; i++) {
             int target_x = x + x_offsets[i], target_y = y + y_offsets[i];
             while (in_board(target_x, target_y)) {
-                if (same_type(team, board[target_x][target_y])) break; // breaking before pushing the position of a friendly piece.
+                int piece = board[target_x][target_y];
+                if (piece * team > 0) break; // breaking before pushing the position of a friendly piece.
                 moves.push_back({ target_x, target_y });
-                if (!same_type(team, board[target_x][target_y]) && board[target_x][target_y] != 0) break; // breaking after pushing the position 
-                target_x += x_offsets[i]; target_y += y_offsets[i];                           // of exactly one enemy piece.
+                if (piece * team < 0) break; // breaking after pushing the position of exactly one enemy piece.
+                target_x += x_offsets[i]; target_y += y_offsets[i];                           
             }
         }
 
         if (team == 1) {
             for (int i = 0; i < moves.size(); i++)
                 if (check_legal(x, y, moves[i].first, moves[i].second, 1))
-                    white_possible_moves[{x, y}].push_back(moves[i]);
+                    white_possible_moves.push_back(to_uci(x, y, moves[i].first, moves[i].second));
         }
         else {
             for (int i = 0; i < moves.size(); i++)
                 if (check_legal(x, y, moves[i].first, moves[i].second, -1))
-                    black_possible_moves[{x, y}].push_back(moves[i]);
+                    black_possible_moves.push_back(to_uci(x, y, moves[i].first, moves[i].second));
         }
     }
 
@@ -275,19 +281,19 @@ struct GameState {
 
         for (int i = 0; i < 8; i++) {
             int target_x = x + x_offsets[i], target_y = y + y_offsets[i];
-            if (in_board(target_x, target_y) && !same_type(team, board[target_x][target_y]))
+            if (in_board(target_x, target_y) && board[target_x][target_y] * team <= 0)
                 moves.push_back({ target_x, target_y });
         }
 
         if (team == 1) {
             for (int i = 0; i < moves.size(); i++)
                 if (check_legal(x, y, moves[i].first, moves[i].second, 1))
-                    white_possible_moves[{x, y}].push_back(moves[i]);
+                    white_possible_moves.push_back(to_uci(x, y, moves[i].first, moves[i].second));
         }
         else {
             for (int i = 0; i < moves.size(); i++)
                 if (check_legal(x, y, moves[i].first, moves[i].second, -1))
-                    black_possible_moves[{x, y}].push_back(moves[i]);
+                    black_possible_moves.push_back(to_uci(x, y, moves[i].first, moves[i].second));
         }
     }
 
@@ -299,19 +305,19 @@ struct GameState {
 
         for (int i = 0; i < 8; i++) {
             int target_x = x + x_offsets[i], target_y = y + y_offsets[i];
-            if (in_board(target_x, target_y) && !same_type(team, board[target_x][target_y]))
+            if (in_board(target_x, target_y) && board[target_x][target_y] * team <= 0)
                 moves.push_back({ target_x, target_y });
         }
 
         if (team == 1) {
             for (int i = 0; i < moves.size(); i++)
                 if (check_legal(x, y, moves[i].first, moves[i].second, 1))
-                    white_possible_moves[{x, y}].push_back(moves[i]);
+                    white_possible_moves.push_back(to_uci(x, y, moves[i].first, moves[i].second));
         }
         else {
             for (int i = 0; i < moves.size(); i++)
                 if (check_legal(x, y, moves[i].first, moves[i].second, -1))
-                    black_possible_moves[{x, y}].push_back(moves[i]);
+                    black_possible_moves.push_back(to_uci(x, y, moves[i].first, moves[i].second));
         }
     }
 
@@ -324,21 +330,22 @@ struct GameState {
         for (int i = 0; i < 4; i++) {
             int target_x = x + x_offsets[i], target_y = y + y_offsets[i];
             while (in_board(target_x, target_y)) {
-                if (same_type(team, board[target_x][target_y])) break;
+                int piece = board[target_x][target_y];
+                if (piece * team > 0) break;
                 moves.push_back({ target_x, target_y });
-                if (!same_type(team, board[target_x][target_y]) && board[target_x][target_y] != 0) break;
+                if (piece * team < 0) break;
                 target_x += x_offsets[i]; target_y += y_offsets[i];
             }
         }
         if (team == 1) {
             for (int i = 0; i < moves.size(); i++)
                 if (check_legal(x, y, moves[i].first, moves[i].second, 1))
-                    white_possible_moves[{x, y}].push_back(moves[i]);
+                    white_possible_moves.push_back(to_uci(x, y, moves[i].first, moves[i].second));
         }
         else {
             for (int i = 0; i < moves.size(); i++)
                 if (check_legal(x, y, moves[i].first, moves[i].second, -1))
-                    black_possible_moves[{x, y}].push_back(moves[i]);
+                    black_possible_moves.push_back(to_uci(x, y, moves[i].first, moves[i].second));
         }
     }
 
@@ -351,9 +358,10 @@ struct GameState {
         for (int i = 0; i < 8; i++) {
             int target_x = x + x_offsets[i], target_y = y + y_offsets[i];
             while (in_board(target_x, target_y)) {
-                if (same_type(team, board[target_x][target_y])) break;
+                int piece = board[target_x][target_y];
+                if (piece * team > 0) break;
                 moves.push_back({ target_x, target_y });
-                if (!same_type(team, board[target_x][target_y]) && board[target_x][target_y] != 0) break;
+                if (piece * team < 0) break;
                 target_x += x_offsets[i]; target_y += y_offsets[i];
             }
         }
@@ -361,12 +369,12 @@ struct GameState {
         if (team == 1) {
             for (int i = 0; i < moves.size(); i++)
                 if (check_legal(x, y, moves[i].first, moves[i].second, 1))
-                    white_possible_moves[{x, y}].push_back(moves[i]);
+                    white_possible_moves.push_back(to_uci(x, y, moves[i].first, moves[i].second));
         }
         else {
             for (int i = 0; i < moves.size(); i++)
                 if (check_legal(x, y, moves[i].first, moves[i].second, -1))
-                    black_possible_moves[{x, y}].push_back(moves[i]);
+                    black_possible_moves.push_back(to_uci(x, y, moves[i].first, moves[i].second));
         }
     }
 
@@ -389,16 +397,16 @@ struct GameState {
 
     // Loops over the board to generate all the possible moves for each piece storing it 
     // in the object's white_possible_moves and black_possible_moves.
-    void generate_all_possible_moves() {
+    void generate_all_possible_moves(int team) {
         // If the parameter type == 1 then it will only generate moves for white
         // if it was -1 then it will only generate moves for black.
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 8; j++) {
                 int type = board[i][j];
-                if (board[i][j] > 0) {
+                if (board[i][j] > 0 && team == 1) {
                     generate_piece_moves(i, j, 1, type);
                 }
-                else if (board[i][j] < 0) {
+                else if (board[i][j] < 0 && team != 1) {
                     generate_piece_moves(i, j, -1, abs(type));
                 }
             }
@@ -407,15 +415,12 @@ struct GameState {
 
     // A function used for testing and debugging.
     void display_possible_moves() {
-        map<pair<int, int>, vector<pair<int, int>>> possible;
+        vector<string> possible;
         if (player == 1) possible = white_possible_moves;
         else  possible = black_possible_moves;
-        for (auto item : possible) {
-            cout << "Piece: " << char(item.first.second + 'a') << 8 - item.first.first << "  ";
-            cout << match_to_char(board[item.first.first][item.first.second]) << "  " << " Can move to: " << endl;
-            for (auto pos : item.second) {
-                cout << char(pos.second + 'a') << 8 - pos.first << "  " << match_to_char(board[pos.first][pos.second]) << endl;
-            }
+        cout << "Possible moves: " << endl;
+        for (auto& move : possible) {
+            cout << move << endl;
         }
     }
 
@@ -528,7 +533,7 @@ struct GameState {
             if (player == 1 && piece == 6) {
                 board[target_x + 1][target_y] = 0;
             }
-            else if (player == 0 && piece == -6) {
+            else if (player == -1 && piece == -6) {
                 board[target_x - 1][target_y] = 0;
             }
         }
@@ -553,7 +558,7 @@ struct GameState {
             }
         }
 
-        player ^= 1;
+        player *= -1;
 
         if (en_passant.second) en_passant.second = 0; // Keeps the en passant open for one turn then restarts it.
         else en_passant = { {-1, -1}, 0 };
@@ -606,10 +611,15 @@ struct GameState {
         return true;
     }
 
-    // Checks if the given player has no moves meaning a checkmate.
-    bool checkmate(int color) {
-        if ((checked(white_king.first, white_king.second, 1) && color == 1 && white_possible_moves.empty()) ||
-            (checked(black_king.first, black_king.second, -1) && color == -1 && black_possible_moves.empty())) return 1;
+    // Checks if the given player has no moves and the king is checked meaning a checkmate.
+    bool checkmate(int team) {
+        if ((team == 1 && white_possible_moves.empty() && checked(white_king.first, white_king.second, team)) ||
+            (team == -1 && black_possible_moves.empty() && checked(black_king.first, black_king.second, team))) return 1;
+        return 0;
+    }
+
+    bool stalemate(int team) {
+        if ((team == 1 && white_possible_moves.empty()) || (team == -1 && black_possible_moves.empty())) return 1;
         return 0;
     }
 
@@ -631,123 +641,216 @@ struct GameState {
 } current_state;
 
 
+struct Minimax {
+    map<int, int> piece_values = { {2, 900}, {3, 500}, {4, 300}, {5, 330}, {6, 100},
+                          {-2, -900}, {-3, -500}, {-4, -300}, {-5, -330}, {-6, -100} };
+    vector<pair<int, string>> move_scores, move_scores_in_loop;
+    string best_move;
+    int node_counter = 0, best_score, reached_depth, time_limit = 2500, least_depth = 3;
+    double time_in_seconds;
+    chrono::steady_clock::time_point start_time, current_time;
+    chrono::milliseconds duration;
+    bool broke_early;
 
+    void assign_best_move(GameState& state) {
+        for (auto& move : move_scores) {
+            cout << move.second << " " << move.first << endl;
+        }
 
-
-
-
-
-map<int, int> piece_values = { {2, 900}, {3, 500}, {4, 300}, {5, 300}, {6, 100},
-                          {-2, -900}, {-3, -500}, {-4, -300}, {-5, -300}, {-6, -100} };
-
-int evaluation(GameState& state,int depth) {
-    int eval = 0;
-    int white_kingx, white_kingy, black_kingx, black_kingy;
-    tie(white_kingx, white_kingy) = state.white_king;
-    tie(black_kingx, black_kingy) = state.black_king;   
-
-    if (state.checked(white_kingx, white_kingy, 1)) {
-        if (state.white_possible_moves.empty()) eval += -100000 + (depth * 1000);
-    }
-    else if (state.checked(black_kingx, black_kingy, -1)) {
-        if (state.black_possible_moves.empty()) eval += 100000 - (depth * 1000);
-    }
-
-    for (auto& piece : state.white_possible_moves) {
-        eval += piece.second.size();
-    }
-    for (auto& piece : state.black_possible_moves) {
-        eval -= piece.second.size();
-    }
-
-    for (auto& row : state.board) {
-        for (auto& piece : row) {
-            eval += piece_values[piece];
+        if (state.player == 1) {
+            best_score = INT_MIN;
+            for (auto& move : move_scores) {
+                int score = move.first;
+                if (score > best_score) {
+                    best_score = score;
+                    best_move = move.second;
+                }
+            }
+        }
+        else {
+            best_score = INT_MAX;
+            for (auto& move : move_scores) {
+                int score = move.first;
+                if (score < best_score) {
+                    best_score = score;
+                    best_move = move.second;
+                }
+            }
         }
     }
-    return eval;
-}
 
-pair<int, int> best_move_from, best_move_to;
+    int get_pcsq_value(int x, int y, int piece, bool endgame) {
+        int pos = x * 8 + y;
+        switch (abs(piece)) {
+            case 6:
+                if (piece > 0) return pawn_table[pos];
+                else return -pawn_table[flip[pos]];
+            case 5:
+                if (piece > 0) return bishop_table[pos];
+                else return -bishop_table[flip[pos]];
+            case 4:
+                if (piece > 0) return knight_table[pos];
+                else return -knight_table[flip[pos]];
+            case 3:
+                if (piece > 0) return rook_table[pos];
+                else return -rook_table[flip[pos]];
+            case 2:
+                if (piece > 0) return queen_table[pos];
+                else return -queen_table[flip[pos]];
+            case 1:
+                if (endgame) {
+                    if (piece > 0) return king_endgame_table[pos];
+                    else return -king_endgame_table[flip[pos]];
+                }
+                else {
+                    if (piece > 0) return king_table[pos];
+                    else return -king_table[flip[pos]];
+                }
+        }
+    }
 
-int node_counter = 0;
+    int evaluation(GameState& state, int depth) {
+        int eval = 0;
+        int white_kingx, white_kingy, black_kingx, black_kingy;
+        tie(white_kingx, white_kingy) = state.white_king;
+        tie(black_kingx, black_kingy) = state.black_king;
 
-int minimax(GameState& state, int depth = 0, int alpha=INT_MIN, int beta=INT_MAX) {
-    if (depth == 3 || state.white_possible_moves.empty() || state.black_possible_moves.empty()) {
-        node_counter++; 
-        int eval = evaluation(state, depth);
-        //state.show();
-        //cout << eval << endl;
+        if (state.checked(white_kingx, white_kingy, 1)) {
+            if (state.white_possible_moves.empty()) eval += -100000 + (depth * 1000);
+        }
+        else if (state.checked(black_kingx, black_kingy, -1)) {
+            if (state.black_possible_moves.empty()) eval += 100000 - (depth * 1000);
+        }
+
+        bool endgame = false;
+
+        int minor_piece_counter = 0;
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++) {
+                if (abs(state.board[i][j]) > 1 && abs(state.board[i][j]) != 6) { minor_piece_counter++; }
+            }
+        }
+
+        if (minor_piece_counter < 6) endgame = true;
+
+        for (int i = 0; i < 8;i++) {
+            for (int j = 0; j < 8;j++) {
+                int piece = state.board[i][j];
+                if (piece != 0) {
+                    eval += piece_values[piece];
+                    eval += get_pcsq_value(i, j, piece, endgame);
+                }
+            }
+        }
         return eval;
     }
 
-    if (state.player) {
-        int maximum = INT_MIN;
 
-        for (auto& piece : state.white_possible_moves) {
-            int from_x = piece.first.first, from_y = piece.first.second;
-            for (auto& move : piece.second) {
-                int target_x = move.first, target_y = move.second;
 
+    int minimax(GameState& state, int depth = 0, int end_depth = 3, int alpha = INT_MIN, int beta = INT_MAX) {
+
+        if (depth == end_depth || state.checkmate(state.player)) {
+            node_counter++;
+            int eval = evaluation(state, depth);
+            //state.show();
+            //cout << eval << endl;
+            return eval;
+        }
+
+        //if (state.stalemate(state.player)) return 0;
+
+        if (state.player == 1) {
+            for (auto& move : state.white_possible_moves) {
+                int from_x, from_y, target_x, target_y;
+                tie(from_x, from_y) = to_index(move[0], move[1]);
+                tie(target_x, target_y) = to_index(move[2], move[3]);
                 GameState new_state = state.simulate_move(from_x, from_y, target_x, target_y);
-                new_state.generate_all_possible_moves();
+                new_state.black_possible_moves.clear();
+                new_state.generate_all_possible_moves(new_state.player);
 
-                int score = minimax(new_state, depth + 1, alpha, beta);
+                int score = minimax(new_state, depth + 1, end_depth, alpha, beta);
 
                 alpha = max(alpha, score);
 
-                if (beta <= alpha) return score;
-
-                if (score > maximum) {
-                    maximum = score;
-                    if (depth == 0) {
-                        best_move_from = piece.first;
-                        best_move_to = move;
-                    }
+                if (depth == 0) {
+                    move_scores_in_loop.push_back({ score , move });
                 }
-            }
-        }
-        return maximum;
-    }
-    else {
-        int minimum = INT_MAX;
 
-        for (auto& piece : state.black_possible_moves) {
-            int from_x = piece.first.first, from_y = piece.first.second;
-            for (auto& move : piece.second) {
-                int target_x = move.first, target_y = move.second;
+                if (score >= beta) return alpha;
+
+                current_time = chrono::steady_clock::now();
+                duration = chrono::duration_cast<std::chrono::milliseconds>(current_time - start_time);
+                if (duration.count() > time_limit && end_depth > least_depth) { broke_early = true; return 0; }
+
+            }
+            return alpha;
+        }
+        else {
+            for (auto& move : state.black_possible_moves) {
+                int from_x, from_y, target_x, target_y;
+                tie(from_x, from_y) = to_index(move[0], move[1]);
+                tie(target_x, target_y) = to_index(move[2], move[3]);
 
                 GameState new_state = state.simulate_move(from_x, from_y, target_x, target_y);
-                new_state.generate_all_possible_moves();
+                new_state.white_possible_moves.clear();
+                new_state.generate_all_possible_moves(new_state.player);
 
-                int score = minimax(new_state, depth + 1, alpha, beta);
+                int score = minimax(new_state, depth + 1, end_depth, alpha, beta);
 
                 beta = min(beta, score);
 
-                if (beta <= alpha) return score;
-
-                if (score < minimum) {
-                    minimum = score;
-                    if (depth == 0) {
-                        best_move_from = piece.first;
-                        best_move_to = move;
-                    }
+                if (depth == 0) {
+                    move_scores_in_loop.push_back({ score , move });
                 }
-            }
-        }
-        return minimum;
-    }
-}
 
+                if (score <= alpha) return beta;
+
+                current_time = chrono::steady_clock::now();
+                duration = chrono::duration_cast<std::chrono::milliseconds>(current_time - start_time);
+                if (duration.count() > time_limit && end_depth > least_depth) { broke_early = true; return 0; }
+
+            }
+            return beta;
+        }
+    }
+
+    void iterative_deepening(GameState& state) {
+        start_time = chrono::steady_clock::now();
+
+        int depth = 1; broke_early = false;
+        while (true) {
+            minimax(state, 0, depth);
+
+            //cout << "######################" << endl;
+            //for (auto& move : move_scores) {
+            //    cout << move.second << " " << move.first << endl;
+            //}
+
+            if (!broke_early) {
+                move_scores = move_scores_in_loop;
+                move_scores_in_loop.clear();
+            }
+            else {
+                time_in_seconds = duration.count() / 1000.0;
+                break;
+            }
+            depth++;
+        }
+        reached_depth = depth - broke_early;
+        assign_best_move(state);
+        move_scores.clear(); 
+    }
+
+} AI;
 
 
 int main() {
-    current_state.initialize_board("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+    string starting_position = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+    current_state.initialize_board("1rqk2r1/3pb3/1pb1p2p/p4np1/3pQ3/P4N1P/1PPBNPP1/3RR1K1 w - - 0 26");
 
-    int player=1;
     int from_x, from_y, target_x, target_y;
-    while(true){
-        current_state.generate_all_possible_moves();
+    while (true) {
+        current_state.generate_all_possible_moves(current_state.player);
         //current_state.display_possible_moves();
         current_state.show();
 
@@ -757,10 +860,10 @@ int main() {
         else if (current_state.checkmate(-1)) {
             cout << "Checkmate!! White Wins!!" << endl;
         }
-        else if (current_state.white_possible_moves.empty() || current_state.black_possible_moves.empty()){
+        else if (current_state.stalemate(current_state.player)){
             cout << "Stalemate! A Draw" << endl;
         }
-        if (current_state.player == 1){
+        if (current_state.player == -1) {
             string input;
             cout << "Please input the move in this format (e2e4)..." << endl;
             cin >> input;
@@ -769,29 +872,31 @@ int main() {
             target_y = input[2] - 'a';  target_x = 8 - (input[3] - '0');
         }
         else {
-            cout << "Move Score: " << minimax(current_state) << endl;
-            tie(from_x, from_y) = best_move_from;
-            tie(target_x, target_y) = best_move_to;
+            AI.iterative_deepening(current_state);
+            cout << "Best Move: " << AI.best_move << " Score: " << AI.best_score << endl;
+            tie(from_x, from_y) = to_index(AI.best_move[0], AI.best_move[1]);
+            tie(target_x, target_y) = to_index(AI.best_move[2], AI.best_move[3]);
+            cout << "NODE: ";
+            cout << AI.node_counter << endl;
+            cout << "Depth Reached: " << AI.reached_depth << endl;
+            cout << "Time Taken: " << AI.time_in_seconds << endl;
+            AI.node_counter = 0;
         }
-
-        cout << "NODE: ";
-        cout << node_counter << endl;
-        node_counter = 0;
 
 
         bool legal = false;
 
-
-        map<pair<int, int>, vector<pair<int, int>>> possible;
+        vector<string> possible;
         if (current_state.player == 1) possible = current_state.white_possible_moves;
         else  possible = current_state.black_possible_moves;
 
-        for (auto& move : possible[{from_x, from_y}]) {
-            if (move.first == target_x && move.second == target_y) legal = true;
+
+        string move_uci = to_uci(from_x, from_y, target_x, target_y);
+        for (auto& move : possible) {
+            if (move == move_uci) { legal = true; break; }
         }
 
         current_state.white_possible_moves.clear(); current_state.black_possible_moves.clear();
-        node_counter = 0;
 
         if (!legal) {
             cout << "Sorry, this move is not possible!" << endl;
@@ -801,7 +906,6 @@ int main() {
         current_state.update_board(from_x, from_y, target_x, target_y);
 
     }
-
 
     return 0;
 }
