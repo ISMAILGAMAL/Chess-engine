@@ -1,39 +1,48 @@
-[![SFML logo](https://www.sfml-dev.org/images/logo.png)](https://www.sfml-dev.org)
+# Basic Chess Engine
 
-# SFML — Simple and Fast Multimedia Library
+This project is a basic chess engine implemented in c++ with a gui made using SFML featuring an AI using the traditional minimax algorithm with alpha-beta pruning and iterative deepening.
 
-SFML is a simple, fast, cross-platform and object-oriented multimedia API. It provides access to windowing, graphics, audio and network. It is written in C++, and has bindings for various languages such as C, .Net, Ruby, Python.
+## Installation:
 
-## Authors
+Copy the repository to your local machine:
+```bash
+git clone https://github.com/ISMAILGAMAL/Chess-engine.git
+```
 
-  - Laurent Gomila — main developer (laurent@sfml-dev.org)
-  - Marco Antognini — OS X developer (hiura@sfml-dev.org)
-  - Jonathan De Wachter — Android developer (dewachter.jonathan@gmail.com)
-  - Jan Haller (bromeon@sfml-dev.org)
-  - Stefan Schindler (tank@sfml-dev.org)
-  - Lukas Dürrenberger (eXpl0it3r@sfml-dev.org)
-  - binary1248 (binary1248@hotmail.com)
-  - Artur Moreira (artturmoreira@gmail.com)
-  - Mario Liebisch (mario@sfml-dev.org)
-  - And many other members of the SFML community
+## Features:
 
-## Download
+### Move Generation:
 
-You can get the latest official release on [SFML's website](https://www.sfml-dev.org/download.php). You can also get the current development version from the [Git repository](https://github.com/SFML/SFML).
+The engine is capable of generating both pseudo-legal and legal moves for all pieces in chess including special moves like en-passants, castling and promotions but for promotions it assumes that pawns only promote to queens for simplicity
 
-## Install
+### A Chess AI:
 
-Follow the instructions of the [tutorials](https://www.sfml-dev.org/tutorials/), there is one for each platform/compiler that SFML supports.
+*The ai in chess is composed of two parts first the search and then the evaluation as the chess bot works by simulating moves up to a certain search depth. Then,  evaluating the resuling positions. After that, it chooses the most promising moves based on the evaluation heuristic.
 
-## Learn
 
-There are several places to learn SFML:
+### 1- Minimax with alpha-beta pruning (The search algorithm):
+![Minimax visualization](https://chrisbutner.github.io/ChessCoach/figure1.png)
 
-  * The [official tutorials](https://www.sfml-dev.org/tutorials/)
-  * The [online API documentation](https://www.sfml-dev.org/documentation/)
-  * The [community wiki](https://github.com/SFML/SFML/wiki/)
-  * The [community forum](https://en.sfml-dev.org/forums/) ([French](https://fr.sfml-dev.org/forums/))
+Source: https://chrisbutner.github.io/ChessCoach/high-level-explanation.html
 
-## Contribute
+**The Minimax algorithm is a graph search algorithm that works by recursively exploring the game tree to a certain depth, evaluating each possible leaf or terminal node using some heuristic. It alternates between maximizing and minimizing players, hence the name "minimax."**
 
-SFML is an open-source project, and it needs your help to go on growing and improving. If you want to get involved and suggest some additional features, file a bug report or submit a patch, please have a look at the [contribution guidelines](https://www.sfml-dev.org/contribute.php).
+**My implementation uses alpha-beta pruning which is a tree pruning technique that reduces the number of nodes the algorithm needs to explore without affecting the final outcome improving the efficiency of the search.**
+
+**It also uses iterative deepening which allows the bot to stop at any time by doing a search up to a depth of one then to a depth of two and so on until a certain time limit i imposed on the bot returning the best move from the last successful seacrh.**
+
+
+### 2- The evaluation heuristics:
+
+**The evaluation uses a simplified evaluation function proposed by [Tomasz Michniewski](https://www.chessprogramming.org/Tomasz_Michniewski), which consists of two parts: material piece values and piece square tables. I only used the material values [from here](https://www.chessprogramming.org/Simplified_Evaluation_Function). which works by giving each piece a value ex: white rook -> 500, black queen -900 and then adds up all the material values on the board**
+
+**I then used the piece square tables from [PeSTO's Evaluation Function](https://www.chessprogramming.org/PeSTO%27s_Evaluation_Function).**
+
+
+### A GUI made using SFML:
+
+(NOT YET IMPLEMENTED)
+
+### Online Multiplayer Gameplay:
+
+(NOT YED IMPLEMENTED)

@@ -1,0 +1,41 @@
+[33mcommit 6cf89777e614ba304dfba17b5361546788de8bf6[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmaster[m[33m, [m[1;32mlegal_moves[m[33m)[m
+Author: ISMAILSHADOW <ismailismailgamal52@gmail.com>
+Date:   Mon Apr 22 21:53:07 2024 +0200
+
+    Implemented the vector from scratch using dynamic arrays and improved the piece square table using the Pesto technique by interpolating between middle and endgame piece square tables.
+
+[33mcommit 2a82ffb9ef58fb92b122d5266825a1fd25d72764[m
+Author: ISMAILSHADOW <ismailismailgamal52@gmail.com>
+Date:   Wed Apr 17 23:56:05 2024 +0200
+
+    Improved the AI by using iterative deepening which allows us to stop the algorithm at any time and improved the evaluation function using piece square tables.
+
+[33mcommit ce132e4b768bb604952063cf36425436e5a12e76[m
+Author: ISMAILSHADOW <ismailismailgamal52@gmail.com>
+Date:   Sun Apr 14 16:40:10 2024 +0200
+
+    Fixed some bugs in move generation and checking and did some optimizations to the AI by reducing the amount of copying done inside the minimax function and implementing Alpha-Beta pruning.
+
+[33mcommit 0eaf8becea443dc92112269da22d19d3a330152d[m
+Author: ISMAILSHADOW <ismailismailgamal52@gmail.com>
+Date:   Thu Apr 11 05:15:55 2024 +0200
+
+    First Ai test
+
+[33mcommit 53fcd16528ab7ed4a2a8e4ad795d0b6617e270a0[m
+Author: ISMAILSHADOW <ismailismailgamal52@gmail.com>
+Date:   Thu Apr 11 00:14:07 2024 +0200
+
+    Alpha version nearly finished
+
+[33mcommit 221e5d70ddfc54a772e50a52d099e678bf56d111[m
+Author: ISMAILSHADOW <ismailismailgamal52@gmail.com>
+Date:   Wed Apr 10 19:40:24 2024 +0200
+
+    Added struct GameState
+
+[33mcommit 0d116816b8eb850be4f99bc4d71cc1350abb4eef[m
+Author: ISMAILSHADOW <ismailismailgamal52@gmail.com>
+Date:   Wed Apr 10 19:34:18 2024 +0200
+
+    First commit
