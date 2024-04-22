@@ -26,5 +26,8 @@
     <ClInclude Include="pcsq.h">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="dataStructures.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

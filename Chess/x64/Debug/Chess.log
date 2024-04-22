@@ -1,3 +1,7 @@
 ﻿  main.cpp
-D:\CourseStuff\SP_project\Chess\Chess\main.cpp(710,1): warning C4715: 'Minimax::get_pcsq_value': not all control paths return a value
+D:\CourseStuff\SP_project\Chess\Chess\main.cpp(786,24): warning C4267: 'initializing': conversion from 'size_t' to 'short', possible loss of data
+D:\CourseStuff\SP_project\Chess\Chess\main.cpp(821,24): warning C4267: 'initializing': conversion from 'size_t' to 'short', possible loss of data
+  pcsq.cpp
+  Generating Code...
+D:\CourseStuff\SP_project\Chess\Chess\main.cpp(747,1): warning C4715: 'Minimax::get_pcsq_value': not all control paths return a value
   Chess.vcxproj -> D:\CourseStuff\SP_project\Chess\x64\Debug\Chess.exe

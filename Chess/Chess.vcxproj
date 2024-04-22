@@ -141,6 +141,7 @@
     <ClCompile Include="pcsq.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="dataStructures.h" />
     <ClInclude Include="pcsq.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
