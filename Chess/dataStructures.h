@@ -113,3 +113,22 @@ public:
         }
     }
 };
+
+template<typename T1, typename T2>
+struct myPair {
+    T1 first;
+    T2 second;
+
+    myPair() {}
+
+    myPair(T1 F, T2 S) {
+        first = F;
+        second = S;
+    }
+
+    bool operator==(const myPair& other) {
+        if (first == other.first && second == other.second) return true;
+        else return false;
+    }
+
+};

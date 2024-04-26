@@ -29,7 +29,7 @@ string to_uci(int from_x, int from_y, int target_x, int target_y) {
 
 // This does the opposite of the above and turns two chars (the first or second part of uci)
 // to indices to be used inside of the board ex: a7 -> 1 0
-pair<int, int> to_index(char file, char rank) {
+myPair<int, int> to_index(char file, char rank) {
     int x, y;
     x = 8 - int(rank - '0');
     y = int(file - 'a');
@@ -57,14 +57,14 @@ struct GameState {
 
     int player = 1;
     int board[8][8];
-    pair<int, int> black_king, white_king;
+    myPair<int, int> black_king, white_king;
 
     // Two boolean arrays to check for castling rights.
     bool rook_moved[4], king_moved[2]; 
 
-    // A pair that keeps track of available en passants which can only be one at a time.
+    // A custom pair that keeps track of available en passants which can only be one at a time.
     // The first pair stores the x and y coordinates and the bool is like a one turn counter for resetting the move.
-    pair<pair<int, int>, bool> en_passant = { {-1, -1}, 0 };
+    myPair<myPair<int, int>, bool> en_passant = { {-1, -1}, 0 };
 
     // Moves are stored in a dynamic array containing UCI strings of the pseudo-legal
     // that the specific white or black player can do.
@@ -170,7 +170,7 @@ struct GameState {
 
     // Generate pseudo-legal moves for the pawn.
     void pawn_moves(int x, int y, int team) {
-        myVector<pair<int, int>> moves;
+        myVector<myPair<int, int>> moves;
 
         if (team == 1) {
 
@@ -216,7 +216,7 @@ struct GameState {
     void rook_moves(int x, int y, int team) {
         int x_offsets[] = { 0, 0, 1, -1 }; // defining an array of offsets to loop over and generate moves  
         int y_offsets[] = { 1, -1, 0, 0 }; // in the four vertical and horizontal directions.
-        myVector<pair<int, int>> moves;
+        myVector<myPair<int, int>> moves;
 
         for (int i = 0; i < 4; i++) {
             int target_x = x + x_offsets[i], target_y = y + y_offsets[i];
@@ -243,7 +243,7 @@ struct GameState {
     void king_moves(int x, int y, int team) {
         int x_offsets[] = { 1, 1, 1, -1, -1, -1, 0, 0 };
         int y_offsets[] = { -1, 0, 1, -1, 0, 1, 1, -1 };
-        myVector<pair<int, int>> moves;
+        myVector<myPair<int, int>> moves;
 
         // Castling:
         //      a b c d e f g h
@@ -301,7 +301,7 @@ struct GameState {
     void knight_moves(int x, int y, int team) {
         int x_offsets[] = { -2, -1, -2, -1, 1, 1, 2, 2 };
         int y_offsets[] = { 1, 2, -1, -2, -2, 2, -1, 1 };
-        myVector<pair<int, int>> moves;
+        myVector<myPair<int, int>> moves;
 
         for (int i = 0; i < 8; i++) {
             int target_x = x + x_offsets[i], target_y = y + y_offsets[i];
@@ -323,7 +323,7 @@ struct GameState {
     void bishop_moves(int x, int y, int team) {
         int x_offsets[] = { 1, 1, -1, -1 }; // defining an array of offsets like the rook function but
         int y_offsets[] = { 1, -1, 1, -1 }; // in the four diagonal directions.
-        myVector<pair<int, int>> moves;
+        myVector<myPair<int, int>> moves;
 
         for (int i = 0; i < 4; i++) {
             int target_x = x + x_offsets[i], target_y = y + y_offsets[i];
@@ -349,7 +349,7 @@ struct GameState {
     void queen_moves(int x, int y, int team) {
         int x_offsets[] = { 1, 1, -1, -1, 0, 0, 1, -1 }; 
         int y_offsets[] = { 1, -1, 1, -1, 1, -1, 0, 0 }; 
-        myVector<pair<int, int>> moves;
+        myVector<myPair<int, int>> moves;
 
         for (int i = 0; i < 8; i++) {
             int target_x = x + x_offsets[i], target_y = y + y_offsets[i];
@@ -392,6 +392,7 @@ struct GameState {
     // Loops over the board to generate all the possible moves for each piece storing it 
     // in the object's white_possible_moves or black_possible_moves.
     void generate_all_possible_moves(int team) {
+        // White -> 1 , Black -> -1
         // If the parameter type == 1 then it will only generate moves for white
         // if it was -1 then it will only generate moves for black.
         for (int i = 0; i < 8; i++) {
@@ -649,7 +650,7 @@ struct Minimax {
                           {-2, -900}, {-3, -500}, {-4, -300}, {-5, -330}, {-6, -100} };
     int gamephaseInc[7] = { 0, 0, 4, 2, 1, 1, 0 };
 
-    myVector<pair<int, string>> move_scores, move_scores_in_loop;
+    myVector<myPair<int, string>> move_scores, move_scores_in_loop;
     string best_move;
     int node_counter = 0, reached_depth, time_limit = 2500, least_depth = 3;
     long long best_score;
@@ -660,9 +661,11 @@ struct Minimax {
     bool broke_early;
 
     void assign_best_move(GameState& state) {
-        for (int i = 0; i < move_scores.size();i++) {
-            cout << move_scores[i].second << " " << move_scores[i].first << endl;
-        }
+
+        // Used to display the score the ai have given to every possible move.
+        //for (int i = 0; i < move_scores.size();i++) {
+        //    cout << move_scores[i].second << " " << move_scores[i].first << endl;
+        //}
 
         if (state.player == 1) {
             best_score = LLONG_MIN;
@@ -776,7 +779,6 @@ struct Minimax {
         if (depth == end_depth) {
             node_counter++;
             int eval = evaluation(state, depth);
-            //cout << eval << endl;
             return eval;
         }
 
@@ -786,9 +788,11 @@ struct Minimax {
             short Size = state.white_possible_moves.size();
             for (short i = 0; i < Size;i++) {
                 string move = state.white_possible_moves[i];
-                int from_x, from_y, target_x, target_y;
-                tie(from_x, from_y) = to_index(move[0], move[1]);
-                tie(target_x, target_y) = to_index(move[2], move[3]);
+
+                myPair<int, int> from = to_index(move[0], move[1]);
+                myPair<int, int> target = to_index(move[2], move[3]);
+                int from_x = from.first, from_y = from.second;
+                int target_x = target.first, target_y = target.second;
 
                 GameState new_state = state.simulate_move(from_x, from_y, target_x, target_y);
                 if (new_state.checked(new_state.white_king.first, new_state.white_king.second, 1)) continue;
@@ -803,7 +807,7 @@ struct Minimax {
                     move_scores_in_loop.push_back({ score , move });
                 }
 
-                if (score >= beta) return alpha;
+                if (score >= beta) return score;
 
                 current_time = chrono::steady_clock::now();
                 duration = chrono::duration_cast<std::chrono::milliseconds>(current_time - start_time);
@@ -821,9 +825,11 @@ struct Minimax {
             short Size = state.black_possible_moves.size();
             for (short i = 0; i < Size;i++) {
                 string move = state.black_possible_moves[i];
-                int from_x, from_y, target_x, target_y;
-                tie(from_x, from_y) = to_index(move[0], move[1]);
-                tie(target_x, target_y) = to_index(move[2], move[3]);
+
+                myPair<int, int> from = to_index(move[0], move[1]);
+                myPair<int, int> target = to_index(move[2], move[3]);
+                int from_x = from.first, from_y = from.second;
+                int target_x = target.first, target_y = target.second;
 
                 GameState new_state = state.simulate_move(from_x, from_y, target_x, target_y);
                 if (new_state.checked(new_state.black_king.first, new_state.black_king.second, -1)) continue;
@@ -838,7 +844,7 @@ struct Minimax {
                     move_scores_in_loop.push_back({ score , move });
                 }
 
-                if (score <= alpha) return beta;
+                if (score <= alpha) return score;
 
                 current_time = chrono::steady_clock::now();
                 duration = chrono::duration_cast<std::chrono::milliseconds>(current_time - start_time);
@@ -885,9 +891,9 @@ struct Minimax {
 
 int main() {
     string starting_position = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
-    current_state.initialize_board("r5k1/p1pb1p1p/1p2rB2/4n3/4P3/8/PPP1BPPP/2KR3R w - - 2 15");
-
+    current_state.initialize_board();
     int from_x, from_y, target_x, target_y;
+        
     while (true) {
         current_state.generate_all_possible_moves(current_state.player);
         current_state.show();
@@ -912,8 +918,11 @@ int main() {
         else {
             AI.iterative_deepening(current_state);
             cout << "Best Move: " << AI.best_move << " Score: " << AI.best_score << endl;
-            tie(from_x, from_y) = to_index(AI.best_move[0], AI.best_move[1]);
-            tie(target_x, target_y) = to_index(AI.best_move[2], AI.best_move[3]);
+
+            myPair<int, int> from = to_index(AI.best_move[0], AI.best_move[1]);
+            myPair<int, int> target = to_index(AI.best_move[2], AI.best_move[3]);
+            from_x = from.first; from_y = from.second;
+            target_x = target.first; target_y = target.second;
             cout << "Nodes Evaluated: ";
             cout << AI.node_counter << endl;
             cout << "Depth Reached: " << AI.reached_depth << endl;
