@@ -21,12 +21,18 @@
     <ClCompile Include="pcsq.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="logic.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pcsq.h">
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="dataStructures.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="logic.h">
       <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>
