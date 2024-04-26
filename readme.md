@@ -17,7 +17,7 @@ The engine is capable of generating both pseudo-legal and legal moves for all pi
 
 ### A Chess AI:
 
-*The ai in chess is composed of two parts first the search and then the evaluation as the chess bot works by simulating moves up to a certain search depth. Then,  evaluating the resuling positions. After that, it chooses the most promising moves based on the evaluation heuristic.
+The ai in chess is composed of two parts first the search and then the evaluation as the chess bot works by simulating moves up to a certain search depth. Then,  evaluating the resuling positions. After that, it chooses the most promising moves based on the evaluation heuristic.
 
 
 ### 1- Minimax with alpha-beta pruning (The search algorithm):
@@ -45,4 +45,4 @@ Source: https://chrisbutner.github.io/ChessCoach/high-level-explanation.html
 
 ### Online Multiplayer Gameplay:
 
-(NOT YED IMPLEMENTED)
+(NOT YET IMPLEMENTED)
