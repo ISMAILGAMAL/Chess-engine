@@ -1,6 +1,5 @@
 #pragma once
 #include <iostream>
-#include <map>
 #include <chrono>
 #include "pcsq.h"
 #include "dataStructures.h"
@@ -16,6 +15,7 @@ bool in_board(int x, int y) {
         return 0;
     return 1;
 }
+
 
 // A function that takes the move in indices and turns it to Standard chess UCI
 // ex: 1 0 3 0 -> a7a5
@@ -51,9 +51,6 @@ char match_to_char(int piece) {
     return piece_char;
 }
 
-// A struct that encapsulates an entire game state which helps us to copy and pass 
-// new game states to the searching Alpha-beta pruned minimax algorithm without 
-// needing complex logic to handle special moves and also allows us to interface with the gui.
 
 void GameState::initialize_board() {
 
@@ -619,11 +616,10 @@ void GameState::show() {
 
 
 void Minimax::assign_best_move(GameState& state) {
-
-    // Used to display the score the ai have given to every possible move.
-    //for (int i = 0; i < move_scores.size();i++) {
-    //    cout << move_scores[i].second << " " << move_scores[i].first << endl;
-    //}
+     //Used to display the score the ai have given to every possible move.
+    for (int i = 0; i < move_scores.size();i++) {
+        cout << move_scores[i].second << " " << move_scores[i].first << endl;
+    }
 
     if (state.player == 1) {
         best_score = LLONG_MIN;
@@ -707,16 +703,55 @@ int Minimax::get_pcsq_value(int x, int y, int piece, bool endgame) {
     }
 }
 
+int Minimax::evaluate_pawns(int team, int white_pawns_row[], int black_pawns_row[]) {
+    int num_isolated = 0;
+    int penalty = 0, bonus = 0;
+
+    for (int i = 0; i < 8; i++) {
+        int row_white = white_pawns_row[i], row_black = black_pawns_row[i];
+        if (team == 1 && row_white != -1) {
+            // Isolated pawns.
+            if ((i == 0 || white_pawns_row[i - 1] == -1) && (i == 7 || white_pawns_row[i + 1] == -1)) {
+                num_isolated++;
+            }
+
+            // Passed pawns.
+            if ((i == 0 || black_pawns_row[i - 1] >= row_white) && (i == 7 || black_pawns_row[i + 1] >= row_white)) {
+                bonus += passedPawnBonuses[row_white];
+            }
+        }
+        else if (team == -1 && black_pawns_row[i] != -1) {
+            if ((i == 0 || black_pawns_row[i - 1] == -1) && (i == 7 || black_pawns_row[i + 1] == -1)) {
+                num_isolated++;
+            }
+
+            if ((i == 0 || white_pawns_row[i - 1] <= row_black) && (i == 7 || white_pawns_row[i + 1] <= row_black)) {
+                bonus -= passedPawnBonuses[7 - row_black];
+            }
+        }
+    }
+
+    penalty = isolatedPawnPenaltyByCount[num_isolated];
+    penalty = (team == 1) ? penalty : -penalty;
+
+    return penalty + bonus;
+}
+
 int Minimax::evaluation(GameState& state, int depth) {
     int mgEval = 0;
     int egEval = 0;
     int gamePhase = 0;
+
+    int black_pawns_row[8] = { -1, -1, -1, -1, -1, -1, -1, -1 };
+    int white_pawns_row[8] = { -1, -1, -1, -1, -1, -1, -1, -1 };
 
     int minor_piece_counter = 0;
     for (int i = 0; i < 8; i++) {
         for (int j = 0; j < 8; j++) {
             int piece = state.board[i][j];
             if (piece != 0) {
+                if (piece == 6) white_pawns_row[j] = i;
+                else if (piece == -6) black_pawns_row[j] = i;
                 mgEval += get_pcsq_value(i, j, piece, false) + piece_values[piece];
                 egEval += get_pcsq_value(i, j, piece, true) + piece_values[piece];
                 gamePhase += gamephaseInc[abs(piece)];
@@ -724,10 +759,15 @@ int Minimax::evaluation(GameState& state, int depth) {
         }
     }
 
+    int pawnStructure = 0;
+
+    pawnStructure += evaluate_pawns(1, white_pawns_row, black_pawns_row);
+    pawnStructure += evaluate_pawns(-1, white_pawns_row, black_pawns_row);
+
     int mgPhase = min(gamePhase, 24);
     int egPhase = 24 - mgPhase;
 
-    return (mgEval * mgPhase + egEval * egPhase) / 24;
+    return (mgEval * mgPhase + egEval * egPhase) / 24 + pawnStructure;
 }
 
 
@@ -821,7 +861,7 @@ int Minimax::minimax(GameState& state, int depth, int end_depth, int alpha, int 
 void Minimax::iterative_deepening(GameState& state) {
     start_time = chrono::steady_clock::now();
 
-    int depth = 1; broke_early = false;
+    int depth = 3; broke_early = false;
     while (true) {
         minimax(state, 0, depth);
 

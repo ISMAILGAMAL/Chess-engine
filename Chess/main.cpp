@@ -1,8 +1,4 @@
 #pragma once
-#include <iostream>
-#include <map>
-#include <chrono>
-#include "pcsq.h"
 #include "dataStructures.h"
 #include "logic.h"
 
@@ -14,7 +10,7 @@ int main() {
     Minimax AI;
 
     string starting_position = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
-    current_state.initialize_board();
+    current_state.initialize_board("r6k/3R3p/2p3p1/2P1R3/2Q2P1q/7r/6P1/6K1 w - - 0 1");
     int from_x, from_y, target_x, target_y;
         
     while (true) {
@@ -30,6 +26,8 @@ int main() {
         else if (current_state.stalemate(current_state.player)){
             cout << "Stalemate! A Draw" << endl;
         }
+
+
         if (current_state.player == -1) {
             string input;
             cout << "Please input the move in this format (e2e4)..." << endl;

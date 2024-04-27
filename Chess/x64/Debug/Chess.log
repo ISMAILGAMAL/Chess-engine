@@ -1,7 +1,7 @@
 ﻿  logic.cpp
-D:\CourseStuff\SP_project\Chess\Chess\logic.cpp(746,20): warning C4267: 'initializing': conversion from 'size_t' to 'short', possible loss of data
-D:\CourseStuff\SP_project\Chess\Chess\logic.cpp(783,20): warning C4267: 'initializing': conversion from 'size_t' to 'short', possible loss of data
+D:\CourseStuff\SP_project\Chess\Chess\logic.cpp(786,20): warning C4267: 'initializing': conversion from 'size_t' to 'short', possible loss of data
+D:\CourseStuff\SP_project\Chess\Chess\logic.cpp(823,20): warning C4267: 'initializing': conversion from 'size_t' to 'short', possible loss of data
   main.cpp
   Generating Code...
-D:\CourseStuff\SP_project\Chess\Chess\logic.cpp(708,1): warning C4715: 'Minimax::get_pcsq_value': not all control paths return a value
+D:\CourseStuff\SP_project\Chess\Chess\logic.cpp(704,1): warning C4715: 'Minimax::get_pcsq_value': not all control paths return a value
   Chess.vcxproj -> D:\CourseStuff\SP_project\Chess\x64\Debug\Chess.exe
