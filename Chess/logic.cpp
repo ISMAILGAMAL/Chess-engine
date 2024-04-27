@@ -719,16 +719,18 @@ int Minimax::evaluate_pawns(int team, int white_pawns_row[], int black_pawns_row
             }
 
             // Passed pawns.
-            if ((i == 0 || black_pawns_row[i - 1] >= row_white) && (i == 7 || black_pawns_row[i + 1] >= row_white)) {
+            int left = black_pawns_row[i - 1], right = black_pawns_row[i + 1];
+            if ((i == 0 || left >= row_white || left == -1) && (i == 7 || right >= row_white || right == -1) && row_black == -1) {
                 bonus += passedPawnBonuses[row_white];
             }
         }
-        else if (team == -1 && black_pawns_row[i] != -1) {
+        else if (team == -1 && row_black != -1) {
             if ((i == 0 || black_pawns_row[i - 1] == -1) && (i == 7 || black_pawns_row[i + 1] == -1)) {
                 num_isolated++;
             }
 
-            if ((i == 0 || white_pawns_row[i - 1] <= row_black) && (i == 7 || white_pawns_row[i + 1] <= row_black)) {
+            int left = white_pawns_row[i - 1], right = white_pawns_row[i + 1];
+            if ((i == 0 || left <= row_black || left == -1) && (i == 7 || right <= row_black || right == -1) && row_white == -1) {
                 bonus -= passedPawnBonuses[7 - row_black];
             }
         }
@@ -804,15 +806,16 @@ int Minimax::minimax(GameState& state, int depth, int end_depth, int alpha, int 
 
             alpha = max(alpha, score);
 
+            current_time = chrono::steady_clock::now();
+            duration = chrono::duration_cast<std::chrono::milliseconds>(current_time - start_time);
+            if (duration.count() > time_limit && end_depth > least_depth) { broke_early = true; return 0; }
+
             if (depth == 0) {
                 move_scores_in_loop.push_back({ score , move });
             }
 
             if (score >= beta) return score;
 
-            current_time = chrono::steady_clock::now();
-            duration = chrono::duration_cast<std::chrono::milliseconds>(current_time - start_time);
-            if (duration.count() > time_limit && end_depth > least_depth) { broke_early = true; return 0; }
 
         }
         if (alpha == INT_MIN) {
@@ -841,15 +844,16 @@ int Minimax::minimax(GameState& state, int depth, int end_depth, int alpha, int 
 
             beta = min(beta, score);
 
+            current_time = chrono::steady_clock::now();
+            duration = chrono::duration_cast<std::chrono::milliseconds>(current_time - start_time);
+            if (duration.count() > time_limit && end_depth > least_depth) { broke_early = true; return 0; }
+
             if (depth == 0) {
                 move_scores_in_loop.push_back({ score , move });
             }
 
             if (score <= alpha) return score;
 
-            current_time = chrono::steady_clock::now();
-            duration = chrono::duration_cast<std::chrono::milliseconds>(current_time - start_time);
-            if (duration.count() > time_limit && end_depth > least_depth) { broke_early = true; return 0; }
 
         }
         if (beta == INT_MAX) {
