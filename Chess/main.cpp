@@ -4,6 +4,7 @@
 #include "pcsq.h"
 #include "dataStructures.h"
 #include "logic.h"
+#include "main_menu.cpp"
 
 using namespace std;
 
