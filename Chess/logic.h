@@ -1,6 +1,5 @@
 #pragma once
 #include<iostream>
-#include<map>
 #include <chrono>
 #include "dataStructures.h"
 
@@ -65,24 +64,28 @@ struct GameState {
 
 
 struct Minimax {
-    map<int, int> piece_values = { {2, 900}, {3, 500}, {4, 300}, {5, 320}, {6, 100},
-                          {-2, -900}, {-3, -500}, {-4, -300}, {-5, -320}, {-6, -100} };
-
     int gamephaseInc[7] = { 0, 0, 4, 2, 1, 1, 0 };
+
+    const int mgValue[7] = { 0, 0, 1025, 477, 337, 365,  82 };
+    const int egValue[7] = { 0, 0, 936, 512, 281, 297,  94 };
 
     const int passedPawnBonuses[7] = { 0, 120, 80, 50, 30, 15, 15 };
     const int isolatedPawnPenaltyByCount[9] = { 0, -10, -25, -50, -75, -75, -75, -75, -75 };
 
     myVector<myPair<int, string>> move_scores, move_scores_in_loop;
     string best_move;
-    int node_counter = 0, reached_depth, time_limit = 2500, least_depth = 3;
+    int node_counter = 0, reached_depth, time_limit = 3000, least_depth = 3;
     long long best_score;
     double time_in_seconds;
     chrono::steady_clock::time_point start_time, current_time;
     chrono::milliseconds duration;
-    bool broke_early;
+    bool broke_early = false;
 
+    void display_move_scores();
     void assign_best_move(GameState& state);
+    void merge(myVector<myPair<int, string>>& leftVec, myVector<myPair<int, string>>& rightVec, myVector<myPair<int, string>>& vec);
+    void mergeSort(myVector<myPair<int, string>>& vec);
+    void sort_moves(GameState& state);
     int get_pcsq_value(int x, int y, int piece, bool endgame);
     int evaluation(GameState& state, int depth);
     int evaluate_pawns(int team, int white_pawns_row[], int black_pawns_row[]);
