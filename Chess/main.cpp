@@ -55,7 +55,7 @@ struct buttons {
         window.draw(restart_button);
         window.draw(sound_button);
     }
-    void MouseClickButtons(MainMenu& mainMenu) {
+    void MouseClickButtons(MainMenu& mainMenu, GameState& current_state) {
         auto mousePosition = window.mapPixelToCoords(Mouse::getPosition(window));
         if (mainMenu.settingsPage.getSoundState())
             sound_button.setTextureRect(IntRect(6 * 16, 10 * 16, 16, 16));
@@ -64,9 +64,11 @@ struct buttons {
         if (Mouse::isButtonPressed(Mouse::Left)) {
             if (main_button.getGlobalBounds().contains(mousePosition)) {
                 mainMenu.loadedMenu = 0;
+                current_state.initialize_board();
                 reset = 1;
             }
             if (restart_button.getGlobalBounds().contains(mousePosition)) {
+                current_state.initialize_board();
                 reset = 1;
             }
             if (sound_button.getGlobalBounds().contains(mousePosition)) {
@@ -103,7 +105,7 @@ struct buttons {
 struct theme {
 
 };
-////////////////////////////////////////////////////////////////////////////////////////////
+
 struct soundss {
     SoundBuffer moveS, moveCh, prom, gameSt, gameEnd, captur, castl, tenS, illeg;
     Sound move, check, promotion, gamestart, gameend, capture, castle, tenseconds, illegal;
@@ -204,11 +206,12 @@ struct End {
         window.draw(restart_button);
         window.draw(sentence);
     }
-    void MouseClickButtons(MainMenu& mainMenu) {
+    void MouseClickButtons(MainMenu& mainMenu, GameState current_state) {
         auto mousePosition = window.mapPixelToCoords(Mouse::getPosition(window));
         if (Mouse::isButtonPressed(Mouse::Left)) {
             if (main_button.getGlobalBounds().contains(mousePosition)) {
                 mainMenu.loadedMenu = 0;
+                current_state.initialize_board();
                 reset = 1;
             }
             if (restart_button.getGlobalBounds().contains(mousePosition)) {
@@ -241,16 +244,18 @@ struct End {
     }
 };
 
+
 struct piecess {
     Texture pawnBtxt, knightBtxt, rookBtxt, kingBtxt, queenBtxt, bishopBtxt;
     Texture pawnWtxt, knightWtxt, rookWtxt, kingWtxt, queenWtxt, bishopWtxt;
-    Texture validDottxt;
+    Texture validDottxt, not_validtxt;
     Texture bgk;
     Sprite bgkk;
     Sprite board;
     Texture boardTexture; // Texture for the chessboard
     void load_pieces(MainMenu& mainMenu) {
-        validDottxt.loadFromFile("square_light.png");
+        validDottxt.loadFromFile("green2.png");
+        not_validtxt.loadFromFile("red.png");
 
         if (mainMenu.settingsPage.getColor() == 3) {
             mainMenu.settingsPage.setColor(1);
@@ -339,12 +344,19 @@ struct piecess {
             {
                 if (validPoints[row][col])
                 {
-                    Sprite validDot;
-                    validDot.setTexture(validDottxt);
+                    Sprite validDot(validDottxt), notvalid(not_validtxt);
                     float scale = SQUARE_SIZE / max(validDot.getLocalBounds().width, validDot.getLocalBounds().height);
+                    float scale2 = SQUARE_SIZE / max(notvalid.getLocalBounds().width, notvalid.getLocalBounds().height);
                     validDot.setScale(scale, scale);
+                    notvalid.setScale(scale, scale);
+                    notvalid.setPosition(calculateSquarePosition(row, col));
                     validDot.setPosition(calculateSquarePosition(row, col));
-                    window.draw(validDot);
+                    if (current_state.board[row][col] == 0) {
+                        window.draw(validDot);
+                    }
+                    else {
+                        window.draw(notvalid);
+                    }
                 }
             }
         }
@@ -415,7 +427,6 @@ void move_generation(GameState& current_state) {
 
 int main()
 {
-    ///////////////////////////////////////////******************************
     bool first_end = 1;
     int end_game = -10, end_game_ai = -10;
     GameState current_state;
@@ -430,15 +441,9 @@ int main()
     sounds.load_sounds();
     int current_color = 3;
 
-    // used for timing functions for debugging.
-    chrono::steady_clock::time_point start_time, current_time;
-    chrono::milliseconds duration;
-
-    ////////////////////////////////////////////////////////////////////////////////////////////////////
     //END GAME
     End end;
     end.initialize();
-    //////////////////////////////////////////////////////////////////////////////////////////////////
     //buttons
     buttons button;
     button.initialize();
@@ -449,18 +454,17 @@ int main()
     bool validPoints[8][8] = {}, mousePressed = false; // Array to hold valid points
     int lastPieceX, lastPieceY; // Variables to store last selected piece position
     int mouseY = 0, mouseX = 0; // Variables to store last position the mouse was clicked
-    current_state.initialize_board();
+    current_state.initialize_board("r1r5/3k1pp1/2n1p1n1/p7/3P4/1PBB3P/P4PP1/3R1RK1 w - - 1 30");
     while (window.isOpen())
     {
         sf::Event event;
         while (window.pollEvent(event))
         {
-            ////////////////////////////////////////////////////////////////////////////////
             if (event.type == sf::Event::Closed)
                 window.close();
-            //////////////////////////////////////////////////////////////////////////////////////////////********************
+
             if (end_game != -10 || end_game_ai != -10)
-                end.MouseClickButtons(mainMenu);
+                end.MouseClickButtons(mainMenu, current_state);
 
             if (Keyboard::isKeyPressed(Keyboard::Z))end_game = 1;
             if (Keyboard::isKeyPressed(Keyboard::R) || reset) {
@@ -471,7 +475,7 @@ int main()
                 end_game = -10;
                 end_game_ai = -10;
             }
-            //////////////////////////////////////////////////////////////////////////////////////////*************************************
+            
             if (Mouse::isButtonPressed(Mouse::Left)) {
                 mouseY = Mouse::getPosition(window).x / 100;
                 mouseX = Mouse::getPosition(window).y / 100;
@@ -487,19 +491,17 @@ int main()
 
             }
             if (mainMenu.loadedMenu == 1 || mainMenu.loadedMenu == 2)
-                button.MouseClickButtons(mainMenu);
+                button.MouseClickButtons(mainMenu, current_state);
         }
+
         if (mainMenu.settingsPage.getColor() == 3 || mainMenu.settingsPage.getColor() == 4)
             pieces.load_pieces(mainMenu);
 
-        /////////////////////////////////////////////////////////////////////////////
         if (mainMenu.loadedMenu == 0) {
             auto mousePosition = window.mapPixelToCoords(Mouse::getPosition(window));
             mainMenu.MenuButtonsAnimation(window);
             mainMenu.MainMenuMouseClick(mousePosition, window);
-            ////////////////////////////////////////////////////////////////////////////////////////////////////////*********
             reset = 0;
-            //////////////////////////////////////////////////////////////////////////////////////////////////////
         }
 
         //menu 2 2players
@@ -534,32 +536,37 @@ int main()
         else if (mainMenu.loadedMenu == 1)
         {
             move_generation(current_state);
-            if (current_state.player == 1)
+            if (current_state.player == -1)
             {
-                if (current_state.board[mouseX][mouseY] > 0 && current_state.player == 1)
-                {
-                    lastPieceX = mouseX;
-                    lastPieceY = mouseY;
+                if (mousePressed) {
+                    if (current_state.board[mouseX][mouseY] * current_state.player > 0)
+                    {
+                        lastPieceX = mouseX;
+                        lastPieceY = mouseY;
 
-                    valid_moves(current_state, validPoints, lastPieceX, lastPieceY);
-                }
-                else if (validPoints[mouseX][mouseY])
-                {
-                    applying_sounds(current_state, sounds, mouseX, mouseY, lastPieceX, lastPieceY, mainMenu.settingsPage.getSoundState());
-                    current_state = current_state.simulate_move(lastPieceX, lastPieceY, mouseX, mouseY);
-                    reset_validpoints(validPoints);
+                        valid_moves(current_state, validPoints, lastPieceX, lastPieceY);
+                    }
+                    else if (validPoints[mouseX][mouseY])
+                    {
+                        applying_sounds(current_state, sounds, mouseX, mouseY, lastPieceX, lastPieceY, mainMenu.settingsPage.getSoundState());
+                        current_state = current_state.simulate_move(lastPieceX, lastPieceY, mouseX, mouseY);
+                        reset_validpoints(validPoints);
 
+                    }
                 }
             }
             else
             {
-
                 AI.iterative_deepening(current_state);
                 string best = AI.best_move;
+                cout << "Best Move: " << best << " " << AI.best_score << endl;
+                cout << "Nodes Evaluated: " << AI.node_counter << endl;
+                cout << "Depth Reached: " << AI.reached_depth << endl;
+                cout << "Time Taken: " << AI.time_in_seconds << endl;
                 myPair<int, int>from = to_index(best[0], best[1]), to = to_index(best[2], best[3]);
                 applying_sounds(current_state, sounds, to.first, to.second, from.first, from.second, mainMenu.settingsPage.getSoundState());
                 current_state = current_state.simulate_move(from.first, from.second, to.first, to.second);
-
+                current_state.show();
             }
             move_generation(current_state);
             if (current_state.checkmate(1))
@@ -568,9 +575,7 @@ int main()
                 end_game_ai = 1; //you won
             else if (current_state.stalemate(1) || current_state.stalemate(-1))
                 end_game_ai = 2;//draw
-
         }
-        //start_time = chrono::steady_clock::now();
 
         window.clear();
         if (mainMenu.loadedMenu == 0) {
@@ -578,13 +583,12 @@ int main()
         }
         else if (mainMenu.loadedMenu == 3) {
             mainMenu.settingsPage.DisplaySettings(window);
-
         }
         else {
             pieces.draw_pieces(current_state, validPoints);
             button.draw();
         }
-        ///////////////////////////////////////////////////////////////////************************
+
         if (end_game == 1)
         {
             end.change(1, 2, sounds, first_end);
@@ -610,13 +614,11 @@ int main()
             end.change(2, 1, sounds, first_end);
             first_end = 0;
         }
-        ///////////////////////////////////////////////////////////////////************************
 
         window.display(); // Display the window
         current_state.white_possible_moves.clear();
         current_state.black_possible_moves.clear();
-        if (mainMenu.loadedMenu == 1)
-            mouseX = 0, mouseY = 0;
     }
+
     return 0;
 }

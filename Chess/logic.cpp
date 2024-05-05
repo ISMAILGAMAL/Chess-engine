@@ -60,6 +60,8 @@ char match_to_char(int piece) {
 void GameState::initialize_board() {
 
     //  resetting everything by initializing all the board's and array's values to zero.
+
+    player = 1;
     black_king = { 0,4 };
     white_king = { 7,4 };
     memset(board, 0, sizeof(board));
@@ -1018,6 +1020,7 @@ int Minimax::minimax(GameState& state, int depth, int end_depth, int alpha, int 
 }
 
 void Minimax::iterative_deepening(GameState& state) {
+    node_counter = 0;
     start_time = chrono::steady_clock::now();
 
     int depth = 1; broke_early = false;

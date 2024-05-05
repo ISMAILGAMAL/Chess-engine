@@ -74,7 +74,7 @@ struct Minimax {
 
     myVector<myPair<int, string>> move_scores, move_scores_in_loop;
     string best_move;
-    int node_counter = 0, reached_depth, time_limit = 3000, least_depth = 3;
+    int node_counter = 0, reached_depth, time_limit = 3000, least_depth = 4;
     long long best_score;
     double time_in_seconds;
     chrono::steady_clock::time_point start_time, current_time;
