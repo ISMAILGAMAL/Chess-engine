@@ -454,7 +454,7 @@ int main()
     bool validPoints[8][8] = {}, mousePressed = false; // Array to hold valid points
     int lastPieceX, lastPieceY; // Variables to store last selected piece position
     int mouseY = 0, mouseX = 0; // Variables to store last position the mouse was clicked
-    current_state.initialize_board("r1r5/3k1pp1/2n1p1n1/p7/3P4/1PBB3P/P4PP1/3R1RK1 w - - 1 30");
+    current_state.initialize_board();
     while (window.isOpen())
     {
         sf::Event event;
