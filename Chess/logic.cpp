@@ -5,6 +5,8 @@
 #include "pcsq.h"
 #include "dataStructures.h"
 #include "logic.h"
+#include <vector>
+#include <algorithm>
 
 using namespace std;
 
@@ -105,7 +107,7 @@ void GameState::initialize_board(string FEN) {
     int i = 0, j = 0;
 
     // Fills the board according to the parsed FEN.
-    // You can read more on FENs from here: https://www.chess.com/terms/fen-chess
+    // You can read more on FENs from here: https://w...content-available-to-author-only...s.com/terms/fen-chess
     for (int k = 0; k < board_fen.size(); k++) {
         if (board_fen[k] == '/') { j = 0; i++; continue; }
         else if (board_fen[k] < 58) { j += int(board_fen[k] - '0'); continue; }// If it's a number skip that amount of squares.
@@ -125,7 +127,7 @@ void GameState::initialize_board(string FEN) {
 
     // Assigning the player from the parsed FEN
     if (player_fen == "w") player = 1;
-    else player = 0;
+    else player = -1;
 
     // Assigning castling rights according to the FEN
     for (int i = 0; i < castling_fen.size(); i++) {
@@ -591,13 +593,71 @@ bool GameState::check_legal(int from_x, int from_y, int target_x, int target_y, 
 
 // Checks if the given player has no moves and the king is checked meaning a checkmate.
 bool GameState::checkmate(int team) {
-    if (team == 1 && white_possible_moves.empty() && checked(white_king.first, white_king.second, 1)) return 1;
-    else if (team == -1 && black_possible_moves.empty() && checked(black_king.first, black_king.second, -1)) return 1;
+
+    if (team == 1) {
+        int size_of_vector = white_possible_moves.size();
+        for (int i = 0; i < white_possible_moves.size(); i++)
+        {
+            char a = white_possible_moves[i][0];
+            char b = white_possible_moves[i][1];
+            char c = white_possible_moves[i][2];
+            char d = white_possible_moves[i][3];
+            myPair<int, int>from = to_index(a, b), to = to_index(c, d);
+            if (!check_legal(from.first, from.second, to.first, to.second, 1))
+                size_of_vector--;
+        }
+        if (size_of_vector == 0 && checked(white_king.first, white_king.second, 1))
+            return 1;
+    }
+    if (team == -1) {
+        int size_of_vector = black_possible_moves.size();
+        for (int i = 0; i < black_possible_moves.size(); i++)
+        {
+            char a = black_possible_moves[i][0];
+            char b = black_possible_moves[i][1];
+            char c = black_possible_moves[i][2];
+            char d = black_possible_moves[i][3];
+            myPair<int, int>from = to_index(a, b), to = to_index(c, d);
+            if (!check_legal(from.first, from.second, to.first, to.second, -1))
+                size_of_vector--;
+        }
+        if (size_of_vector == 0 && checked(black_king.first, black_king.second, -1))
+            return 1;
+    }
     return 0;
 }
 
 bool GameState::stalemate(int team) {
-    if ((team == 1 && white_possible_moves.empty()) || (team == -1 && black_possible_moves.empty())) return 1;
+    if (team == 1) {
+        int size_of_vector = white_possible_moves.size();
+        for (int i = 0; i < white_possible_moves.size(); i++)
+        {
+            char a = white_possible_moves[i][0];
+            char b = white_possible_moves[i][1];
+            char c = white_possible_moves[i][2];
+            char d = white_possible_moves[i][3];
+            myPair<int, int>from = to_index(a, b), to = to_index(c, d);
+            if (!check_legal(from.first, from.second, to.first, to.second, 1))
+                size_of_vector--;
+        }
+        if (size_of_vector == 0)
+            return 1;
+    }
+    if (team == -1) {
+        int size_of_vector = black_possible_moves.size();
+        for (int i = 0; i < black_possible_moves.size(); i++)
+        {
+            char a = black_possible_moves[i][0];
+            char b = black_possible_moves[i][1];
+            char c = black_possible_moves[i][2];
+            char d = black_possible_moves[i][3];
+            myPair<int, int>from = to_index(a, b), to = to_index(c, d);
+            if (!check_legal(from.first, from.second, to.first, to.second, -1))
+                size_of_vector--;
+        }
+        if (size_of_vector == 0)
+            return 1;
+    }
     return 0;
 }
 
@@ -617,13 +677,14 @@ void GameState::show() {
     }
 }
 
-
-void Minimax::assign_best_move(GameState& state) {
-    //Used to display the score the ai have given to every possible move.
+//Used to display the score the ai have given to every possible move.
+void Minimax::display_move_scores() {
     for (int i = 0; i < move_scores.size(); i++) {
         cout << move_scores[i].second << " " << move_scores[i].first << endl;
     }
+}
 
+void Minimax::assign_best_move(GameState& state) {
     if (state.player == 1) {
         best_score = LLONG_MIN;
         for (int i = 0; i < move_scores.size(); i++) {
@@ -642,6 +703,74 @@ void Minimax::assign_best_move(GameState& state) {
                 best_score = score;
                 best_move = move_scores[i].second;
             }
+        }
+    }
+}
+
+
+void Minimax::merge(myVector<myPair<int, string>>& leftVec, myVector<myPair<int, string>>& rightVec, myVector<myPair<int, string>>& vec) {
+    int left = 0, right = 0;
+    vec.clear();
+
+    while (left < leftVec.size() && right < rightVec.size()) {
+        if (leftVec[left].first < rightVec[right].first) {
+            vec.push_back(leftVec[left++]);
+        }
+        else {
+            vec.push_back(rightVec[right++]);
+        }
+    }
+
+    while (left < leftVec.size()) {
+        vec.push_back(leftVec[left++]);
+    }
+
+    while (right < rightVec.size()) {
+        vec.push_back(rightVec[right++]);
+    }
+}
+
+
+// Implements mergeSort to sort the moves in increasing order.
+// move oredering is important as we explore the best moves from the previous search depth
+// first which helps us prune more branches early on.
+void Minimax::mergeSort(myVector<myPair<int, string>>& vec) {
+    int size = vec.size();
+    if (size <= 1) return;
+
+    int mid = size / 2;
+
+    myVector<myPair<int, string>> leftVec;
+    myVector<myPair<int, string>> rightVec;
+
+    for (int i = 0; i < mid; i++) {
+        leftVec.push_back(vec[i]);
+    }
+    for (int i = mid; i < size; i++) {
+        rightVec.push_back(vec[i]);
+    }
+
+    mergeSort(leftVec);
+    mergeSort(rightVec);
+
+    merge(leftVec, rightVec, vec);
+}
+
+
+void Minimax::sort_moves(GameState& state) {
+    mergeSort(move_scores);
+    int size = move_scores.size();
+    state.white_possible_moves.clear();
+    state.black_possible_moves.clear();
+
+    if (state.player == 1) {
+        for (int i = size - 1; i >= 0; i--) {
+            state.white_possible_moves.push_back(move_scores[i].second);
+        }
+    }
+    else {
+        for (int i = 0; i < size; i++) {
+            state.black_possible_moves.push_back(move_scores[i].second);
         }
     }
 }
@@ -719,7 +848,12 @@ int Minimax::evaluate_pawns(int team, int white_pawns_row[], int black_pawns_row
             }
 
             // Passed pawns.
-            if ((i == 0 || black_pawns_row[i - 1] >= row_white) && (i == 7 || black_pawns_row[i + 1] >= row_white)) {
+            bool noOpposingPawns = true;
+            if (i > 0 && black_pawns_row[i - 1] < row_white && black_pawns_row[i - 1] != -1) noOpposingPawns = false;
+            if (i < 7 && black_pawns_row[i + 1] < row_white && black_pawns_row[i + 1] != -1) noOpposingPawns = false;
+            if (black_pawns_row[i] < row_white && black_pawns_row[i] != -1) noOpposingPawns = false;
+
+            if (noOpposingPawns) {
                 bonus += passedPawnBonuses[row_white];
             }
         }
@@ -728,7 +862,12 @@ int Minimax::evaluate_pawns(int team, int white_pawns_row[], int black_pawns_row
                 num_isolated++;
             }
 
-            if ((i == 0 || white_pawns_row[i - 1] <= row_black) && (i == 7 || white_pawns_row[i + 1] <= row_black)) {
+            bool noOpposingPawns = true;
+            if (i > 0 && white_pawns_row[i - 1] > row_black) noOpposingPawns = false;
+            if (i < 7 && white_pawns_row[i + 1] > row_black) noOpposingPawns = false;
+            if (white_pawns_row[i] > row_black) noOpposingPawns = false;
+
+            if (noOpposingPawns) {
                 bonus -= passedPawnBonuses[7 - row_black];
             }
         }
@@ -744,6 +883,7 @@ int Minimax::evaluation(GameState& state, int depth) {
     int mgEval = 0;
     int egEval = 0;
     int gamePhase = 0;
+    int black_bishops = 0, white_bishops = 0, bishops_bonus = 0;
 
     int black_pawns_row[8] = { -1, -1, -1, -1, -1, -1, -1, -1 };
     int white_pawns_row[8] = { -1, -1, -1, -1, -1, -1, -1, -1 };
@@ -755,12 +895,25 @@ int Minimax::evaluation(GameState& state, int depth) {
             if (piece != 0) {
                 if (piece == 6) white_pawns_row[j] = i;
                 else if (piece == -6) black_pawns_row[j] = i;
-                mgEval += get_pcsq_value(i, j, piece, false) + piece_values[piece];
-                egEval += get_pcsq_value(i, j, piece, true) + piece_values[piece];
+                else if (piece == 5) white_bishops++;
+                else if (piece == -5) black_bishops++;
+
+                int mgPieceVal = mgValue[abs(piece)], egPieceVal = egValue[abs(piece)];
+
+                if (piece < 0) {
+                    mgPieceVal *= -1;
+                    egPieceVal *= -1;
+                }
+
+                mgEval += get_pcsq_value(i, j, piece, false) + mgPieceVal;
+                egEval += get_pcsq_value(i, j, piece, true) + egPieceVal;
                 gamePhase += gamephaseInc[abs(piece)];
             }
         }
     }
+
+    if (black_bishops == 2) bishops_bonus -= 150;
+    if (white_bishops == 2) bishops_bonus += 150;
 
     int pawnStructure = 0;
 
@@ -770,9 +923,8 @@ int Minimax::evaluation(GameState& state, int depth) {
     int mgPhase = min(gamePhase, 24);
     int egPhase = 24 - mgPhase;
 
-    return (mgEval * mgPhase + egEval * egPhase) / 24 + pawnStructure;
+    return (mgEval * mgPhase + egEval * egPhase) / 24 + pawnStructure + bishops_bonus;
 }
-
 
 
 int Minimax::minimax(GameState& state, int depth, int end_depth, int alpha, int beta) {
@@ -783,11 +935,10 @@ int Minimax::minimax(GameState& state, int depth, int end_depth, int alpha, int 
         return eval;
     }
 
-    //if (state.stalemate(state.player)) return 0;
-
     if (state.player == 1) {
-        short Size = state.white_possible_moves.size();
-        for (short i = 0; i < Size; i++) {
+        int Size = state.white_possible_moves.size();
+        int bestVal = INT_MIN;
+        for (int i = 0; i < Size; i++) {
             string move = state.white_possible_moves[i];
 
             myPair<int, int> from = to_index(move[0], move[1]);
@@ -802,29 +953,32 @@ int Minimax::minimax(GameState& state, int depth, int end_depth, int alpha, int 
 
             int score = minimax(new_state, depth + 1, end_depth, alpha, beta);
 
-            alpha = max(alpha, score);
+            bestVal = max(bestVal, score);
+
+            alpha = max(alpha, bestVal);
 
             if (depth == 0) {
                 move_scores_in_loop.push_back({ score , move });
             }
 
-            if (score >= beta) return score;
+            if (beta < alpha) break;
 
             current_time = chrono::steady_clock::now();
             duration = chrono::duration_cast<std::chrono::milliseconds>(current_time - start_time);
             if (duration.count() > time_limit && end_depth > least_depth) { broke_early = true; return 0; }
 
         }
-        if (alpha == INT_MIN) {
+        if (bestVal == INT_MIN) {
             if (state.checked(state.white_king.first, state.white_king.second, 1)) return INT_MIN + 10000 * depth;
             else return 0;
         }
 
-        return alpha;
+        return bestVal;
     }
     else {
-        short Size = state.black_possible_moves.size();
-        for (short i = 0; i < Size; i++) {
+        int Size = state.black_possible_moves.size();
+        int bestVal = INT_MAX;
+        for (int i = 0; i < Size; i++) {
             string move = state.black_possible_moves[i];
 
             myPair<int, int> from = to_index(move[0], move[1]);
@@ -839,32 +993,34 @@ int Minimax::minimax(GameState& state, int depth, int end_depth, int alpha, int 
 
             int score = minimax(new_state, depth + 1, end_depth, alpha, beta);
 
+            bestVal = min(bestVal, score);
+
             beta = min(beta, score);
 
             if (depth == 0) {
                 move_scores_in_loop.push_back({ score , move });
             }
 
-            if (score <= alpha) return score;
+            if (beta < alpha) break;
 
             current_time = chrono::steady_clock::now();
             duration = chrono::duration_cast<std::chrono::milliseconds>(current_time - start_time);
             if (duration.count() > time_limit && end_depth > least_depth) { broke_early = true; return 0; }
 
         }
-        if (beta == INT_MAX) {
+        if (bestVal == INT_MAX) {
             if (state.checked(state.black_king.first, state.black_king.second, -1)) return INT_MAX - 10000 * depth;
             else return 0;
         }
 
-        return beta;
+        return bestVal;
     }
 }
 
 void Minimax::iterative_deepening(GameState& state) {
     start_time = chrono::steady_clock::now();
 
-    int depth = 3; broke_early = false;
+    int depth = 1; broke_early = false;
     while (true) {
         minimax(state, 0, depth);
 
@@ -875,8 +1031,10 @@ void Minimax::iterative_deepening(GameState& state) {
         if (!broke_early) {
             move_scores = move_scores_in_loop;
             move_scores_in_loop.clear();
+            sort_moves(state);
         }
         else {
+            sort_moves(state);
             time_in_seconds = duration.count() / 1000.0;
             break;
         }
@@ -884,6 +1042,6 @@ void Minimax::iterative_deepening(GameState& state) {
     }
     reached_depth = depth - broke_early;
     assign_best_move(state);
-    move_scores.clear();
+    move_scores.clear(); move_scores_in_loop.clear();
 }
 
