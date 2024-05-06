@@ -102,26 +102,387 @@ struct buttons {
         }
     }
 };
-struct theme {
+void Bload(int themenum = 1)
+{
+    Vector2f board_scale;
+    Texture pawnBtxt, knightBtxt, rookBtxt, kingBtxt, queenBtxt, bishopBtxt;
+    Texture pawnWtxt, knightWtxt, rookWtxt, kingWtxt, queenWtxt, bishopWtxt;
+    Texture validDottxt;
+    Texture bgk;
+    Sprite bgkk;
+    Sprite board;
+    Texture boardTexture; // Texture for the chessboard
+    if (themenum == 1)
+    {
+        validDottxt.loadFromFile("square_light.png");
+        if (!pawnBtxt.loadFromFile("pieces/bp1.png") ||
+            !knightBtxt.loadFromFile("pieces/bn1.png") ||
+            !rookBtxt.loadFromFile("pieces/br1.png") ||
+            !kingBtxt.loadFromFile("pieces/bk1.png") ||
+            !queenBtxt.loadFromFile("pieces/bq1.png") ||
+            !bishopBtxt.loadFromFile("pieces/bb1.png") ||
+            !pawnWtxt.loadFromFile("pieces/wp1.png") ||
+            !knightWtxt.loadFromFile("pieces/wn1.png") ||
+            !rookWtxt.loadFromFile("pieces/wr1.png") ||
+            !kingWtxt.loadFromFile("pieces/wk1.png") ||
+            !queenWtxt.loadFromFile("pieces/wq1.png") ||
+            !bishopWtxt.loadFromFile("pieces/wb1.png"))
+        {
+            cout << "Failed to load piece textures\n";
+        }
+        bgk.loadFromFile("brown.png");
+        bgkk.setTexture(bgk);
+        bgkk.setScale(window.getSize().x / bgkk.getLocalBounds().width, window.getSize().y / bgkk.getLocalBounds().height);
 
+        boardTexture.loadFromFile("board.jpg"); // Load chessboard texture
+        board.setTexture(boardTexture); // Sprite for the chessboard
+        board.setScale(0.74f, 0.74f); // Scale the chessboard to fit the window
+    }
+    else if (themenum == 2)
+    {
+        validDottxt.loadFromFile("square_light.png");
+        if (!pawnBtxt.loadFromFile("pieces/bp2.png") ||
+            !knightBtxt.loadFromFile("pieces/bn2.png") ||
+            !rookBtxt.loadFromFile("pieces/br2.png") ||
+            !kingBtxt.loadFromFile("pieces/bk2.png") ||
+            !queenBtxt.loadFromFile("pieces/bq2.png") ||
+            !bishopBtxt.loadFromFile("pieces/bb2.png") ||
+            !pawnWtxt.loadFromFile("pieces/wp2.png") ||
+            !knightWtxt.loadFromFile("pieces/wn2.png") ||
+            !rookWtxt.loadFromFile("pieces/wr2.png") ||
+            !kingWtxt.loadFromFile("pieces/wk2.png") ||
+            !queenWtxt.loadFromFile("pieces/wq2.png") ||
+            !bishopWtxt.loadFromFile("pieces/wb2.png"))
+        {
+            cout << "Failed to load piece textures\n";
+        }
+
+        bgk.loadFromFile("8_bit.jpg");
+        bgkk.setTexture(bgk);
+        //bgkk.setScale(0.42, 0.42);
+        //bgkk.setPosition(window_w - 360, window_h -400);
+        boardTexture.loadFromFile("pixelboard.jpg"); // Load chessboard texture
+        board.setTexture(boardTexture); // Sprite for the chessboard
+        board.setScale(0.74f, 0.74f); // Scale the chessboard to fit the window
+    }
+    else if (themenum == 3)
+    {
+        validDottxt.loadFromFile("square_light.png");
+        if (!pawnBtxt.loadFromFile("pieces/bp3.png") ||
+            !knightBtxt.loadFromFile("pieces/bn3.png") ||
+            !rookBtxt.loadFromFile("pieces/br3.png") ||
+            !kingBtxt.loadFromFile("pieces/bk3.png") ||
+            !queenBtxt.loadFromFile("pieces/bq3.png") ||
+            !bishopBtxt.loadFromFile("pieces/bb3.png") ||
+            !pawnWtxt.loadFromFile("pieces/wp3.png") ||
+            !knightWtxt.loadFromFile("pieces/wn3.png") ||
+            !rookWtxt.loadFromFile("pieces/wr3.png") ||
+            !kingWtxt.loadFromFile("pieces/wk3.png") ||
+            !queenWtxt.loadFromFile("pieces/wq3.png") ||
+            !bishopWtxt.loadFromFile("pieces/wb3.png"))
+        {
+            cout << "Failed to load piece textures\n";
+        }
+
+        bgk.loadFromFile("newspaper.png");
+        bgkk.setTexture(bgk);
+        bgkk.setScale(0.5, 0.5);
+        bgkk.setPosition(window_w - 525, 0);
+        boardTexture.loadFromFile("paperboard.jpg"); // Load chessboard texture
+        board.setTexture(boardTexture); // Sprite for the chessboard
+        board.setScale(0.74f, 0.74f); // Scale the chessboard to fit the window
+    }
+    else if (themenum == 4)
+    {
+        validDottxt.loadFromFile("square_light.png");
+        if (!pawnBtxt.loadFromFile("pieces/bp4.png") ||
+            !knightBtxt.loadFromFile("pieces/bn4.png") ||
+            !rookBtxt.loadFromFile("pieces/br4.png") ||
+            !kingBtxt.loadFromFile("pieces/bk4.png") ||
+            !queenBtxt.loadFromFile("pieces/bq4.png") ||
+            !bishopBtxt.loadFromFile("pieces/bb4.png") ||
+            !pawnWtxt.loadFromFile("pieces/wp4.png") ||
+            !knightWtxt.loadFromFile("pieces/wn4.png") ||
+            !rookWtxt.loadFromFile("pieces/wr4.png") ||
+            !kingWtxt.loadFromFile("pieces/wk4.png") ||
+            !queenWtxt.loadFromFile("pieces/wq4.png") ||
+            !bishopWtxt.loadFromFile("pieces/wb4.png"))
+        {
+            cout << "Failed to load piece textures\n";
+        }
+
+        bgk.loadFromFile("staunton.png");
+        bgkk.setTexture(bgk);
+        bgkk.setScale(1, 1);
+        bgkk.setPosition(window_w - 500, 0);
+        boardTexture.loadFromFile("stauntonboard.png"); // Load chessboard texture
+        board.setTexture(boardTexture); // Sprite for the chessboard
+        board.setScale(0.74f, 0.74f); // Scale the chessboard to fit the window
+    }
+    else if (themenum == 5)
+    {
+        validDottxt.loadFromFile("square_light.png");
+        if (!pawnBtxt.loadFromFile("pieces/bp5.png") ||
+            !knightBtxt.loadFromFile("pieces/bn5.png") ||
+            !rookBtxt.loadFromFile("pieces/br5.png") ||
+            !kingBtxt.loadFromFile("pieces/bk5.png") ||
+            !queenBtxt.loadFromFile("pieces/bq5.png") ||
+            !bishopBtxt.loadFromFile("pieces/bb5.png") ||
+            !pawnWtxt.loadFromFile("pieces/wp5.png") ||
+            !knightWtxt.loadFromFile("pieces/wn5.png") ||
+            !rookWtxt.loadFromFile("pieces/wr5.png") ||
+            !kingWtxt.loadFromFile("pieces/wk5.png") ||
+            !queenWtxt.loadFromFile("pieces/wq5.png") ||
+            !bishopWtxt.loadFromFile("pieces/wb5.png"))
+        {
+            cout << "Failed to load piece textures\n";
+        }
+
+        bgk.loadFromFile("marble.jpg");
+        bgkk.setTexture(bgk);
+        bgkk.setScale(1, 1);
+        bgkk.setPosition(window_w - 525, 0);
+        boardTexture.loadFromFile("marbleboard.jpg"); // Load chessboard texture
+        board.setTexture(boardTexture); // Sprite for the chessboard
+        board.setScale(0.74f, 0.74f); // Scale the chessboard to fit the window
+    }
+}
+void Wload(int themenum = 1)
+{
+    Vector2f board_scale;
+    Texture pawnBtxt, knightBtxt, rookBtxt, kingBtxt, queenBtxt, bishopBtxt;
+    Texture pawnWtxt, knightWtxt, rookWtxt, kingWtxt, queenWtxt, bishopWtxt;
+    Texture validDottxt;
+    Texture bgk;
+    Sprite bgkk;
+    Sprite board;
+    Texture boardTexture; // Texture for the chessboard
+    if (themenum == 1)
+    {
+        validDottxt.loadFromFile("square_light.png");
+        if (!pawnBtxt.loadFromFile("pieces/bp1.png") ||
+            !knightBtxt.loadFromFile("pieces/bn1.png") ||
+            !rookBtxt.loadFromFile("pieces/br1.png") ||
+            !kingBtxt.loadFromFile("pieces/bk1.png") ||
+            !queenBtxt.loadFromFile("pieces/bq1.png") ||
+            !bishopBtxt.loadFromFile("pieces/bb1.png") ||
+            !pawnWtxt.loadFromFile("pieces/wp1.png") ||
+            !knightWtxt.loadFromFile("pieces/wn1.png") ||
+            !rookWtxt.loadFromFile("pieces/wr1.png") ||
+            !kingWtxt.loadFromFile("pieces/wk1.png") ||
+            !queenWtxt.loadFromFile("pieces/wq1.png") ||
+            !bishopWtxt.loadFromFile("pieces/wb1.png"))
+        {
+            cout << "Failed to load piece textures\n";
+        }
+        bgk.loadFromFile("brown.png");
+        bgkk.setTexture(bgk);
+        bgkk.setScale(window.getSize().x / bgkk.getLocalBounds().width, window.getSize().y / bgkk.getLocalBounds().height);
+
+        boardTexture.loadFromFile("board.jpg"); // Load chessboard texture
+        board.setTexture(boardTexture); // Sprite for the chessboard
+        board.setScale(0.74f, 0.74f); // Scale the chessboard to fit the window
+    }
+    else if (themenum == 2)
+    {
+        validDottxt.loadFromFile("square_light.png");
+        if (!pawnBtxt.loadFromFile("pieces/bp2.png") ||
+            !knightBtxt.loadFromFile("pieces/bn2.png") ||
+            !rookBtxt.loadFromFile("pieces/br2.png") ||
+            !kingBtxt.loadFromFile("pieces/bk2.png") ||
+            !queenBtxt.loadFromFile("pieces/bq2.png") ||
+            !bishopBtxt.loadFromFile("pieces/bb2.png") ||
+            !pawnWtxt.loadFromFile("pieces/wp2.png") ||
+            !knightWtxt.loadFromFile("pieces/wn2.png") ||
+            !rookWtxt.loadFromFile("pieces/wr2.png") ||
+            !kingWtxt.loadFromFile("pieces/wk2.png") ||
+            !queenWtxt.loadFromFile("pieces/wq2.png") ||
+            !bishopWtxt.loadFromFile("pieces/wb2.png"))
+        {
+            cout << "Failed to load piece textures\n";
+        }
+
+        bgk.loadFromFile("8_bit.jpg");
+        bgkk.setTexture(bgk);
+        //bgkk.setScale(0.42, 0.42);
+        //bgkk.setPosition(window_w - 360, window_h -400);
+        boardTexture.loadFromFile("pixelboard.jpg"); // Load chessboard texture
+        board.setTexture(boardTexture); // Sprite for the chessboard
+        board.setScale(0.74f, 0.74f); // Scale the chessboard to fit the window
+    }
+    else if (themenum == 3)
+    {
+        validDottxt.loadFromFile("square_light.png");
+        if (!pawnBtxt.loadFromFile("pieces/bp3.png") ||
+            !knightBtxt.loadFromFile("pieces/bn3.png") ||
+            !rookBtxt.loadFromFile("pieces/br3.png") ||
+            !kingBtxt.loadFromFile("pieces/bk3.png") ||
+            !queenBtxt.loadFromFile("pieces/bq3.png") ||
+            !bishopBtxt.loadFromFile("pieces/bb3.png") ||
+            !pawnWtxt.loadFromFile("pieces/wp3.png") ||
+            !knightWtxt.loadFromFile("pieces/wn3.png") ||
+            !rookWtxt.loadFromFile("pieces/wr3.png") ||
+            !kingWtxt.loadFromFile("pieces/wk3.png") ||
+            !queenWtxt.loadFromFile("pieces/wq3.png") ||
+            !bishopWtxt.loadFromFile("pieces/wb3.png"))
+        {
+            cout << "Failed to load piece textures\n";
+        }
+
+        bgk.loadFromFile("newspaper.png");
+        bgkk.setTexture(bgk);
+        bgkk.setScale(0.5, 0.5);
+        bgkk.setPosition(window_w - 525, 0);
+        boardTexture.loadFromFile("paperboard.jpg"); // Load chessboard texture
+        board.setTexture(boardTexture); // Sprite for the chessboard
+        board.setScale(0.74f, 0.74f); // Scale the chessboard to fit the window
+    }
+    else if (themenum == 4)
+    {
+        validDottxt.loadFromFile("square_light.png");
+        if (!pawnBtxt.loadFromFile("pieces/bp4.png") ||
+            !knightBtxt.loadFromFile("pieces/bn4.png") ||
+            !rookBtxt.loadFromFile("pieces/br4.png") ||
+            !kingBtxt.loadFromFile("pieces/bk4.png") ||
+            !queenBtxt.loadFromFile("pieces/bq4.png") ||
+            !bishopBtxt.loadFromFile("pieces/bb4.png") ||
+            !pawnWtxt.loadFromFile("pieces/wp4.png") ||
+            !knightWtxt.loadFromFile("pieces/wn4.png") ||
+            !rookWtxt.loadFromFile("pieces/wr4.png") ||
+            !kingWtxt.loadFromFile("pieces/wk4.png") ||
+            !queenWtxt.loadFromFile("pieces/wq4.png") ||
+            !bishopWtxt.loadFromFile("pieces/wb4.png"))
+        {
+            cout << "Failed to load piece textures\n";
+        }
+
+        bgk.loadFromFile("staunton.png");
+        bgkk.setTexture(bgk);
+        bgkk.setScale(1, 1);
+        bgkk.setPosition(window_w - 500, 0);
+        boardTexture.loadFromFile("stauntonboard.png"); // Load chessboard texture
+        board.setTexture(boardTexture); // Sprite for the chessboard
+        board.setScale(0.74f, 0.74f); // Scale the chessboard to fit the window
+    }
+    else if (themenum == 5)
+    {
+        validDottxt.loadFromFile("square_light.png");
+        if (!pawnBtxt.loadFromFile("pieces/bp5.png") ||
+            !knightBtxt.loadFromFile("pieces/bn5.png") ||
+            !rookBtxt.loadFromFile("pieces/br5.png") ||
+            !kingBtxt.loadFromFile("pieces/bk5.png") ||
+            !queenBtxt.loadFromFile("pieces/bq5.png") ||
+            !bishopBtxt.loadFromFile("pieces/bb5.png") ||
+            !pawnWtxt.loadFromFile("pieces/wp5.png") ||
+            !knightWtxt.loadFromFile("pieces/wn5.png") ||
+            !rookWtxt.loadFromFile("pieces/wr5.png") ||
+            !kingWtxt.loadFromFile("pieces/wk5.png") ||
+            !queenWtxt.loadFromFile("pieces/wq5.png") ||
+            !bishopWtxt.loadFromFile("pieces/wb5.png"))
+        {
+            cout << "Failed to load piece textures\n";
+        }
+
+        bgk.loadFromFile("marble.jpg");
+        bgkk.setTexture(bgk);
+        bgkk.setScale(1, 1);
+        bgkk.setPosition(window_w - 525, 0);
+        boardTexture.loadFromFile("marbleboard.jpg"); // Load chessboard texture
+        board.setTexture(boardTexture); // Sprite for the chessboard
+        board.setScale(0.74f, 0.74f); // Scale the chessboard to fit the window
+    }
+}
+string createPathPieces(int& theme, string team, string piece)
+{
+    return "pieces/" + team + piece + to_string(theme) + ".png";
+}
+string createPathSounds(int& theme, string sound)
+{
+    return "sounds/" + sound + to_string(theme) + ".wav";
+}
+string createPathBoard(int& theme)
+{
+    return "boards/board" + to_string(theme) + ".jpg";
+}
+struct Theme
+{
+    Vector2f board_scale;
+    Texture pawnBtxt, knightBtxt, rookBtxt, kingBtxt, queenBtxt, bishopBtxt;
+    Texture pawnWtxt, knightWtxt, rookWtxt, kingWtxt, queenWtxt, bishopWtxt;
+    Texture validDottxt;
+    Texture bgk;
+    Sprite bgkk;
+    Sprite board;
+    Texture boardTexture; // Texture for the chessboard
+    void change_theme(MainMenu& mainmenu, int themenum = 1)
+    {
+        string team1 = (mainmenu.settingsPage.getColor() == 1 ? "w" : "b");
+        string team2 = (mainmenu.settingsPage.getColor() != 1 ? "w" : "b");
+        validDottxt.loadFromFile("square_light.png");
+        pawnBtxt.loadFromFile(createPathPieces(themenum, team1, "p"));
+        knightBtxt.loadFromFile(createPathPieces(themenum, team1, "n"));
+        rookBtxt.loadFromFile(createPathPieces(themenum, team1, "r"));
+        kingBtxt.loadFromFile(createPathPieces(themenum, team1, "k"));
+        queenBtxt.loadFromFile(createPathPieces(themenum, team1, "q"));
+        bishopBtxt.loadFromFile(createPathPieces(themenum, team1, "b"));
+        pawnWtxt.loadFromFile(createPathPieces(themenum, team2, "p"));
+        knightWtxt.loadFromFile(createPathPieces(themenum, team2, "n"));
+        rookWtxt.loadFromFile(createPathPieces(themenum, team2, "r"));
+        kingWtxt.loadFromFile(createPathPieces(themenum, team2, "k"));
+        queenWtxt.loadFromFile(createPathPieces(themenum, team2, "q"));
+        bishopWtxt.loadFromFile(createPathPieces(themenum, team2, "b"));
+
+        boardTexture.loadFromFile(createPathBoard(themenum)); // Load chessboard texture
+        board.setTexture(boardTexture); // Sprite for the chessboard
+        board.setScale(0.74f, 0.74f); // Scale the chessboard to fit the window
+        if (themenum == 1)
+        {
+            bgk.loadFromFile("backgrounds/brown.png");
+            bgkk.setTexture(bgk);
+            //bgkk.setScale(window.getSize().x / bgkk.getLocalBounds().width, window.getSize().y / bgkk.getLocalBounds().height);
+        }
+        else if (themenum == 2)
+        {
+            bgk.loadFromFile("backgrounds/8_bit.jpg");
+            bgkk.setTexture(bgk);
+        }
+        else if (themenum == 3)
+        {
+            bgk.loadFromFile("backgrounds/newspaper.png");
+            bgkk.setTexture(bgk);
+            bgkk.setScale(0.5, 0.5);
+            bgkk.setPosition(window_w - 525, 0);
+        }
+        else if (themenum == 4)
+        {
+            bgk.loadFromFile("backgrounds/staunton.png");
+            bgkk.setTexture(bgk);
+            bgkk.setScale(1, 1);
+            bgkk.setPosition(window_w - 500, 0);
+        }
+        else if (themenum == 5)
+        {
+            bgk.loadFromFile("backgrounds/marble.jpg");
+            bgkk.setTexture(bgk);
+            bgkk.setScale(1, 1);
+            bgkk.setPosition(window_w - 525, 0);
+        }
+    }
 };
-
 struct soundss {
     SoundBuffer moveS, moveCh, prom, gameSt, gameEnd, captur, castl, tenS, illeg;
     Sound move, check, promotion, gamestart, gameend, capture, castle, tenseconds, illegal;
-    void load_sounds() {
-        if (!moveS.loadFromFile("wood/move-self.mp3") ||
-            !moveCh.loadFromFile("wood/move-check.mp3") ||
-            !prom.loadFromFile("wood/promote.mp3") ||
-            !tenS.loadFromFile("wood/tenseconds.wav") ||
-            !illeg.loadFromFile("wood/illegal.wav") ||
-            !gameSt.loadFromFile("wood/game-start.wav") ||
-            !gameEnd.loadFromFile("wood/game-end.wav") ||
-            !captur.loadFromFile("wood/capture.mp3") ||
-            !castl.loadFromFile("wood/castle.mp3"))
-        {
-            cout << "ERROR";
-        }
+    void load_sounds(int themenum = 1)
+    {
+        moveS.loadFromFile(createPathSounds(themenum, "move-self"));
+        moveCh.loadFromFile(createPathSounds(themenum, "move-check"));
+        prom.loadFromFile(createPathSounds(themenum, "promote"));
+        tenS.loadFromFile(createPathSounds(themenum, "tenseconds"));
+        illeg.loadFromFile(createPathSounds(themenum, "illegal"));
+        gameSt.loadFromFile(createPathSounds(themenum, "game-start"));
+        gameEnd.loadFromFile(createPathSounds(themenum, "game-end"));
+        captur.loadFromFile(createPathSounds(themenum, "capture"));
+        castl.loadFromFile(createPathSounds(themenum, "castle"));
         move.setBuffer(moveS);
         check.setBuffer(moveCh);
         promotion.setBuffer(prom);
@@ -206,12 +567,12 @@ struct End {
         window.draw(restart_button);
         window.draw(sentence);
     }
-    void MouseClickButtons(MainMenu& mainMenu, GameState current_state) {
+    void MouseClickButtons(MainMenu& mainMenu, GameState& currentState) {
         auto mousePosition = window.mapPixelToCoords(Mouse::getPosition(window));
         if (Mouse::isButtonPressed(Mouse::Left)) {
             if (main_button.getGlobalBounds().contains(mousePosition)) {
                 mainMenu.loadedMenu = 0;
-                current_state.initialize_board();
+                currentState.initialize_board();
                 reset = 1;
             }
             if (restart_button.getGlobalBounds().contains(mousePosition)) {
@@ -244,67 +605,12 @@ struct End {
     }
 };
 
-
-struct piecess {
-    Texture pawnBtxt, knightBtxt, rookBtxt, kingBtxt, queenBtxt, bishopBtxt;
-    Texture pawnWtxt, knightWtxt, rookWtxt, kingWtxt, queenWtxt, bishopWtxt;
-    Texture validDottxt, not_validtxt;
-    Texture bgk;
-    Sprite bgkk;
-    Sprite board;
-    Texture boardTexture; // Texture for the chessboard
-    void load_pieces(MainMenu& mainMenu) {
-        validDottxt.loadFromFile("green2.png");
-        not_validtxt.loadFromFile("red.png");
-
-        if (mainMenu.settingsPage.getColor() == 3) {
-            mainMenu.settingsPage.setColor(1);
-            if (!pawnBtxt.loadFromFile("newpieces/blackpawn.png") ||
-                !knightBtxt.loadFromFile("newpieces/blackknight.png") ||
-                !rookBtxt.loadFromFile("newpieces/blackrook.png") ||
-                !kingBtxt.loadFromFile("newpieces/blackking.png") ||
-                !queenBtxt.loadFromFile("newpieces/blackqueen.png") ||
-                !bishopBtxt.loadFromFile("newpieces/blackbishop.png") ||
-                !pawnWtxt.loadFromFile("newpieces/whitepawn.png") ||
-                !knightWtxt.loadFromFile("newpieces/whiteknight.png") ||
-                !rookWtxt.loadFromFile("newpieces/whiterook.png") ||
-                !kingWtxt.loadFromFile("newpieces/whiteking.png") ||
-                !queenWtxt.loadFromFile("newpieces/whitequeen.png") ||
-                !bishopWtxt.loadFromFile("newpieces/whitebishop.png"))
-            {
-                cout << "Failed to load piece textures\n";
-            }
-        }
-        else if (mainMenu.settingsPage.getColor() == 4) {
-            mainMenu.settingsPage.setColor(2);
-            if (!pawnBtxt.loadFromFile("newpieces/whitepawn.png") ||
-                !knightBtxt.loadFromFile("newpieces/whiteknight.png") ||
-                !rookBtxt.loadFromFile("newpieces/whiterook.png") ||
-                !kingBtxt.loadFromFile("newpieces/whiteking.png") ||
-                !queenBtxt.loadFromFile("newpieces/whitequeen.png") ||
-                !bishopBtxt.loadFromFile("newpieces/whitebishop.png") ||
-                !pawnWtxt.loadFromFile("newpieces/blackpawn.png") ||
-                !knightWtxt.loadFromFile("newpieces/blackknight.png") ||
-                !rookWtxt.loadFromFile("newpieces/blackrook.png") ||
-                !kingWtxt.loadFromFile("newpieces/blackking.png") ||
-                !queenWtxt.loadFromFile("newpieces/blackqueen.png") ||
-                !bishopWtxt.loadFromFile("newpieces/blackbishop.png"))
-            {
-                cout << "Failed to load piece textures\n";
-            }
-        }
-        bgk.loadFromFile("brown.png");
-        bgkk.setTexture(bgk);
-        bgkk.setScale(window.getSize().x / bgkk.getLocalBounds().width, window.getSize().y / bgkk.getLocalBounds().height);
-
-        boardTexture.loadFromFile("newboard.jpg"); // Load chessboard texture
-        board.setTexture(boardTexture); // Sprite for the chessboard
-        board.setScale(0.74f, 0.74f); // Scale the chessboard to fit the window
-
-    }
-    void draw_pieces(GameState& current_state, bool validPoints[][8]) {
-        window.draw(bgkk);
-        window.draw(board);
+struct piecess
+{
+    void draw_pieces(GameState& current_state, bool validPoints[][8], Theme& theme)
+    {
+        window.draw(theme.bgkk);
+        window.draw(theme.board);
 
         // Draw pieces
         for (int row = 0; row < BOARD_SIZE; ++row)
@@ -316,18 +622,18 @@ struct piecess {
                 Sprite piece;
                 switch (pieceType)
                 {
-                case 6: piece.setTexture(pawnWtxt); break;
-                case 4: piece.setTexture(knightWtxt); break;
-                case 5: piece.setTexture(bishopWtxt); break;
-                case 3: piece.setTexture(rookWtxt); break;
-                case 2: piece.setTexture(queenWtxt); break;
-                case 1: piece.setTexture(kingWtxt); break;
-                case -6: piece.setTexture(pawnBtxt); break;
-                case -4: piece.setTexture(knightBtxt); break;
-                case -5: piece.setTexture(bishopBtxt); break;
-                case -3: piece.setTexture(rookBtxt); break;
-                case -2: piece.setTexture(queenBtxt); break;
-                case -1: piece.setTexture(kingBtxt); break;
+                case 6: piece.setTexture(theme.pawnWtxt); break;
+                case 4: piece.setTexture(theme.knightWtxt); break;
+                case 5: piece.setTexture(theme.bishopWtxt); break;
+                case 3: piece.setTexture(theme.rookWtxt); break;
+                case 2: piece.setTexture(theme.queenWtxt); break;
+                case 1: piece.setTexture(theme.kingWtxt); break;
+                case -6: piece.setTexture(theme.pawnBtxt); break;
+                case -4: piece.setTexture(theme.knightBtxt); break;
+                case -5: piece.setTexture(theme.bishopBtxt); break;
+                case -3: piece.setTexture(theme.rookBtxt); break;
+                case -2: piece.setTexture(theme.queenBtxt); break;
+                case -1: piece.setTexture(theme.kingBtxt); break;
                 default: break;
                 }
                 float scale = SQUARE_SIZE / max(piece.getLocalBounds().width, piece.getLocalBounds().height);
@@ -344,19 +650,12 @@ struct piecess {
             {
                 if (validPoints[row][col])
                 {
-                    Sprite validDot(validDottxt), notvalid(not_validtxt);
+                    Sprite validDot;
+                    validDot.setTexture(theme.validDottxt);
                     float scale = SQUARE_SIZE / max(validDot.getLocalBounds().width, validDot.getLocalBounds().height);
-                    float scale2 = SQUARE_SIZE / max(notvalid.getLocalBounds().width, notvalid.getLocalBounds().height);
                     validDot.setScale(scale, scale);
-                    notvalid.setScale(scale, scale);
-                    notvalid.setPosition(calculateSquarePosition(row, col));
                     validDot.setPosition(calculateSquarePosition(row, col));
-                    if (current_state.board[row][col] == 0) {
-                        window.draw(validDot);
-                    }
-                    else {
-                        window.draw(notvalid);
-                    }
+                    window.draw(validDot);
                 }
             }
         }
@@ -435,7 +734,9 @@ int main()
     MainMenu mainMenu(window.getSize());
     //pieces
     piecess pieces;
-
+    //theme
+    Theme theme;
+    theme.change_theme(mainMenu);
     //sounds
     soundss sounds;
     sounds.load_sounds();
@@ -466,7 +767,26 @@ int main()
             if (end_game != -10 || end_game_ai != -10)
                 end.MouseClickButtons(mainMenu, current_state);
 
-            if (Keyboard::isKeyPressed(Keyboard::Z))end_game = 1;
+            if (Keyboard::isKeyPressed(Keyboard::Num1)) {
+                theme.change_theme(mainMenu, 1);
+                sounds.load_sounds(1);
+            }
+            if (Keyboard::isKeyPressed(Keyboard::Num2)) {
+                theme.change_theme(mainMenu, 2);
+                sounds.load_sounds(2);
+            }
+            if (Keyboard::isKeyPressed(Keyboard::Num3)) {
+                theme.change_theme(mainMenu, 3);
+                sounds.load_sounds(3);
+            }
+            if (Keyboard::isKeyPressed(Keyboard::Num4)) {
+                theme.change_theme(mainMenu, 4);
+                sounds.load_sounds(4);
+            }
+            if (Keyboard::isKeyPressed(Keyboard::Num5)) {
+                theme.change_theme(mainMenu, 5);
+                sounds.load_sounds(5);
+            }
             if (Keyboard::isKeyPressed(Keyboard::R) || reset) {
                 reset_validpoints(validPoints);
                 current_state.initialize_board();
@@ -475,7 +795,7 @@ int main()
                 end_game = -10;
                 end_game_ai = -10;
             }
-            
+
             if (Mouse::isButtonPressed(Mouse::Left)) {
                 mouseY = Mouse::getPosition(window).x / 100;
                 mouseX = Mouse::getPosition(window).y / 100;
@@ -494,8 +814,8 @@ int main()
                 button.MouseClickButtons(mainMenu, current_state);
         }
 
-        if (mainMenu.settingsPage.getColor() == 3 || mainMenu.settingsPage.getColor() == 4)
-            pieces.load_pieces(mainMenu);
+        /*if (mainMenu.settingsPage.getColor() == 3 || mainMenu.settingsPage.getColor() == 4)
+            theme.load_pieces(mainMenu);*/
 
         if (mainMenu.loadedMenu == 0) {
             auto mousePosition = window.mapPixelToCoords(Mouse::getPosition(window));
@@ -585,7 +905,7 @@ int main()
             mainMenu.settingsPage.DisplaySettings(window);
         }
         else {
-            pieces.draw_pieces(current_state, validPoints);
+            pieces.draw_pieces(current_state, validPoints, theme);
             button.draw();
         }
 
