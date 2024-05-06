@@ -1,200 +1,215 @@
 ﻿  main.cpp
-D:\Programming\SP_project\Chess-engine\Chess\button.h(28,30): warning C4305: 'argument': truncation from 'double' to 'float'
+C:\Users\WIN\source\repos\Chess-engine\xxfinal\Chess\button.h(28,30): warning C4305: 'argument': truncation from 'double' to 'float'
   (compiling source file 'main.cpp')
   
-D:\Programming\SP_project\Chess-engine\Chess\button.h(28,25): warning C4305: 'argument': truncation from 'double' to 'float'
+C:\Users\WIN\source\repos\Chess-engine\xxfinal\Chess\button.h(28,25): warning C4305: 'argument': truncation from 'double' to 'float'
   (compiling source file 'main.cpp')
   
-D:\Programming\SP_project\Chess-engine\Chess\button.h(29,28): warning C4305: 'argument': truncation from 'double' to 'float'
+C:\Users\WIN\source\repos\Chess-engine\xxfinal\Chess\button.h(29,28): warning C4305: 'argument': truncation from 'double' to 'float'
   (compiling source file 'main.cpp')
   
-D:\Programming\SP_project\Chess-engine\Chess\button.h(29,23): warning C4305: 'argument': truncation from 'double' to 'float'
+C:\Users\WIN\source\repos\Chess-engine\xxfinal\Chess\button.h(29,23): warning C4305: 'argument': truncation from 'double' to 'float'
   (compiling source file 'main.cpp')
   
-D:\Programming\SP_project\Chess-engine\Chess\main_menu.h(64,35): warning C4305: 'argument': truncation from 'double' to 'float'
+C:\Users\WIN\source\repos\Chess-engine\xxfinal\Chess\main_menu.h(64,35): warning C4305: 'argument': truncation from 'double' to 'float'
   (compiling source file 'main.cpp')
   
-D:\Programming\SP_project\Chess-engine\Chess\main_menu.h(64,29): warning C4305: 'argument': truncation from 'double' to 'float'
+C:\Users\WIN\source\repos\Chess-engine\xxfinal\Chess\main_menu.h(64,29): warning C4305: 'argument': truncation from 'double' to 'float'
   (compiling source file 'main.cpp')
   
-D:\Programming\SP_project\Chess-engine\Chess\main_menu.h(71,35): warning C4305: 'argument': truncation from 'double' to 'float'
+C:\Users\WIN\source\repos\Chess-engine\xxfinal\Chess\main_menu.h(71,35): warning C4305: 'argument': truncation from 'double' to 'float'
   (compiling source file 'main.cpp')
   
-D:\Programming\SP_project\Chess-engine\Chess\main_menu.h(71,29): warning C4305: 'argument': truncation from 'double' to 'float'
+C:\Users\WIN\source\repos\Chess-engine\xxfinal\Chess\main_menu.h(71,29): warning C4305: 'argument': truncation from 'double' to 'float'
   (compiling source file 'main.cpp')
   
-D:\Programming\SP_project\Chess-engine\Chess\main_menu.h(81,60): warning C4244: 'argument': conversion from 'double' to 'sf::Uint8', possible loss of data
+C:\Users\WIN\source\repos\Chess-engine\xxfinal\Chess\main_menu.h(81,60): warning C4244: 'argument': conversion from 'double' to 'sf::Uint8', possible loss of data
   (compiling source file 'main.cpp')
   
-D:\Programming\SP_project\Chess-engine\Chess\main_menu.h(81,53): warning C4244: 'argument': conversion from 'double' to 'sf::Uint8', possible loss of data
+C:\Users\WIN\source\repos\Chess-engine\xxfinal\Chess\main_menu.h(81,53): warning C4244: 'argument': conversion from 'double' to 'sf::Uint8', possible loss of data
   (compiling source file 'main.cpp')
   
-D:\Programming\SP_project\Chess-engine\Chess\main_menu.h(81,46): warning C4244: 'argument': conversion from 'double' to 'sf::Uint8', possible loss of data
+C:\Users\WIN\source\repos\Chess-engine\xxfinal\Chess\main_menu.h(81,46): warning C4244: 'argument': conversion from 'double' to 'sf::Uint8', possible loss of data
   (compiling source file 'main.cpp')
   
-D:\Programming\SP_project\Chess-engine\Chess\main_menu.h(82,56): warning C4244: 'argument': conversion from 'double' to 'sf::Uint8', possible loss of data
+C:\Users\WIN\source\repos\Chess-engine\xxfinal\Chess\main_menu.h(82,56): warning C4244: 'argument': conversion from 'double' to 'sf::Uint8', possible loss of data
   (compiling source file 'main.cpp')
   
-D:\Programming\SP_project\Chess-engine\Chess\main_menu.h(82,49): warning C4244: 'argument': conversion from 'double' to 'sf::Uint8', possible loss of data
+C:\Users\WIN\source\repos\Chess-engine\xxfinal\Chess\main_menu.h(82,49): warning C4244: 'argument': conversion from 'double' to 'sf::Uint8', possible loss of data
   (compiling source file 'main.cpp')
   
-D:\Programming\SP_project\Chess-engine\Chess\main_menu.h(82,42): warning C4244: 'argument': conversion from 'double' to 'sf::Uint8', possible loss of data
+C:\Users\WIN\source\repos\Chess-engine\xxfinal\Chess\main_menu.h(82,42): warning C4244: 'argument': conversion from 'double' to 'sf::Uint8', possible loss of data
   (compiling source file 'main.cpp')
   
-D:\Programming\SP_project\Chess-engine\Chess\main_menu.h(83,56): warning C4244: 'argument': conversion from 'double' to 'sf::Uint8', possible loss of data
+C:\Users\WIN\source\repos\Chess-engine\xxfinal\Chess\main_menu.h(83,56): warning C4244: 'argument': conversion from 'double' to 'sf::Uint8', possible loss of data
   (compiling source file 'main.cpp')
   
-D:\Programming\SP_project\Chess-engine\Chess\main_menu.h(83,49): warning C4244: 'argument': conversion from 'double' to 'sf::Uint8', possible loss of data
+C:\Users\WIN\source\repos\Chess-engine\xxfinal\Chess\main_menu.h(83,49): warning C4244: 'argument': conversion from 'double' to 'sf::Uint8', possible loss of data
   (compiling source file 'main.cpp')
   
-D:\Programming\SP_project\Chess-engine\Chess\main_menu.h(83,42): warning C4244: 'argument': conversion from 'double' to 'sf::Uint8', possible loss of data
+C:\Users\WIN\source\repos\Chess-engine\xxfinal\Chess\main_menu.h(83,42): warning C4244: 'argument': conversion from 'double' to 'sf::Uint8', possible loss of data
   (compiling source file 'main.cpp')
   
-D:\Programming\SP_project\Chess-engine\Chess\main_menu.h(145,65): warning C4244: 'argument': conversion from 'T' to 'T', possible loss of data
-D:\Programming\SP_project\Chess-engine\Chess\main_menu.h(145,65): warning C4244:         with
-D:\Programming\SP_project\Chess-engine\Chess\main_menu.h(145,65): warning C4244:         [
-D:\Programming\SP_project\Chess-engine\Chess\main_menu.h(145,65): warning C4244:             T=unsigned int
-D:\Programming\SP_project\Chess-engine\Chess\main_menu.h(145,65): warning C4244:         ]
-D:\Programming\SP_project\Chess-engine\Chess\main_menu.h(145,65): warning C4244:         and
-D:\Programming\SP_project\Chess-engine\Chess\main_menu.h(145,65): warning C4244:         [
-D:\Programming\SP_project\Chess-engine\Chess\main_menu.h(145,65): warning C4244:             T=float
-D:\Programming\SP_project\Chess-engine\Chess\main_menu.h(145,65): warning C4244:         ]
+C:\Users\WIN\source\repos\Chess-engine\xxfinal\Chess\main_menu.h(145,65): warning C4244: 'argument': conversion from 'T' to 'T', possible loss of data
+C:\Users\WIN\source\repos\Chess-engine\xxfinal\Chess\main_menu.h(145,65): warning C4244:         with
+C:\Users\WIN\source\repos\Chess-engine\xxfinal\Chess\main_menu.h(145,65): warning C4244:         [
+C:\Users\WIN\source\repos\Chess-engine\xxfinal\Chess\main_menu.h(145,65): warning C4244:             T=unsigned int
+C:\Users\WIN\source\repos\Chess-engine\xxfinal\Chess\main_menu.h(145,65): warning C4244:         ]
+C:\Users\WIN\source\repos\Chess-engine\xxfinal\Chess\main_menu.h(145,65): warning C4244:         and
+C:\Users\WIN\source\repos\Chess-engine\xxfinal\Chess\main_menu.h(145,65): warning C4244:         [
+C:\Users\WIN\source\repos\Chess-engine\xxfinal\Chess\main_menu.h(145,65): warning C4244:             T=float
+C:\Users\WIN\source\repos\Chess-engine\xxfinal\Chess\main_menu.h(145,65): warning C4244:         ]
   (compiling source file 'main.cpp')
   
-D:\Programming\SP_project\Chess-engine\Chess\main_menu.h(145,51): warning C4244: 'argument': conversion from 'T' to 'T', possible loss of data
-D:\Programming\SP_project\Chess-engine\Chess\main_menu.h(145,51): warning C4244:         with
-D:\Programming\SP_project\Chess-engine\Chess\main_menu.h(145,51): warning C4244:         [
-D:\Programming\SP_project\Chess-engine\Chess\main_menu.h(145,51): warning C4244:             T=unsigned int
-D:\Programming\SP_project\Chess-engine\Chess\main_menu.h(145,51): warning C4244:         ]
-D:\Programming\SP_project\Chess-engine\Chess\main_menu.h(145,51): warning C4244:         and
-D:\Programming\SP_project\Chess-engine\Chess\main_menu.h(145,51): warning C4244:         [
-D:\Programming\SP_project\Chess-engine\Chess\main_menu.h(145,51): warning C4244:             T=float
-D:\Programming\SP_project\Chess-engine\Chess\main_menu.h(145,51): warning C4244:         ]
+C:\Users\WIN\source\repos\Chess-engine\xxfinal\Chess\main_menu.h(145,51): warning C4244: 'argument': conversion from 'T' to 'T', possible loss of data
+C:\Users\WIN\source\repos\Chess-engine\xxfinal\Chess\main_menu.h(145,51): warning C4244:         with
+C:\Users\WIN\source\repos\Chess-engine\xxfinal\Chess\main_menu.h(145,51): warning C4244:         [
+C:\Users\WIN\source\repos\Chess-engine\xxfinal\Chess\main_menu.h(145,51): warning C4244:             T=unsigned int
+C:\Users\WIN\source\repos\Chess-engine\xxfinal\Chess\main_menu.h(145,51): warning C4244:         ]
+C:\Users\WIN\source\repos\Chess-engine\xxfinal\Chess\main_menu.h(145,51): warning C4244:         and
+C:\Users\WIN\source\repos\Chess-engine\xxfinal\Chess\main_menu.h(145,51): warning C4244:         [
+C:\Users\WIN\source\repos\Chess-engine\xxfinal\Chess\main_menu.h(145,51): warning C4244:             T=float
+C:\Users\WIN\source\repos\Chess-engine\xxfinal\Chess\main_menu.h(145,51): warning C4244:         ]
   (compiling source file 'main.cpp')
   
-D:\Programming\SP_project\Chess-engine\Chess\main_menu.h(148,69): warning C4244: 'argument': conversion from 'T' to 'float', possible loss of data
-D:\Programming\SP_project\Chess-engine\Chess\main_menu.h(148,69): warning C4244:         with
-D:\Programming\SP_project\Chess-engine\Chess\main_menu.h(148,69): warning C4244:         [
-D:\Programming\SP_project\Chess-engine\Chess\main_menu.h(148,69): warning C4244:             T=unsigned int
-D:\Programming\SP_project\Chess-engine\Chess\main_menu.h(148,69): warning C4244:         ]
+C:\Users\WIN\source\repos\Chess-engine\xxfinal\Chess\main_menu.h(148,69): warning C4244: 'argument': conversion from 'T' to 'float', possible loss of data
+C:\Users\WIN\source\repos\Chess-engine\xxfinal\Chess\main_menu.h(148,69): warning C4244:         with
+C:\Users\WIN\source\repos\Chess-engine\xxfinal\Chess\main_menu.h(148,69): warning C4244:         [
+C:\Users\WIN\source\repos\Chess-engine\xxfinal\Chess\main_menu.h(148,69): warning C4244:             T=unsigned int
+C:\Users\WIN\source\repos\Chess-engine\xxfinal\Chess\main_menu.h(148,69): warning C4244:         ]
   (compiling source file 'main.cpp')
   
-D:\Programming\SP_project\Chess-engine\Chess\main_menu.h(148,47): warning C4244: 'argument': conversion from 'T' to 'float', possible loss of data
-D:\Programming\SP_project\Chess-engine\Chess\main_menu.h(148,47): warning C4244:         with
-D:\Programming\SP_project\Chess-engine\Chess\main_menu.h(148,47): warning C4244:         [
-D:\Programming\SP_project\Chess-engine\Chess\main_menu.h(148,47): warning C4244:             T=unsigned int
-D:\Programming\SP_project\Chess-engine\Chess\main_menu.h(148,47): warning C4244:         ]
+C:\Users\WIN\source\repos\Chess-engine\xxfinal\Chess\main_menu.h(148,47): warning C4244: 'argument': conversion from 'T' to 'float', possible loss of data
+C:\Users\WIN\source\repos\Chess-engine\xxfinal\Chess\main_menu.h(148,47): warning C4244:         with
+C:\Users\WIN\source\repos\Chess-engine\xxfinal\Chess\main_menu.h(148,47): warning C4244:         [
+C:\Users\WIN\source\repos\Chess-engine\xxfinal\Chess\main_menu.h(148,47): warning C4244:             T=unsigned int
+C:\Users\WIN\source\repos\Chess-engine\xxfinal\Chess\main_menu.h(148,47): warning C4244:         ]
   (compiling source file 'main.cpp')
   
-D:\Programming\SP_project\Chess-engine\Chess\main_menu.h(149,68): warning C4244: 'argument': conversion from 'T' to 'float', possible loss of data
-D:\Programming\SP_project\Chess-engine\Chess\main_menu.h(149,68): warning C4244:         with
-D:\Programming\SP_project\Chess-engine\Chess\main_menu.h(149,68): warning C4244:         [
-D:\Programming\SP_project\Chess-engine\Chess\main_menu.h(149,68): warning C4244:             T=unsigned int
-D:\Programming\SP_project\Chess-engine\Chess\main_menu.h(149,68): warning C4244:         ]
+C:\Users\WIN\source\repos\Chess-engine\xxfinal\Chess\main_menu.h(149,68): warning C4244: 'argument': conversion from 'T' to 'float', possible loss of data
+C:\Users\WIN\source\repos\Chess-engine\xxfinal\Chess\main_menu.h(149,68): warning C4244:         with
+C:\Users\WIN\source\repos\Chess-engine\xxfinal\Chess\main_menu.h(149,68): warning C4244:         [
+C:\Users\WIN\source\repos\Chess-engine\xxfinal\Chess\main_menu.h(149,68): warning C4244:             T=unsigned int
+C:\Users\WIN\source\repos\Chess-engine\xxfinal\Chess\main_menu.h(149,68): warning C4244:         ]
   (compiling source file 'main.cpp')
   
-D:\Programming\SP_project\Chess-engine\Chess\main_menu.h(149,46): warning C4244: 'argument': conversion from 'T' to 'float', possible loss of data
-D:\Programming\SP_project\Chess-engine\Chess\main_menu.h(149,46): warning C4244:         with
-D:\Programming\SP_project\Chess-engine\Chess\main_menu.h(149,46): warning C4244:         [
-D:\Programming\SP_project\Chess-engine\Chess\main_menu.h(149,46): warning C4244:             T=unsigned int
-D:\Programming\SP_project\Chess-engine\Chess\main_menu.h(149,46): warning C4244:         ]
+C:\Users\WIN\source\repos\Chess-engine\xxfinal\Chess\main_menu.h(149,46): warning C4244: 'argument': conversion from 'T' to 'float', possible loss of data
+C:\Users\WIN\source\repos\Chess-engine\xxfinal\Chess\main_menu.h(149,46): warning C4244:         with
+C:\Users\WIN\source\repos\Chess-engine\xxfinal\Chess\main_menu.h(149,46): warning C4244:         [
+C:\Users\WIN\source\repos\Chess-engine\xxfinal\Chess\main_menu.h(149,46): warning C4244:             T=unsigned int
+C:\Users\WIN\source\repos\Chess-engine\xxfinal\Chess\main_menu.h(149,46): warning C4244:         ]
   (compiling source file 'main.cpp')
   
-D:\Programming\SP_project\Chess-engine\Chess\main_menu.h(150,65): warning C4244: 'argument': conversion from 'T' to 'float', possible loss of data
-D:\Programming\SP_project\Chess-engine\Chess\main_menu.h(150,65): warning C4244:         with
-D:\Programming\SP_project\Chess-engine\Chess\main_menu.h(150,65): warning C4244:         [
-D:\Programming\SP_project\Chess-engine\Chess\main_menu.h(150,65): warning C4244:             T=unsigned int
-D:\Programming\SP_project\Chess-engine\Chess\main_menu.h(150,65): warning C4244:         ]
+C:\Users\WIN\source\repos\Chess-engine\xxfinal\Chess\main_menu.h(150,65): warning C4244: 'argument': conversion from 'T' to 'float', possible loss of data
+C:\Users\WIN\source\repos\Chess-engine\xxfinal\Chess\main_menu.h(150,65): warning C4244:         with
+C:\Users\WIN\source\repos\Chess-engine\xxfinal\Chess\main_menu.h(150,65): warning C4244:         [
+C:\Users\WIN\source\repos\Chess-engine\xxfinal\Chess\main_menu.h(150,65): warning C4244:             T=unsigned int
+C:\Users\WIN\source\repos\Chess-engine\xxfinal\Chess\main_menu.h(150,65): warning C4244:         ]
   (compiling source file 'main.cpp')
   
-D:\Programming\SP_project\Chess-engine\Chess\main_menu.h(150,43): warning C4244: 'argument': conversion from 'T' to 'float', possible loss of data
-D:\Programming\SP_project\Chess-engine\Chess\main_menu.h(150,43): warning C4244:         with
-D:\Programming\SP_project\Chess-engine\Chess\main_menu.h(150,43): warning C4244:         [
-D:\Programming\SP_project\Chess-engine\Chess\main_menu.h(150,43): warning C4244:             T=unsigned int
-D:\Programming\SP_project\Chess-engine\Chess\main_menu.h(150,43): warning C4244:         ]
+C:\Users\WIN\source\repos\Chess-engine\xxfinal\Chess\main_menu.h(150,43): warning C4244: 'argument': conversion from 'T' to 'float', possible loss of data
+C:\Users\WIN\source\repos\Chess-engine\xxfinal\Chess\main_menu.h(150,43): warning C4244:         with
+C:\Users\WIN\source\repos\Chess-engine\xxfinal\Chess\main_menu.h(150,43): warning C4244:         [
+C:\Users\WIN\source\repos\Chess-engine\xxfinal\Chess\main_menu.h(150,43): warning C4244:             T=unsigned int
+C:\Users\WIN\source\repos\Chess-engine\xxfinal\Chess\main_menu.h(150,43): warning C4244:         ]
   (compiling source file 'main.cpp')
   
-D:\Programming\SP_project\Chess-engine\Chess\main_menu.h(151,61): warning C4244: 'argument': conversion from 'T' to 'float', possible loss of data
-D:\Programming\SP_project\Chess-engine\Chess\main_menu.h(151,61): warning C4244:         with
-D:\Programming\SP_project\Chess-engine\Chess\main_menu.h(151,61): warning C4244:         [
-D:\Programming\SP_project\Chess-engine\Chess\main_menu.h(151,61): warning C4244:             T=unsigned int
-D:\Programming\SP_project\Chess-engine\Chess\main_menu.h(151,61): warning C4244:         ]
+C:\Users\WIN\source\repos\Chess-engine\xxfinal\Chess\main_menu.h(151,61): warning C4244: 'argument': conversion from 'T' to 'float', possible loss of data
+C:\Users\WIN\source\repos\Chess-engine\xxfinal\Chess\main_menu.h(151,61): warning C4244:         with
+C:\Users\WIN\source\repos\Chess-engine\xxfinal\Chess\main_menu.h(151,61): warning C4244:         [
+C:\Users\WIN\source\repos\Chess-engine\xxfinal\Chess\main_menu.h(151,61): warning C4244:             T=unsigned int
+C:\Users\WIN\source\repos\Chess-engine\xxfinal\Chess\main_menu.h(151,61): warning C4244:         ]
   (compiling source file 'main.cpp')
   
-D:\Programming\SP_project\Chess-engine\Chess\main_menu.h(151,39): warning C4244: 'argument': conversion from 'T' to 'float', possible loss of data
-D:\Programming\SP_project\Chess-engine\Chess\main_menu.h(151,39): warning C4244:         with
-D:\Programming\SP_project\Chess-engine\Chess\main_menu.h(151,39): warning C4244:         [
-D:\Programming\SP_project\Chess-engine\Chess\main_menu.h(151,39): warning C4244:             T=unsigned int
-D:\Programming\SP_project\Chess-engine\Chess\main_menu.h(151,39): warning C4244:         ]
+C:\Users\WIN\source\repos\Chess-engine\xxfinal\Chess\main_menu.h(151,39): warning C4244: 'argument': conversion from 'T' to 'float', possible loss of data
+C:\Users\WIN\source\repos\Chess-engine\xxfinal\Chess\main_menu.h(151,39): warning C4244:         with
+C:\Users\WIN\source\repos\Chess-engine\xxfinal\Chess\main_menu.h(151,39): warning C4244:         [
+C:\Users\WIN\source\repos\Chess-engine\xxfinal\Chess\main_menu.h(151,39): warning C4244:             T=unsigned int
+C:\Users\WIN\source\repos\Chess-engine\xxfinal\Chess\main_menu.h(151,39): warning C4244:         ]
   (compiling source file 'main.cpp')
   
-D:\Programming\SP_project\Chess-engine\Chess\main.cpp(15,41): warning C4244: 'argument': conversion from 'float' to 'unsigned int', possible loss of data
-D:\Programming\SP_project\Chess-engine\Chess\main.cpp(15,31): warning C4244: 'argument': conversion from 'float' to 'unsigned int', possible loss of data
-D:\Programming\SP_project\Chess-engine\Chess\main.cpp(23,44): warning C4244: 'argument': conversion from 'int' to 'T', possible loss of data
-D:\Programming\SP_project\Chess-engine\Chess\main.cpp(23,44): warning C4244:         with
-D:\Programming\SP_project\Chess-engine\Chess\main.cpp(23,44): warning C4244:         [
-D:\Programming\SP_project\Chess-engine\Chess\main.cpp(23,44): warning C4244:             T=float
-D:\Programming\SP_project\Chess-engine\Chess\main.cpp(23,44): warning C4244:         ]
-D:\Programming\SP_project\Chess-engine\Chess\main.cpp(23,25): warning C4244: 'argument': conversion from 'int' to 'T', possible loss of data
-D:\Programming\SP_project\Chess-engine\Chess\main.cpp(23,25): warning C4244:         with
-D:\Programming\SP_project\Chess-engine\Chess\main.cpp(23,25): warning C4244:         [
-D:\Programming\SP_project\Chess-engine\Chess\main.cpp(23,25): warning C4244:             T=float
-D:\Programming\SP_project\Chess-engine\Chess\main.cpp(23,25): warning C4244:         ]
-D:\Programming\SP_project\Chess-engine\Chess\main.cpp(39,36): warning C4305: 'argument': truncation from 'double' to 'float'
-D:\Programming\SP_project\Chess-engine\Chess\main.cpp(39,31): warning C4305: 'argument': truncation from 'double' to 'float'
-D:\Programming\SP_project\Chess-engine\Chess\main.cpp(40,35): warning C4305: 'argument': truncation from 'double' to 'float'
-D:\Programming\SP_project\Chess-engine\Chess\main.cpp(40,30): warning C4305: 'argument': truncation from 'double' to 'float'
-D:\Programming\SP_project\Chess-engine\Chess\main.cpp(41,38): warning C4305: 'argument': truncation from 'double' to 'float'
-D:\Programming\SP_project\Chess-engine\Chess\main.cpp(41,33): warning C4305: 'argument': truncation from 'double' to 'float'
-D:\Programming\SP_project\Chess-engine\Chess\main.cpp(89,43): warning C4305: 'argument': truncation from 'double' to 'float'
-D:\Programming\SP_project\Chess-engine\Chess\main.cpp(89,38): warning C4305: 'argument': truncation from 'double' to 'float'
-D:\Programming\SP_project\Chess-engine\Chess\main.cpp(95,46): warning C4305: 'argument': truncation from 'double' to 'float'
-D:\Programming\SP_project\Chess-engine\Chess\main.cpp(95,41): warning C4305: 'argument': truncation from 'double' to 'float'
-D:\Programming\SP_project\Chess-engine\Chess\main.cpp(101,44): warning C4305: 'argument': truncation from 'double' to 'float'
-D:\Programming\SP_project\Chess-engine\Chess\main.cpp(101,39): warning C4305: 'argument': truncation from 'double' to 'float'
-D:\Programming\SP_project\Chess-engine\Chess\main.cpp(221,89): warning C4244: 'argument': conversion from 'T' to 'float', possible loss of data
-D:\Programming\SP_project\Chess-engine\Chess\main.cpp(221,89): warning C4244:         with
-D:\Programming\SP_project\Chess-engine\Chess\main.cpp(221,89): warning C4244:         [
-D:\Programming\SP_project\Chess-engine\Chess\main.cpp(221,89): warning C4244:             T=unsigned int
-D:\Programming\SP_project\Chess-engine\Chess\main.cpp(221,89): warning C4244:         ]
-D:\Programming\SP_project\Chess-engine\Chess\main.cpp(221,57): warning C4244: 'argument': conversion from 'T' to 'float', possible loss of data
-D:\Programming\SP_project\Chess-engine\Chess\main.cpp(221,57): warning C4244:         with
-D:\Programming\SP_project\Chess-engine\Chess\main.cpp(221,57): warning C4244:         [
-D:\Programming\SP_project\Chess-engine\Chess\main.cpp(221,57): warning C4244:             T=unsigned int
-D:\Programming\SP_project\Chess-engine\Chess\main.cpp(221,57): warning C4244:         ]
-D:\Programming\SP_project\Chess-engine\Chess\main.cpp(222,78): warning C4244: 'argument': conversion from 'T' to 'float', possible loss of data
-D:\Programming\SP_project\Chess-engine\Chess\main.cpp(222,78): warning C4244:         with
-D:\Programming\SP_project\Chess-engine\Chess\main.cpp(222,78): warning C4244:         [
-D:\Programming\SP_project\Chess-engine\Chess\main.cpp(222,78): warning C4244:             T=unsigned int
-D:\Programming\SP_project\Chess-engine\Chess\main.cpp(222,78): warning C4244:         ]
-D:\Programming\SP_project\Chess-engine\Chess\main.cpp(222,52): warning C4244: 'argument': conversion from 'T' to 'float', possible loss of data
-D:\Programming\SP_project\Chess-engine\Chess\main.cpp(222,52): warning C4244:         with
-D:\Programming\SP_project\Chess-engine\Chess\main.cpp(222,52): warning C4244:         [
-D:\Programming\SP_project\Chess-engine\Chess\main.cpp(222,52): warning C4244:             T=unsigned int
-D:\Programming\SP_project\Chess-engine\Chess\main.cpp(222,52): warning C4244:         ]
-D:\Programming\SP_project\Chess-engine\Chess\main.cpp(223,87): warning C4244: 'argument': conversion from 'T' to 'float', possible loss of data
-D:\Programming\SP_project\Chess-engine\Chess\main.cpp(223,87): warning C4244:         with
-D:\Programming\SP_project\Chess-engine\Chess\main.cpp(223,87): warning C4244:         [
-D:\Programming\SP_project\Chess-engine\Chess\main.cpp(223,87): warning C4244:             T=unsigned int
-D:\Programming\SP_project\Chess-engine\Chess\main.cpp(223,87): warning C4244:         ]
-D:\Programming\SP_project\Chess-engine\Chess\main.cpp(223,58): warning C4244: 'argument': conversion from 'T' to 'float', possible loss of data
-D:\Programming\SP_project\Chess-engine\Chess\main.cpp(223,58): warning C4244:         with
-D:\Programming\SP_project\Chess-engine\Chess\main.cpp(223,58): warning C4244:         [
-D:\Programming\SP_project\Chess-engine\Chess\main.cpp(223,58): warning C4244:             T=unsigned int
-D:\Programming\SP_project\Chess-engine\Chess\main.cpp(223,58): warning C4244:         ]
-D:\Programming\SP_project\Chess-engine\Chess\main.cpp(229,34): warning C4305: 'argument': truncation from 'double' to 'float'
-D:\Programming\SP_project\Chess-engine\Chess\main.cpp(229,29): warning C4305: 'argument': truncation from 'double' to 'float'
-D:\Programming\SP_project\Chess-engine\Chess\main.cpp(230,35): warning C4305: 'argument': truncation from 'double' to 'float'
-D:\Programming\SP_project\Chess-engine\Chess\main.cpp(230,30): warning C4305: 'argument': truncation from 'double' to 'float'
-D:\Programming\SP_project\Chess-engine\Chess\main.cpp(231,38): warning C4305: 'argument': truncation from 'double' to 'float'
-D:\Programming\SP_project\Chess-engine\Chess\main.cpp(231,33): warning C4305: 'argument': truncation from 'double' to 'float'
-D:\Programming\SP_project\Chess-engine\Chess\main.cpp(239,42): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
-D:\Programming\SP_project\Chess-engine\Chess\main.cpp(241,56): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
-D:\Programming\SP_project\Chess-engine\Chess\main.cpp(241,39): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
-D:\Programming\SP_project\Chess-engine\Chess\main.cpp(302,43): warning C4305: 'argument': truncation from 'double' to 'float'
-D:\Programming\SP_project\Chess-engine\Chess\main.cpp(302,38): warning C4305: 'argument': truncation from 'double' to 'float'
-D:\Programming\SP_project\Chess-engine\Chess\main.cpp(308,46): warning C4305: 'argument': truncation from 'double' to 'float'
-D:\Programming\SP_project\Chess-engine\Chess\main.cpp(308,41): warning C4305: 'argument': truncation from 'double' to 'float'
-D:\Programming\SP_project\Chess-engine\Chess\main.cpp(311,40): warning C4305: 'argument': truncation from 'double' to 'float'
-D:\Programming\SP_project\Chess-engine\Chess\main.cpp(311,35): warning C4305: 'argument': truncation from 'double' to 'float'
-  Chess.vcxproj -> D:\Programming\SP_project\Chess-engine\x64\Debug\Chess.exe
+C:\Users\WIN\source\repos\Chess-engine\xxfinal\Chess\main.cpp(15,41): warning C4244: 'argument': conversion from 'float' to 'unsigned int', possible loss of data
+C:\Users\WIN\source\repos\Chess-engine\xxfinal\Chess\main.cpp(15,31): warning C4244: 'argument': conversion from 'float' to 'unsigned int', possible loss of data
+C:\Users\WIN\source\repos\Chess-engine\xxfinal\Chess\main.cpp(23,44): warning C4244: 'argument': conversion from 'int' to 'T', possible loss of data
+C:\Users\WIN\source\repos\Chess-engine\xxfinal\Chess\main.cpp(23,44): warning C4244:         with
+C:\Users\WIN\source\repos\Chess-engine\xxfinal\Chess\main.cpp(23,44): warning C4244:         [
+C:\Users\WIN\source\repos\Chess-engine\xxfinal\Chess\main.cpp(23,44): warning C4244:             T=float
+C:\Users\WIN\source\repos\Chess-engine\xxfinal\Chess\main.cpp(23,44): warning C4244:         ]
+C:\Users\WIN\source\repos\Chess-engine\xxfinal\Chess\main.cpp(23,25): warning C4244: 'argument': conversion from 'int' to 'T', possible loss of data
+C:\Users\WIN\source\repos\Chess-engine\xxfinal\Chess\main.cpp(23,25): warning C4244:         with
+C:\Users\WIN\source\repos\Chess-engine\xxfinal\Chess\main.cpp(23,25): warning C4244:         [
+C:\Users\WIN\source\repos\Chess-engine\xxfinal\Chess\main.cpp(23,25): warning C4244:             T=float
+C:\Users\WIN\source\repos\Chess-engine\xxfinal\Chess\main.cpp(23,25): warning C4244:         ]
+C:\Users\WIN\source\repos\Chess-engine\xxfinal\Chess\main.cpp(39,36): warning C4305: 'argument': truncation from 'double' to 'float'
+C:\Users\WIN\source\repos\Chess-engine\xxfinal\Chess\main.cpp(39,31): warning C4305: 'argument': truncation from 'double' to 'float'
+C:\Users\WIN\source\repos\Chess-engine\xxfinal\Chess\main.cpp(40,35): warning C4305: 'argument': truncation from 'double' to 'float'
+C:\Users\WIN\source\repos\Chess-engine\xxfinal\Chess\main.cpp(40,30): warning C4305: 'argument': truncation from 'double' to 'float'
+C:\Users\WIN\source\repos\Chess-engine\xxfinal\Chess\main.cpp(41,38): warning C4305: 'argument': truncation from 'double' to 'float'
+C:\Users\WIN\source\repos\Chess-engine\xxfinal\Chess\main.cpp(41,33): warning C4305: 'argument': truncation from 'double' to 'float'
+C:\Users\WIN\source\repos\Chess-engine\xxfinal\Chess\main.cpp(89,43): warning C4305: 'argument': truncation from 'double' to 'float'
+C:\Users\WIN\source\repos\Chess-engine\xxfinal\Chess\main.cpp(89,38): warning C4305: 'argument': truncation from 'double' to 'float'
+C:\Users\WIN\source\repos\Chess-engine\xxfinal\Chess\main.cpp(95,46): warning C4305: 'argument': truncation from 'double' to 'float'
+C:\Users\WIN\source\repos\Chess-engine\xxfinal\Chess\main.cpp(95,41): warning C4305: 'argument': truncation from 'double' to 'float'
+C:\Users\WIN\source\repos\Chess-engine\xxfinal\Chess\main.cpp(101,44): warning C4305: 'argument': truncation from 'double' to 'float'
+C:\Users\WIN\source\repos\Chess-engine\xxfinal\Chess\main.cpp(101,39): warning C4305: 'argument': truncation from 'double' to 'float'
+C:\Users\WIN\source\repos\Chess-engine\xxfinal\Chess\main.cpp(222,89): warning C4244: 'argument': conversion from 'T' to 'float', possible loss of data
+C:\Users\WIN\source\repos\Chess-engine\xxfinal\Chess\main.cpp(222,89): warning C4244:         with
+C:\Users\WIN\source\repos\Chess-engine\xxfinal\Chess\main.cpp(222,89): warning C4244:         [
+C:\Users\WIN\source\repos\Chess-engine\xxfinal\Chess\main.cpp(222,89): warning C4244:             T=unsigned int
+C:\Users\WIN\source\repos\Chess-engine\xxfinal\Chess\main.cpp(222,89): warning C4244:         ]
+C:\Users\WIN\source\repos\Chess-engine\xxfinal\Chess\main.cpp(222,57): warning C4244: 'argument': conversion from 'T' to 'float', possible loss of data
+C:\Users\WIN\source\repos\Chess-engine\xxfinal\Chess\main.cpp(222,57): warning C4244:         with
+C:\Users\WIN\source\repos\Chess-engine\xxfinal\Chess\main.cpp(222,57): warning C4244:         [
+C:\Users\WIN\source\repos\Chess-engine\xxfinal\Chess\main.cpp(222,57): warning C4244:             T=unsigned int
+C:\Users\WIN\source\repos\Chess-engine\xxfinal\Chess\main.cpp(222,57): warning C4244:         ]
+C:\Users\WIN\source\repos\Chess-engine\xxfinal\Chess\main.cpp(223,78): warning C4244: 'argument': conversion from 'T' to 'float', possible loss of data
+C:\Users\WIN\source\repos\Chess-engine\xxfinal\Chess\main.cpp(223,78): warning C4244:         with
+C:\Users\WIN\source\repos\Chess-engine\xxfinal\Chess\main.cpp(223,78): warning C4244:         [
+C:\Users\WIN\source\repos\Chess-engine\xxfinal\Chess\main.cpp(223,78): warning C4244:             T=unsigned int
+C:\Users\WIN\source\repos\Chess-engine\xxfinal\Chess\main.cpp(223,78): warning C4244:         ]
+C:\Users\WIN\source\repos\Chess-engine\xxfinal\Chess\main.cpp(223,52): warning C4244: 'argument': conversion from 'T' to 'float', possible loss of data
+C:\Users\WIN\source\repos\Chess-engine\xxfinal\Chess\main.cpp(223,52): warning C4244:         with
+C:\Users\WIN\source\repos\Chess-engine\xxfinal\Chess\main.cpp(223,52): warning C4244:         [
+C:\Users\WIN\source\repos\Chess-engine\xxfinal\Chess\main.cpp(223,52): warning C4244:             T=unsigned int
+C:\Users\WIN\source\repos\Chess-engine\xxfinal\Chess\main.cpp(223,52): warning C4244:         ]
+C:\Users\WIN\source\repos\Chess-engine\xxfinal\Chess\main.cpp(224,87): warning C4244: 'argument': conversion from 'T' to 'float', possible loss of data
+C:\Users\WIN\source\repos\Chess-engine\xxfinal\Chess\main.cpp(224,87): warning C4244:         with
+C:\Users\WIN\source\repos\Chess-engine\xxfinal\Chess\main.cpp(224,87): warning C4244:         [
+C:\Users\WIN\source\repos\Chess-engine\xxfinal\Chess\main.cpp(224,87): warning C4244:             T=unsigned int
+C:\Users\WIN\source\repos\Chess-engine\xxfinal\Chess\main.cpp(224,87): warning C4244:         ]
+C:\Users\WIN\source\repos\Chess-engine\xxfinal\Chess\main.cpp(224,58): warning C4244: 'argument': conversion from 'T' to 'float', possible loss of data
+C:\Users\WIN\source\repos\Chess-engine\xxfinal\Chess\main.cpp(224,58): warning C4244:         with
+C:\Users\WIN\source\repos\Chess-engine\xxfinal\Chess\main.cpp(224,58): warning C4244:         [
+C:\Users\WIN\source\repos\Chess-engine\xxfinal\Chess\main.cpp(224,58): warning C4244:             T=unsigned int
+C:\Users\WIN\source\repos\Chess-engine\xxfinal\Chess\main.cpp(224,58): warning C4244:         ]
+C:\Users\WIN\source\repos\Chess-engine\xxfinal\Chess\main.cpp(225,78): warning C4244: 'argument': conversion from 'T' to 'float', possible loss of data
+C:\Users\WIN\source\repos\Chess-engine\xxfinal\Chess\main.cpp(225,78): warning C4244:         with
+C:\Users\WIN\source\repos\Chess-engine\xxfinal\Chess\main.cpp(225,78): warning C4244:         [
+C:\Users\WIN\source\repos\Chess-engine\xxfinal\Chess\main.cpp(225,78): warning C4244:             T=unsigned int
+C:\Users\WIN\source\repos\Chess-engine\xxfinal\Chess\main.cpp(225,78): warning C4244:         ]
+C:\Users\WIN\source\repos\Chess-engine\xxfinal\Chess\main.cpp(225,52): warning C4244: 'argument': conversion from 'T' to 'float', possible loss of data
+C:\Users\WIN\source\repos\Chess-engine\xxfinal\Chess\main.cpp(225,52): warning C4244:         with
+C:\Users\WIN\source\repos\Chess-engine\xxfinal\Chess\main.cpp(225,52): warning C4244:         [
+C:\Users\WIN\source\repos\Chess-engine\xxfinal\Chess\main.cpp(225,52): warning C4244:             T=unsigned int
+C:\Users\WIN\source\repos\Chess-engine\xxfinal\Chess\main.cpp(225,52): warning C4244:         ]
+C:\Users\WIN\source\repos\Chess-engine\xxfinal\Chess\main.cpp(232,34): warning C4305: 'argument': truncation from 'double' to 'float'
+C:\Users\WIN\source\repos\Chess-engine\xxfinal\Chess\main.cpp(232,29): warning C4305: 'argument': truncation from 'double' to 'float'
+C:\Users\WIN\source\repos\Chess-engine\xxfinal\Chess\main.cpp(233,35): warning C4305: 'argument': truncation from 'double' to 'float'
+C:\Users\WIN\source\repos\Chess-engine\xxfinal\Chess\main.cpp(233,30): warning C4305: 'argument': truncation from 'double' to 'float'
+C:\Users\WIN\source\repos\Chess-engine\xxfinal\Chess\main.cpp(234,38): warning C4305: 'argument': truncation from 'double' to 'float'
+C:\Users\WIN\source\repos\Chess-engine\xxfinal\Chess\main.cpp(234,33): warning C4305: 'argument': truncation from 'double' to 'float'
+C:\Users\WIN\source\repos\Chess-engine\xxfinal\Chess\main.cpp(235,35): warning C4305: 'argument': truncation from 'double' to 'float'
+C:\Users\WIN\source\repos\Chess-engine\xxfinal\Chess\main.cpp(235,30): warning C4305: 'argument': truncation from 'double' to 'float'
+C:\Users\WIN\source\repos\Chess-engine\xxfinal\Chess\main.cpp(245,52): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\Users\WIN\source\repos\Chess-engine\xxfinal\Chess\main.cpp(246,49): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\Users\WIN\source\repos\Chess-engine\xxfinal\Chess\main.cpp(247,70): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\Users\WIN\source\repos\Chess-engine\xxfinal\Chess\main.cpp(247,46): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\Users\WIN\source\repos\Chess-engine\xxfinal\Chess\main.cpp(312,43): warning C4305: 'argument': truncation from 'double' to 'float'
+C:\Users\WIN\source\repos\Chess-engine\xxfinal\Chess\main.cpp(312,38): warning C4305: 'argument': truncation from 'double' to 'float'
+C:\Users\WIN\source\repos\Chess-engine\xxfinal\Chess\main.cpp(318,46): warning C4305: 'argument': truncation from 'double' to 'float'
+C:\Users\WIN\source\repos\Chess-engine\xxfinal\Chess\main.cpp(318,41): warning C4305: 'argument': truncation from 'double' to 'float'
+C:\Users\WIN\source\repos\Chess-engine\xxfinal\Chess\main.cpp(324,43): warning C4305: 'argument': truncation from 'double' to 'float'
+C:\Users\WIN\source\repos\Chess-engine\xxfinal\Chess\main.cpp(324,38): warning C4305: 'argument': truncation from 'double' to 'float'
+C:\Users\WIN\source\repos\Chess-engine\xxfinal\Chess\main.cpp(327,40): warning C4305: 'argument': truncation from 'double' to 'float'
+C:\Users\WIN\source\repos\Chess-engine\xxfinal\Chess\main.cpp(327,35): warning C4305: 'argument': truncation from 'double' to 'float'
+  Chess.vcxproj -> C:\Users\WIN\source\repos\Chess-engine\xxfinal\x64\Debug\Chess.exe
