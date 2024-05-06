@@ -207,8 +207,8 @@ struct soundss {
     }
 };
 struct End {
-    Texture background_txt, main_txt, restart_txt;
-    Sprite  background, main_button, restart_button;
+    Texture background_txt, main_txt, restart_txt,exit_txt;
+    Sprite  background, main_button, restart_button,exit_button;
     Text sentence;
     string win, win1, win2, lose, draw;
     Font font;
@@ -217,28 +217,34 @@ struct End {
         background_txt.loadFromFile("assets/background.png");
         main_txt.loadFromFile("button_UI.png");
         restart_txt.loadFromFile("button_UI.png");
+        exit_txt.loadFromFile("button_UI.png");
 
         background.setOrigin(background_txt.getSize().x / 2, background_txt.getSize().y / 2);
         main_button.setOrigin(main_txt.getSize().x / 2, main_txt.getSize().y / 2);
         restart_button.setOrigin(restart_txt.getSize().x / 2, restart_txt.getSize().y / 2);
+        exit_button.setOrigin(exit_txt.getSize().x / 2, exit_txt.getSize().y / 2);
 
         background.setTexture(background_txt);
         main_button.setTexture(main_txt);
         restart_button.setTexture(restart_txt);
+        exit_button.setTexture(exit_txt);
 
         background.setScale(0.3, 0.3);
         main_button.setScale(2.9, 2.9);
         restart_button.setScale(2.9, 2.9);
+        exit_button.setScale(2.9, 2.9);
 
         main_button.setTextureRect(IntRect(10 * 16, 9 * 16, 16, 16));
         restart_button.setTextureRect(IntRect(9 * 16, 9 * 16, 16, 16));
+        exit_button.setTextureRect(IntRect(10 * 16,  10* 16, 16, 16));
         background.setTextureRect(IntRect(0, 500, 2000, 1500));
 
-
         background.setPosition(window_w / 2, window_h / 2);
-        main_button.setPosition(window_w * 1.04, window_h / 2);
-        restart_button.setPosition(window_w, window_h / 2);
-        sentence.setPosition(window_w * 0.47, window_h * 0.4);
+        Vector2f back_position=background.getPosition();
+        main_button.setPosition(back_position.x*2, back_position.y );
+        restart_button.setPosition(back_position.x * 2.1, back_position.y );
+        exit_button.setPosition(back_position.x * 2.2, back_position.y );
+        sentence.setPosition(back_position.x *0.95 , back_position.y * 0.8 );
 
         font.loadFromFile("font.ttf");
         sentence.setFont(font);
@@ -277,9 +283,10 @@ struct End {
         window.draw(background);
         window.draw(main_button);
         window.draw(restart_button);
+        window.draw(exit_button);
         window.draw(sentence);
     }
-    void MouseClickButtons(MainMenu& mainMenu, GameState& currentState) {
+    void MouseClickButtons(MainMenu& mainMenu, GameState& currentState,int& end_game,int& end_game_ai) {
         auto mousePosition = window.mapPixelToCoords(Mouse::getPosition(window));
         if (Mouse::isButtonPressed(Mouse::Left)) {
             if (main_button.getGlobalBounds().contains(mousePosition)) {
@@ -292,6 +299,9 @@ struct End {
             }
             if (sentence.getGlobalBounds().contains(mousePosition)) {
                 //play sound
+            }
+            if (exit_button.getGlobalBounds().contains(mousePosition)) {
+                end_game = -10, end_game_ai = -10;
             }
         }
         else {
@@ -306,6 +316,12 @@ struct End {
             }
             else {
                 restart_button.setScale(2.9, 2.9);
+            }
+            if (exit_button.getGlobalBounds().contains(mousePosition)) {
+                exit_button.setScale(3, 3);
+            }
+            else {
+                exit_button.setScale(2.9, 2.9);
             }
             if (sentence.getGlobalBounds().contains(mousePosition)) {
                 sentence.setScale(1.2, 1.2);
@@ -483,7 +499,11 @@ int main()
                 window.close();
 
             if (end_game != -10 || end_game_ai != -10)
-                end.MouseClickButtons(mainMenu, current_state);
+                end.MouseClickButtons(mainMenu, current_state, end_game,end_game_ai);
+
+            if (Keyboard::isKeyPressed(Keyboard::Z)) {//////////////////////REMOVE
+                end_game = 1;
+            }
 
             if (Keyboard::isKeyPressed(Keyboard::Num1)) {
                 theme.change_theme(mainMenu, 1);
