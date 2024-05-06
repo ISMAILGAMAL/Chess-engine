@@ -127,8 +127,12 @@ struct Theme
     Texture boardTexture; // Texture for the chessboard
     void change_theme(MainMenu& mainmenu, int themenum = 1)
     {
-        string team1 = (mainmenu.settingsPage.getColor() == 1 ? "w" : "b");
-        string team2 = (mainmenu.settingsPage.getColor() != 1 ? "w" : "b");
+        string team1, team2;
+        if (mainmenu.settingsPage.current_theme[1] == 'b')
+            team1 = "w", team2 = "b";
+        else
+            team1 = "b", team2 = "w";
+
         validDottxt.loadFromFile("green2.png");
         not_validtxt.loadFromFile("red.png");
         pawnBtxt.loadFromFile(createPathPieces(themenum, team1, "p"));
@@ -151,12 +155,14 @@ struct Theme
         {
             bgk.loadFromFile("backgrounds/brown.png");
             bgkk.setTexture(bgk);
+            mainmenu.settingsPage.current_theme[1] = 'x';
             //bgkk.setScale(window.getSize().x / bgkk.getLocalBounds().width, window.getSize().y / bgkk.getLocalBounds().height);
         }
         else if (themenum == 2)
         {
             bgk.loadFromFile("backgrounds/8_bit.jpg");
             bgkk.setTexture(bgk);
+            mainmenu.settingsPage.current_theme[1] = 'x';
         }
         else if (themenum == 3)
         {
@@ -164,6 +170,7 @@ struct Theme
             bgkk.setTexture(bgk);
             bgkk.setScale(0.5, 0.5);
             bgkk.setPosition(window_w - 525, 0);
+            mainmenu.settingsPage.current_theme[1] = 'x';
         }
         else if (themenum == 4)
         {
@@ -171,6 +178,7 @@ struct Theme
             bgkk.setTexture(bgk);
             bgkk.setScale(1, 1);
             bgkk.setPosition(window_w - 500, 0);
+            mainmenu.settingsPage.current_theme[1] = 'x';
         }
         else if (themenum == 5)
         {
@@ -178,6 +186,7 @@ struct Theme
             bgkk.setTexture(bgk);
             bgkk.setScale(1, 1);
             bgkk.setPosition(window_w - 525, 0);
+            mainmenu.settingsPage.current_theme[1] = 'x';
         }
     }
 };
@@ -470,7 +479,6 @@ int main()
     piecess pieces;
     //theme
     Theme theme;
-    theme.change_theme(mainMenu);
     //sounds
     soundss sounds;
     sounds.load_sounds();
@@ -506,22 +514,42 @@ int main()
             }
 
             if (Keyboard::isKeyPressed(Keyboard::Num1)) {
+                if (mainMenu.settingsPage.getColor() == 1)
+                    mainMenu.settingsPage.current_theme = "1w";
+                else
+                    mainMenu.settingsPage.current_theme = "1b";
                 theme.change_theme(mainMenu, 1);
                 sounds.load_sounds(1);
             }
             if (Keyboard::isKeyPressed(Keyboard::Num2)) {
+                if (mainMenu.settingsPage.getColor() == 1)
+                    mainMenu.settingsPage.current_theme = "2w";
+                else
+                    mainMenu.settingsPage.current_theme = "2b";
                 theme.change_theme(mainMenu, 2);
                 sounds.load_sounds(2);
             }
             if (Keyboard::isKeyPressed(Keyboard::Num3)) {
+                if (mainMenu.settingsPage.getColor() == 1)
+                    mainMenu.settingsPage.current_theme = "3w";
+                else
+					mainMenu.settingsPage.current_theme = "3b";
                 theme.change_theme(mainMenu, 3);
                 sounds.load_sounds(3);
             }
             if (Keyboard::isKeyPressed(Keyboard::Num4)) {
+                if (mainMenu.settingsPage.getColor() == 1)
+                    mainMenu.settingsPage.current_theme = "4w";
+                else
+                    mainMenu.settingsPage.current_theme = "4b";
                 theme.change_theme(mainMenu, 4);
                 sounds.load_sounds(4);
             }
             if (Keyboard::isKeyPressed(Keyboard::Num5)) {
+                if (mainMenu.settingsPage.getColor() == 1)
+                    mainMenu.settingsPage.current_theme = "5w";
+                else
+                    mainMenu.settingsPage.current_theme = "5b";
                 theme.change_theme(mainMenu, 5);
                 sounds.load_sounds(5);
             }
@@ -551,9 +579,14 @@ int main()
             if (mainMenu.loadedMenu == 1 || mainMenu.loadedMenu == 2)
                 button.MouseClickButtons(mainMenu, current_state);
         }
-
+        mainMenu.settingsPage.updateTheme();
         if (mainMenu.loadedMenu == 0) {
             auto mousePosition = window.mapPixelToCoords(Mouse::getPosition(window));
+            if (mainMenu.settingsPage.current_theme[1] == 'b' || mainMenu.settingsPage.current_theme[1] == 'w' )
+            {
+                theme.change_theme(mainMenu, mainMenu.settingsPage.current_theme[0] - '0');
+				sounds.load_sounds(mainMenu.settingsPage.current_theme[0] - '0');
+            }
             mainMenu.MenuButtonsAnimation(window);
             mainMenu.MainMenuMouseClick(mousePosition, window);
             reset = 0;
