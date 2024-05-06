@@ -22,7 +22,8 @@ Vector2f calculateSquarePosition(int& row, int& col)
 {
     return Vector2f(col * SQUARE_SIZE, row * SQUARE_SIZE);
 }
-struct buttons {
+struct buttons 
+{
     Texture sound_txt, main_txt, restart_txt;
     Sprite  sound_button, main_button, restart_button;
     void initialize() {
@@ -107,14 +108,15 @@ void Bload(int themenum = 1)
     Vector2f board_scale;
     Texture pawnBtxt, knightBtxt, rookBtxt, kingBtxt, queenBtxt, bishopBtxt;
     Texture pawnWtxt, knightWtxt, rookWtxt, kingWtxt, queenWtxt, bishopWtxt;
-    Texture validDottxt;
+    Texture validDottxt, not_validtxt;
     Texture bgk;
     Sprite bgkk;
     Sprite board;
     Texture boardTexture; // Texture for the chessboard
     if (themenum == 1)
     {
-        validDottxt.loadFromFile("square_light.png");
+        validDottxt.loadFromFile("green2.png"); 
+        not_validtxt.loadFromFile("red.png");
         if (!pawnBtxt.loadFromFile("pieces/bp1.png") ||
             !knightBtxt.loadFromFile("pieces/bn1.png") ||
             !rookBtxt.loadFromFile("pieces/br1.png") ||
@@ -140,7 +142,8 @@ void Bload(int themenum = 1)
     }
     else if (themenum == 2)
     {
-        validDottxt.loadFromFile("square_light.png");
+        validDottxt.loadFromFile("green2.png");
+        not_validtxt.loadFromFile("red.png");
         if (!pawnBtxt.loadFromFile("pieces/bp2.png") ||
             !knightBtxt.loadFromFile("pieces/bn2.png") ||
             !rookBtxt.loadFromFile("pieces/br2.png") ||
@@ -167,7 +170,8 @@ void Bload(int themenum = 1)
     }
     else if (themenum == 3)
     {
-        validDottxt.loadFromFile("square_light.png");
+        validDottxt.loadFromFile("green2.png");
+        not_validtxt.loadFromFile("red.png");
         if (!pawnBtxt.loadFromFile("pieces/bp3.png") ||
             !knightBtxt.loadFromFile("pieces/bn3.png") ||
             !rookBtxt.loadFromFile("pieces/br3.png") ||
@@ -194,7 +198,8 @@ void Bload(int themenum = 1)
     }
     else if (themenum == 4)
     {
-        validDottxt.loadFromFile("square_light.png");
+        validDottxt.loadFromFile("green2.png");
+        not_validtxt.loadFromFile("red.png");
         if (!pawnBtxt.loadFromFile("pieces/bp4.png") ||
             !knightBtxt.loadFromFile("pieces/bn4.png") ||
             !rookBtxt.loadFromFile("pieces/br4.png") ||
@@ -221,7 +226,8 @@ void Bload(int themenum = 1)
     }
     else if (themenum == 5)
     {
-        validDottxt.loadFromFile("square_light.png");
+        validDottxt.loadFromFile("green2.png");
+        not_validtxt.loadFromFile("red.png");
         if (!pawnBtxt.loadFromFile("pieces/bp5.png") ||
             !knightBtxt.loadFromFile("pieces/bn5.png") ||
             !rookBtxt.loadFromFile("pieces/br5.png") ||
@@ -252,14 +258,15 @@ void Wload(int themenum = 1)
     Vector2f board_scale;
     Texture pawnBtxt, knightBtxt, rookBtxt, kingBtxt, queenBtxt, bishopBtxt;
     Texture pawnWtxt, knightWtxt, rookWtxt, kingWtxt, queenWtxt, bishopWtxt;
-    Texture validDottxt;
+    Texture validDottxt, not_validtxt;
     Texture bgk;
     Sprite bgkk;
     Sprite board;
     Texture boardTexture; // Texture for the chessboard
     if (themenum == 1)
     {
-        validDottxt.loadFromFile("square_light.png");
+        validDottxt.loadFromFile("green2.png");
+        not_validtxt.loadFromFile("red.png");
         if (!pawnBtxt.loadFromFile("pieces/bp1.png") ||
             !knightBtxt.loadFromFile("pieces/bn1.png") ||
             !rookBtxt.loadFromFile("pieces/br1.png") ||
@@ -285,7 +292,8 @@ void Wload(int themenum = 1)
     }
     else if (themenum == 2)
     {
-        validDottxt.loadFromFile("square_light.png");
+        validDottxt.loadFromFile("green2.png");
+        not_validtxt.loadFromFile("red.png");
         if (!pawnBtxt.loadFromFile("pieces/bp2.png") ||
             !knightBtxt.loadFromFile("pieces/bn2.png") ||
             !rookBtxt.loadFromFile("pieces/br2.png") ||
@@ -312,7 +320,8 @@ void Wload(int themenum = 1)
     }
     else if (themenum == 3)
     {
-        validDottxt.loadFromFile("square_light.png");
+        validDottxt.loadFromFile("green2.png");
+        not_validtxt.loadFromFile("red.png");
         if (!pawnBtxt.loadFromFile("pieces/bp3.png") ||
             !knightBtxt.loadFromFile("pieces/bn3.png") ||
             !rookBtxt.loadFromFile("pieces/br3.png") ||
@@ -339,7 +348,8 @@ void Wload(int themenum = 1)
     }
     else if (themenum == 4)
     {
-        validDottxt.loadFromFile("square_light.png");
+        validDottxt.loadFromFile("green2.png");
+        not_validtxt.loadFromFile("red.png");
         if (!pawnBtxt.loadFromFile("pieces/bp4.png") ||
             !knightBtxt.loadFromFile("pieces/bn4.png") ||
             !rookBtxt.loadFromFile("pieces/br4.png") ||
@@ -366,7 +376,8 @@ void Wload(int themenum = 1)
     }
     else if (themenum == 5)
     {
-        validDottxt.loadFromFile("square_light.png");
+        validDottxt.loadFromFile("green2.png");
+        not_validtxt.loadFromFile("red.png");
         if (!pawnBtxt.loadFromFile("pieces/bp5.png") ||
             !knightBtxt.loadFromFile("pieces/bn5.png") ||
             !rookBtxt.loadFromFile("pieces/br5.png") ||
@@ -398,7 +409,7 @@ string createPathPieces(int& theme, string team, string piece)
 }
 string createPathSounds(int& theme, string sound)
 {
-    return "sounds/" + sound + to_string(theme) + ".wav";
+    return "sounds/" + sound + (theme != 4 ? to_string(theme) : to_string(1)) + ".wav";
 }
 string createPathBoard(int& theme)
 {
@@ -409,7 +420,7 @@ struct Theme
     Vector2f board_scale;
     Texture pawnBtxt, knightBtxt, rookBtxt, kingBtxt, queenBtxt, bishopBtxt;
     Texture pawnWtxt, knightWtxt, rookWtxt, kingWtxt, queenWtxt, bishopWtxt;
-    Texture validDottxt;
+    Texture validDottxt, not_validtxt;
     Texture bgk;
     Sprite bgkk;
     Sprite board;
@@ -418,7 +429,8 @@ struct Theme
     {
         string team1 = (mainmenu.settingsPage.getColor() == 1 ? "w" : "b");
         string team2 = (mainmenu.settingsPage.getColor() != 1 ? "w" : "b");
-        validDottxt.loadFromFile("square_light.png");
+        validDottxt.loadFromFile("green2.png");
+        not_validtxt.loadFromFile("red.png");
         pawnBtxt.loadFromFile(createPathPieces(themenum, team1, "p"));
         knightBtxt.loadFromFile(createPathPieces(themenum, team1, "n"));
         rookBtxt.loadFromFile(createPathPieces(themenum, team1, "r"));
@@ -650,12 +662,18 @@ struct piecess
             {
                 if (validPoints[row][col])
                 {
-                    Sprite validDot;
-                    validDot.setTexture(theme.validDottxt);
+                    Sprite validDot(theme.validDottxt), notvalid(theme.not_validtxt);
                     float scale = SQUARE_SIZE / max(validDot.getLocalBounds().width, validDot.getLocalBounds().height);
                     validDot.setScale(scale, scale);
+                    notvalid.setScale(scale, scale);
+                    notvalid.setPosition(calculateSquarePosition(row, col));
                     validDot.setPosition(calculateSquarePosition(row, col));
-                    window.draw(validDot);
+                    if (current_state.board[row][col] == 0) {
+                        window.draw(validDot);
+                    }
+                    else {
+                        window.draw(notvalid);
+                    }
                 }
             }
         }
