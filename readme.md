@@ -17,7 +17,7 @@ The engine is capable of generating both pseudo-legal and legal moves for all pi
 
 ### A Chess AI:
 
-*The ai in chess is composed of two parts first the search and then the evaluation as the chess bot works by simulating moves up to a certain search depth. Then,  evaluating the resuling positions. After that, it chooses the most promising moves based on the evaluation heuristic.
+The ai in chess is composed of two parts first the search and then the evaluation as the chess bot works by simulating moves up to a certain search depth. Then,  evaluating the resuling positions. After that, it chooses the most promising moves based on the evaluation heuristic.
 
 
 ### 1- Minimax with alpha-beta pruning (The search algorithm):
@@ -41,8 +41,17 @@ Source: https://chrisbutner.github.io/ChessCoach/high-level-explanation.html
 
 ### A GUI made using SFML:
 
-(NOT YET IMPLEMENTED)
+#### A simple GUI which consists of:
 
-### Online Multiplayer Gameplay:
+* A main menu from which we can choose different game modes or open the settings page.
 
-(NOT YED IMPLEMENTED)
+* Singleplayer and mutliplayer mode which have different themes for the board and pieces.
+
+#### 5 Different themes:
+
+![First Theme](screen1.png)
+![First Theme](screen2.png)
+![First Theme](screen3.png)
+![First Theme](screen4.png)
+![First Theme](screen5.png)
+
