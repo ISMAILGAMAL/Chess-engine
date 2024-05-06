@@ -44,17 +44,22 @@ void MainMenu::MainMenuMouseClick(sf::Vector2f mousePosition, sf::RenderWindow& 
 void SettingsPage::setSettingsPageSize(sf::Vector2u windowSize) {
     background.setSize(sf::Vector2f(windowSize.x, windowSize.y));
 
-    soundIcon.setPosition(windowSize.x / 2 - 30, windowSize.y / 2 - 102);
-    soundIconText.setPosition(windowSize.x / 2 - 200, windowSize.y / 2 - 100);
+    soundIcon.setPosition(windowSize.x / 2 - 50, windowSize.y / 2 - 102);
+    soundIconText.setPosition(windowSize.x / 2 - 220, windowSize.y / 2 - 100);
 
-    themeText.setPosition(windowSize.x / 2 - 235, windowSize.y / 2 + 10);
-    basicTheme.setPosition(windowSize.x / 2 + 30, windowSize.y / 2 + 40);
-    selectedTheme.setPosition(windowSize.x / 2 + 30, windowSize.y / 2 + 40);
+    colorText.setPosition(windowSize.x / 2 - 250, windowSize.y / 2 - 30);
+    whiteColor.setPosition(windowSize.x / 2 + 70, windowSize.y / 2 - 10);
+    blackColor.setPosition(windowSize.x / 2 + 160, windowSize.y / 2 - 10);
+    selectedColor.setPosition(windowSize.x / 2 + 70, windowSize.y / 2 - 10);
 
-    colorText.setPosition(windowSize.x / 2 - 235, windowSize.y / 2 + 180);
-    whiteColor.setPosition(windowSize.x / 2 + 70, windowSize.y / 2 + 205);
-    blackColor.setPosition(windowSize.x / 2 + 160, windowSize.y / 2 + 205);
-    selectedColor.setPosition(windowSize.x / 2 + 70, windowSize.y / 2 + 205);
+    themeText.setPosition(windowSize.x / 2 - themeText.getLocalBounds().width / 2, windowSize.y / 2 + 50);
+    selectedTheme.setPosition(windowSize.x / 2 - 240, windowSize.y / 2 + 200);
+    themes[0].setPosition(windowSize.x / 2 - 240, windowSize.y / 2 + 200);
+    themes[1].setPosition(windowSize.x / 2 - 120, windowSize.y / 2 + 200);
+    themes[2].setPosition(windowSize.x / 2, windowSize.y / 2 + 200);
+    themes[3].setPosition(windowSize.x / 2 + 120, windowSize.y / 2 + 200);
+    themes[4].setPosition(windowSize.x / 2 + 240, windowSize.y / 2 + 200);
+
 
     backButton.setPosition(130, 128);
 }
@@ -85,19 +90,18 @@ void SettingsPage::changeSoundState(sf::Vector2f mousePosition) {
     }
 }
 
-void SettingsPage::setTheme(int themeNumber) {
-    current_theme = themeNumber;
-}
-
-int SettingsPage::getTheme() {
-    return current_theme;
-}
-
 void SettingsPage::changeTheme(sf::Vector2f mousePosition, sf::Vector2u windowSize) {
     if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
-        if (basicTheme.getGlobalBounds().contains(mousePosition)) {
-            current_theme = 1;
-            selectedTheme.setPosition(windowSize.x / 2 + 30, windowSize.y / 2 + 40);
+        for (int i = 0; i < 5; i++)
+        {
+            if (themes[i].getGlobalBounds().contains(mousePosition)) {
+                if (current_color == 1)
+                    current_theme = to_string(i+1) + "w";
+                else
+					current_theme = to_string(i+1) + "b";
+                selectedTheme.setPosition(themes[i].getPosition());
+                break;
+            }
         }
     }
 }
@@ -113,12 +117,14 @@ int SettingsPage::getColor() {
 void SettingsPage::changeColor(sf::Vector2f mousePosition, sf::Vector2u windowSize) {
     if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
         if (whiteColor.getGlobalBounds().contains(mousePosition)) {
-            setColor(3);
-            selectedColor.setPosition(windowSize.x / 2 + 70, windowSize.y / 2 + 205);
+            setColor(1);
+            current_theme[1] = 'w';
+            selectedColor.setPosition(whiteColor.getPosition());
         }
         else if (blackColor.getGlobalBounds().contains(mousePosition)) {
-            setColor(4);
-            selectedColor.setPosition(windowSize.x / 2 + 160, windowSize.y / 2 + 205);
+            setColor(2);
+            current_theme[1] = 'b';
+            selectedColor.setPosition(blackColor.getPosition());
         }
     }
 }
@@ -147,7 +153,32 @@ void SettingsPage::DisplaySettings(sf::RenderWindow& window) {
     window.draw(blackColor);
     window.draw(selectedColor);
     window.draw(themeText);
-    window.draw(basicTheme);
+    for (int i = 0; i < 5; i++)
+    {
+        window.draw(themes[i]);
+    }
     window.draw(selectedTheme);
     window.draw(backButton);
 }
+
+void SettingsPage::updateTheme() {
+    switch (current_theme[0]-'0')
+    {
+    case 1:
+        selectedTheme.setPosition(themes[0].getPosition());
+        break;
+    case 2:
+        selectedTheme.setPosition(themes[1].getPosition());
+        break;
+    case 3:
+        selectedTheme.setPosition(themes[2].getPosition());
+        break;
+    case 4:
+        selectedTheme.setPosition(themes[3].getPosition());
+        break;
+    case 5:
+        selectedTheme.setPosition(themes[4].getPosition());
+        break;
+    }
+}
+

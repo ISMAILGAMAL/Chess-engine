@@ -5,21 +5,18 @@
 
 struct SettingsPage {
 private:
-    sf::Texture backgroundTexture, soundOnIconTexture, soundOffIconTexture, basicThemeTexture;
+    sf::Texture backgroundTexture, soundOnIconTexture, soundOffIconTexture, themesTexture[5];
     sf::Texture whiteTexture, blackTexture, selectedTexture, backButtonTexture;
     sf::Font font;
     bool soundState = 1;
-    int current_theme = 1;
-    // 1 -> basic theme
-    // 2 -> pixel theme
 
-    int current_color = 3;
-    // 1 -> white color
-    // 2 -> black color
-
+    int current_color = 1;
+    // 1 -> white color first time
+    // 2 -> black color first time
 public:
+    string current_theme = "1w";
     sf::RectangleShape background, selectedTheme, selectedColor;
-    sf::Sprite soundIcon, whiteColor, blackColor, basicTheme, backButton;
+    sf::Sprite soundIcon, whiteColor, blackColor, themes[5], backButton;
     sf::Text soundIconText, themeText, colorText;
     SettingsPage() {
         if (backgroundTexture.loadFromFile("assets/SettingsBackgroundSquare.png") == false)
@@ -36,12 +33,16 @@ public:
             cout << "Can\'t load Selected theme \n";
         if (font.loadFromFile("assets/lucida.ttf") == false)
             cout << "Can\'t load font\n";
-        if (basicThemeTexture.loadFromFile("assets/BasicTheme.jpg") == false)
-            cout << "Can\'t load basic theme \n";
         if (backButtonTexture.loadFromFile("assets/BackButton.png") == false)
             cout << "Can\'t load back button \n";
-
-        backButtonTexture.setSmooth(true);
+        for (int i = 1; i <= 5; i++)
+        {
+            string path = "assets/theme" + to_string(i) + ".png";
+            themesTexture[i - 1].loadFromFile(path);
+            themes[i - 1].setTexture(themesTexture[i - 1]);
+            themes[i - 1].setScale(sf::Vector2f(0.22f, 0.22f));
+            themes[i - 1].setOrigin(themes[i - 1].getLocalBounds().getSize() / 2.f);
+        }
 
         background.setTexture(&backgroundTexture);
         soundIcon.setTexture(soundOnIconTexture);
@@ -49,7 +50,6 @@ public:
         whiteColor.setTexture(whiteTexture);
         selectedColor.setTexture(&selectedTexture);
         selectedTheme.setTexture(&selectedTexture);
-        basicTheme.setTexture(basicThemeTexture);
         backButton.setTexture(backButtonTexture);
 
         soundIcon.setOrigin(soundIcon.getLocalBounds().getSize() / 2.f);
@@ -58,11 +58,8 @@ public:
         selectedColor.setSize(sf::Vector2f(80, 80));
         selectedColor.setOrigin(selectedColor.getLocalBounds().getSize() / 2.f);
 
-        selectedTheme.setSize(sf::Vector2f(180, 180));
+        selectedTheme.setSize(sf::Vector2f(120, 120));
         selectedTheme.setOrigin(selectedTheme.getLocalBounds().getSize() / 2.f);
-
-        basicTheme.setScale(0.22, 0.22);
-        basicTheme.setOrigin(basicTheme.getLocalBounds().getSize() / 2.f);
 
         whiteColor.setOrigin(whiteColor.getLocalBounds().getSize() / 2.f);
         blackColor.setOrigin(whiteColor.getLocalBounds().getSize() / 2.f);
@@ -70,12 +67,12 @@ public:
         backButton.setOrigin(backButton.getLocalBounds().getSize() / 2.f);
         backButton.setScale(0.85, 0.85);
 
-        soundIconText.setString("Sonud : ");
-        themeText.setString("Theme : ");
+        soundIconText.setString("Sound : ");
+        themeText.setString("Themes");
         colorText.setString("Player One : ");
 
         soundIconText.setCharacterSize(40);
-        themeText.setCharacterSize(40);
+        themeText.setCharacterSize(60);
         colorText.setCharacterSize(40);
 
         soundIconText.setFillColor(sf::Color(237.0, 218.0, 185.0));
@@ -87,6 +84,8 @@ public:
         colorText.setFont(font);
     }
 
+    void updateTheme();
+
     void setSettingsPageSize(sf::Vector2u);
 
     bool getSoundState();
@@ -94,10 +93,6 @@ public:
     void setSoundState(bool state);
 
     void changeSoundState(sf::Vector2f);
-
-    int getTheme();
-
-    void setTheme(int);
 
     int getColor();
 
