@@ -22,7 +22,7 @@ Vector2f calculateSquarePosition(int& row, int& col)
 {
     return Vector2f(col * SQUARE_SIZE, row * SQUARE_SIZE);
 }
-struct buttons 
+struct buttons
 {
     Texture sound_txt, main_txt, restart_txt;
     Sprite  sound_button, main_button, restart_button;
@@ -216,8 +216,8 @@ struct soundss {
     }
 };
 struct End {
-    Texture background_txt, main_txt, restart_txt,exit_txt;
-    Sprite  background, main_button, restart_button,exit_button;
+    Texture background_txt, main_txt, restart_txt, exit_txt;
+    Sprite  background, main_button, restart_button, exit_button;
     Text sentence;
     string win, win1, win2, lose, draw;
     Font font;
@@ -245,15 +245,15 @@ struct End {
 
         main_button.setTextureRect(IntRect(10 * 16, 9 * 16, 16, 16));
         restart_button.setTextureRect(IntRect(9 * 16, 9 * 16, 16, 16));
-        exit_button.setTextureRect(IntRect(10 * 16,  10* 16, 16, 16));
+        exit_button.setTextureRect(IntRect(10 * 16, 10 * 16, 16, 16));
         background.setTextureRect(IntRect(0, 500, 2000, 1500));
 
         background.setPosition(window_w / 2, window_h / 2);
-        Vector2f back_position=background.getPosition();
-        main_button.setPosition(back_position.x*2, back_position.y );
-        restart_button.setPosition(back_position.x * 2.1, back_position.y );
-        exit_button.setPosition(back_position.x * 2.2, back_position.y );
-        sentence.setPosition(back_position.x *0.95 , back_position.y * 0.8 );
+        Vector2f back_position = background.getPosition();
+        main_button.setPosition(back_position.x * 2, back_position.y);
+        restart_button.setPosition(back_position.x * 2.1, back_position.y);
+        exit_button.setPosition(back_position.x * 2.2, back_position.y);
+        sentence.setPosition(back_position.x * 0.95, back_position.y * 0.8);
 
         font.loadFromFile("font.ttf");
         sentence.setFont(font);
@@ -263,7 +263,7 @@ struct End {
         win2 = "Black is victorious !";
         win = "YOU WON !";
         lose = "you lost";
-        draw = "Stalemate";
+        draw = "staleMate";
     }
     void change(int num, int mode, soundss sounds, bool first_end) {
         if (first_end) {
@@ -295,7 +295,7 @@ struct End {
         window.draw(exit_button);
         window.draw(sentence);
     }
-    void MouseClickButtons(MainMenu& mainMenu, GameState& currentState,int& end_game,int& end_game_ai) {
+    void MouseClickButtons(MainMenu& mainMenu, GameState& currentState, int& end_game, int& end_game_ai) {
         auto mousePosition = window.mapPixelToCoords(Mouse::getPosition(window));
         if (Mouse::isButtonPressed(Mouse::Left)) {
             if (main_button.getGlobalBounds().contains(mousePosition)) {
@@ -415,56 +415,52 @@ void valid_moves(GameState& current_state, bool validPoints[][8], int& lastPiece
 
     if (current_state.player == 1)
     {
-        myPair<int, int>currentmouse = { lastPieceX,lastPieceY };
         for (int i = 0; i < current_state.white_possible_moves.size(); i++)
         {
-            char a = current_state.white_possible_moves[i][0];
-            char b = current_state.white_possible_moves[i][1];
-            char c = current_state.white_possible_moves[i][2];
-            char d = current_state.white_possible_moves[i][3];
-            myPair<int, int>validsquare = to_index(c, d);
-            if (currentmouse == to_index(a, b) &&
-                current_state.check_legal(lastPieceX, lastPieceY, validsquare.first, validsquare.second, current_state.player))
-                validPoints[validsquare.first][validsquare.second] = 1;
+            Move move = current_state.white_possible_moves[i];
+            int fromX = move.FromX(), fromY = move.FromY();
+            int toX = move.ToX(), toY = move.ToY();
+            if (lastPieceX == fromX && lastPieceY == fromY && current_state.check_legal(move))
+                validPoints[toX][toY] = 1;
         }
     }
     else
     {
-
-        myPair<int, int>currentmouse = { lastPieceX,lastPieceY };
         for (int i = 0; i < current_state.black_possible_moves.size(); i++)
         {
-            char a = current_state.black_possible_moves[i][0];
-            char b = current_state.black_possible_moves[i][1];
-            char c = current_state.black_possible_moves[i][2];
-            char d = current_state.black_possible_moves[i][3];
-            myPair<int, int>validsquare = to_index(c, d);
-            if (currentmouse == to_index(a, b) &&
-                current_state.check_legal(lastPieceX, lastPieceY, validsquare.first, validsquare.second, current_state.player))
-                validPoints[validsquare.first][validsquare.second] = 1;
+            Move move = current_state.black_possible_moves[i];
+            int fromX = move.FromX(), fromY = move.FromY();
+            int toX = move.ToX(), toY = move.ToY();
+            if (lastPieceX == fromX && lastPieceY == fromY && current_state.check_legal(move))
+                validPoints[toX][toY] = 1;
         }
     }
 }
-void applying_sounds(GameState& current_state, soundss& sounds, int& mouseX, int& mouseY, int& lastPieceX, int& lastPieceY, bool sound_state) {
-    GameState new_state = current_state.simulate_move(lastPieceX, lastPieceY, mouseX, mouseY);
+void applying_sounds(GameState& state, soundss& sounds, Move move, bool sound_state) {
     if (sound_state) {
-        if (new_state.checked(new_state.white_king.first, new_state.white_king.second, 1) ||
-            new_state.checked(new_state.black_king.first, new_state.black_king.second, -1))
+        state.makeMove(move);
+
+        if (state.checked(state.white_king.first, state.white_king.second, 1) ||
+            state.checked(state.black_king.first, state.black_king.second, -1)) {
             sounds.check.play();
-        else if (current_state.board[lastPieceX][lastPieceY] == 6 && mouseX == 0 ||
-            current_state.board[lastPieceX][lastPieceY] == -6 && mouseX == 7)
-            sounds.promotion.play();
-        else if (current_state.board[mouseX][mouseY])
-            sounds.capture.play();
-        else if (current_state.board[mouseX][mouseY] == 0)
-            sounds.move.play();
+            state.unMakeMove(move);
+        }
+        else {
+            state.unMakeMove(move);
+            if (state.board[move.FromX()][move.FromY()] == 6 && move.ToX() == 0 ||
+                state.board[move.FromX()][move.FromY()] == -6 && move.ToX() == 7)
+                sounds.promotion.play();
+            else if (state.board[move.ToX()][move.ToY()])
+                sounds.capture.play();
+            else if (state.board[move.ToX()][move.ToY()] == 0)
+                sounds.move.play();
+        }
+
     }
 }
 void move_generation(GameState& current_state) {
-    if (current_state.white_possible_moves.empty())
-        current_state.generate_all_possible_moves(1);
-    if (current_state.black_possible_moves.empty())
-        current_state.generate_all_possible_moves(-1);
+    current_state.generate_all_possible_moves(1);
+    current_state.generate_all_possible_moves(-1);
 }
 
 int main()
@@ -507,7 +503,7 @@ int main()
                 window.close();
 
             if (end_game != -10 || end_game_ai != -10)
-                end.MouseClickButtons(mainMenu, current_state, end_game,end_game_ai);
+                end.MouseClickButtons(mainMenu, current_state, end_game, end_game_ai);
 
             if (Keyboard::isKeyPressed(Keyboard::Z)) {//////////////////////REMOVE
                 end_game = 1;
@@ -533,7 +529,7 @@ int main()
                 if (mainMenu.settingsPage.getColor() == 1)
                     mainMenu.settingsPage.current_theme = "3w";
                 else
-					mainMenu.settingsPage.current_theme = "3b";
+                    mainMenu.settingsPage.current_theme = "3b";
                 theme.change_theme(mainMenu, 3);
                 sounds.load_sounds(3);
             }
@@ -582,10 +578,10 @@ int main()
         mainMenu.settingsPage.updateTheme();
         if (mainMenu.loadedMenu == 0) {
             auto mousePosition = window.mapPixelToCoords(Mouse::getPosition(window));
-            if (mainMenu.settingsPage.current_theme[1] == 'b' || mainMenu.settingsPage.current_theme[1] == 'w' )
+            if (mainMenu.settingsPage.current_theme[1] == 'b' || mainMenu.settingsPage.current_theme[1] == 'w')
             {
                 theme.change_theme(mainMenu, mainMenu.settingsPage.current_theme[0] - '0');
-				sounds.load_sounds(mainMenu.settingsPage.current_theme[0] - '0');
+                sounds.load_sounds(mainMenu.settingsPage.current_theme[0] - '0');
             }
             mainMenu.MenuButtonsAnimation(window);
             mainMenu.MainMenuMouseClick(mousePosition, window);
@@ -604,17 +600,19 @@ int main()
                 }
                 else if (validPoints[mouseX][mouseY])
                 {
-                    applying_sounds(current_state, sounds, mouseX, mouseY, lastPieceX, lastPieceY, mainMenu.settingsPage.getSoundState());
-                    current_state = current_state.simulate_move(lastPieceX, lastPieceY, mouseX, mouseY);
+                    Move move = current_state.findMove(lastPieceX, lastPieceY, mouseX, mouseY);
+                    applying_sounds(current_state, sounds, move, mainMenu.settingsPage.getSoundState());
+                    current_state.makeMove(move);
                     reset_validpoints(validPoints);
                     move_generation(current_state);
-                    if (current_state.checkmate(1))
+                    if (current_state.checkMate(1))
                         end_game = -1; //black won
-                    else if (current_state.checkmate(-1))
+                    else if (current_state.checkMate(-1))
                         end_game = 1; //white won
-                    else if (current_state.stalemate(1) || current_state.stalemate(-1)) {
+                    else if (current_state.staleMate(1) || current_state.staleMate(-1)) {
                         end_game = 2;//draw
                     }
+
 
                 }
             }
@@ -636,8 +634,9 @@ int main()
                     }
                     else if (validPoints[mouseX][mouseY])
                     {
-                        applying_sounds(current_state, sounds, mouseX, mouseY, lastPieceX, lastPieceY, mainMenu.settingsPage.getSoundState());
-                        current_state = current_state.simulate_move(lastPieceX, lastPieceY, mouseX, mouseY);
+                        Move move = current_state.findMove(lastPieceX, lastPieceY, mouseX, mouseY);
+                        applying_sounds(current_state, sounds, move, mainMenu.settingsPage.getSoundState());
+                        current_state.makeMove(move);
                         reset_validpoints(validPoints);
 
                     }
@@ -646,22 +645,22 @@ int main()
             else
             {
                 AI.iterative_deepening(current_state);
-                string best = AI.best_move;
-                cout << "Best Move: " << best << " " << AI.best_score << endl;
+                Move move = AI.best_move;
+                cout << "Best Move: " << to_uci(move.FromX(), move.FromY(), move.ToX(), move.ToY()) << " " << AI.best_score << endl;
                 cout << "Nodes Evaluated: " << AI.node_counter << endl;
+                cout << "Quiescent Nodes: " << AI.Q_nodes << endl;
                 cout << "Depth Reached: " << AI.reached_depth << endl;
                 cout << "Time Taken: " << AI.time_in_seconds << endl;
-                myPair<int, int>from = to_index(best[0], best[1]), to = to_index(best[2], best[3]);
-                applying_sounds(current_state, sounds, to.first, to.second, from.first, from.second, mainMenu.settingsPage.getSoundState());
-                current_state = current_state.simulate_move(from.first, from.second, to.first, to.second);
+                applying_sounds(current_state, sounds, move, mainMenu.settingsPage.getSoundState());
+                current_state.makeMove(move);
                 current_state.show();
             }
             move_generation(current_state);
-            if (current_state.checkmate(1))
+            if (current_state.checkMate(1))
                 end_game_ai = -1; //you lost
-            else if (current_state.checkmate(-1))
+            if (current_state.checkMate(-1))
                 end_game_ai = 1; //you won
-            else if (current_state.stalemate(1) || current_state.stalemate(-1))
+            if (current_state.staleMate(1) || current_state.staleMate(-1))
                 end_game_ai = 2;//draw
         }
 

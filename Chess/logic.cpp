@@ -12,6 +12,13 @@ using namespace std;
 
 // Some helper functions.
 
+void printBits(uint16_t num) {
+    for (int i = 15; i >= 0; i--) {
+        if (i == 13 || i == 9 || i == 6 || i == 3) cout << " ";
+        cout << (((1 << i) & num) != 0);
+    }cout << endl;
+}
+
 // Checks if index is in range of the board.
 bool in_board(int x, int y) {
     if (x < 0 || y < 0 || x>7 || y>7)
@@ -53,20 +60,70 @@ char match_to_char(int piece) {
     return piece_char;
 }
 
+
+// Some functions to make using moves more convenient handling all the bitwise operations.
+
+Move::Move(int fromX, int fromY, int toX, int toY, int flag, bool capture) {
+    move = 0;
+    move |= fromX;
+    move |= (fromY << 3);
+    move |= (toX << 6);
+    move |= (toY << 9);
+    move |= (flag << 12);
+    if (capture) move |= (1 << 15);
+}
+
+Move::Move() {};
+
+uint16_t Move::FromX() {
+    return move & 7U;
+}
+
+uint16_t Move::FromY() {
+    return (move >> 3) & 7U;
+}
+
+uint16_t Move::ToX() {
+    return (move >> 6) & 7U;
+}
+
+uint16_t Move::ToY() {
+    return (move >> 9) & 7U;
+}
+
+bool Move::IsPromotion() {
+    return ((move >> 12) & 7U) == Promotion;
+}
+
+bool Move::IsCastle() {
+    return ((move >> 12) & 7U) == Castling;
+}
+
+bool Move::IsEnPassant() {
+    return ((move >> 12) & 7U) == EnPassant;
+}
+
+bool Move::IsPawnTwoMoves() {
+    return ((move >> 12) & 7U) == PawnTwoMoves;
+}
+
+bool Move::IsCapture() {
+    return ((move >> 15) & 1);
+}
+
 // A struct that encapsulates an entire game state which helps us to copy and pass 
 // new game states to the searching Alpha-beta pruned minimax algorithm without 
 // needing complex logic to handle special moves and also allows us to interface with the gui.
 
 void GameState::initialize_board() {
-
+    
     //  resetting everything by initializing all the board's and array's values to zero.
 
     player = 1;
     black_king = { 0,4 };
     white_king = { 7,4 };
     memset(board, 0, sizeof(board));
-    memset(rook_moved, 0, sizeof(rook_moved));
-    memset(king_moved, 0, sizeof(king_moved));
+    currentGameState = 0b0000000000001111;;
 
     // Initializing the new board to standard beginning chess position.
     int z = 0;
@@ -92,6 +149,8 @@ void GameState::initialize_board(string FEN) {
     string board_fen = "", player_fen = "", castling_fen = "", en_passant_fen = "";
     int num_break = 0;
 
+    currentGameState = 0;
+
     // Parses the fen into four strings.
     for (int i = 0; i < FEN.size(); i++) {
         if (FEN[i] == ' ') { num_break++; continue; }
@@ -103,8 +162,6 @@ void GameState::initialize_board(string FEN) {
     }
 
     memset(board, 0, sizeof(board));
-    memset(rook_moved, true, sizeof(rook_moved));
-    memset(king_moved, true, sizeof(king_moved));
 
     int i = 0, j = 0;
 
@@ -133,16 +190,17 @@ void GameState::initialize_board(string FEN) {
 
     // Assigning castling rights according to the FEN
     for (int i = 0; i < castling_fen.size(); i++) {
-        if (castling_fen[i] == 'q') { rook_moved[0] = false; king_moved[0] = false; }
-        else if (castling_fen[i] == 'k') { rook_moved[1] = false; king_moved[0] = false; }
-        else if (castling_fen[i] == 'Q') { rook_moved[2] = false; king_moved[1] = false; }
-        else if (castling_fen[i] == 'K') { rook_moved[3] = false; king_moved[1] = false; }
+        if (castling_fen[i] == 'q') { currentGameState |= 8; }
+        else if (castling_fen[i] == 'k') { currentGameState |= 4; }
+        else if (castling_fen[i] == 'Q') { currentGameState |= 2; }
+        else if (castling_fen[i] == 'K') { currentGameState |= 1; }
     }
 
     // en passant
     if (en_passant_fen.size() > 1) {
-        int rank = 8 - int(en_passant_fen[1] - '0'), file = 8 - int(en_passant_fen[0] - 'a');
-        en_passant = { {rank, file}, 0 };
+        int rank = 8 - int(en_passant_fen[1] - '0'), file = int(en_passant_fen[0] - 'a');
+        currentGameState |= (rank << 4);
+        currentGameState |= (file << 7);
     }
 }
 
@@ -150,72 +208,72 @@ void GameState::initialize_board(string FEN) {
 
 // Generate pseudo-legal moves for the pawn.
 void GameState::pawn_moves(int x, int y, int team) {
-    myVector<myPair<int, int>> moves;
+    myPair<int, int> enPassantSq = enPassant();
+    uint16_t flag = Move::None;
 
     if (team == 1) {
 
+        if (x - 1 == 0) flag = Move::Promotion;
+
         if (in_board(x - 1, y) && board[x - 1][y] == 0) // Moving once.
-            moves.push_back({ x - 1, y });
+            white_possible_moves.push_back(Move(x, y, x - 1, y, flag));
         if (in_board(x - 2, y) && board[x - 2][y] == 0 && board[x - 1][y] == 0 && x == 6) // Moving twice.
-            moves.push_back({ x - 2, y });
+            white_possible_moves.push_back(Move(x, y, x - 2, y, Move::PawnTwoMoves));
 
         if (in_board(x - 1, y - 1) && board[x - 1][y - 1] < 0)
-            moves.push_back({ x - 1, y - 1 });                    // Diagonal piece capturing.
+            white_possible_moves.push_back(Move(x, y, x - 1, y - 1, flag, true));   // Diagonal piece capturing.
         if (in_board(x - 1, y + 1) && board[x - 1][y + 1] < 0)
-            moves.push_back({ x - 1, y + 1 });
+            white_possible_moves.push_back(Move(x, y, x - 1, y + 1, flag, true));
 
-        if (en_passant.first.first == x - 1 && en_passant.first.second == y - 1)
-            moves.push_back({ x - 1, y - 1 });                                   // En passant
-        if (en_passant.first.first == x - 1 && en_passant.first.second == y + 1)
-            moves.push_back({ x - 1, y + 1 });
+        if ((enPassantSq.first != 0 || enPassantSq.second != 0) && enPassantSq.first == 1) {
+            if (enPassantSq.first == x - 1 && enPassantSq.second == y - 1)
+                white_possible_moves.push_back(Move(x, y, x - 1, y - 1, Move::EnPassant, true));  // En passant
+            if (enPassantSq.first == x - 1 && enPassantSq.second == y + 1)
+                white_possible_moves.push_back(Move(x, y, x - 1, y + 1, Move::EnPassant, true));
+        }
 
-        for (int i = 0; i < moves.size(); i++)
-            white_possible_moves.push_back(to_uci(x, y, moves[i].first, moves[i].second));
     }
     else {
+
+        if (x + 1 == 7) flag = Move::Promotion;
+
         if (in_board(x + 1, y) && board[x + 1][y] == 0)
-            moves.push_back({ x + 1, y });
+            black_possible_moves.push_back(Move(x, y, x + 1, y, flag));
         if (in_board(x + 2, y) && board[x + 2][y] == 0 && board[x + 1][y] == 0 && x == 1)
-            moves.push_back({ x + 2, y });
+            black_possible_moves.push_back(Move(x, y, x + 2, y, Move::PawnTwoMoves));
 
         if (in_board(x + 1, y - 1) && board[x + 1][y - 1] > 0)
-            moves.push_back({ x + 1, y - 1 });
+            black_possible_moves.push_back(Move(x, y, x + 1, y - 1, flag, true));
         if (in_board(x + 1, y + 1) && board[x + 1][y + 1] > 0)
-            moves.push_back({ x + 1, y + 1 });
+            black_possible_moves.push_back(Move(x, y, x + 1, y + 1, flag, true));
 
-        if (en_passant.first.first == x + 1 && en_passant.first.second == y - 1)
-            moves.push_back({ x + 1, y - 1 });
-        if (en_passant.first.first == x + 1 && en_passant.first.second == y + 1)
-            moves.push_back({ x + 1, y + 1 });
-
-        for (int i = 0; i < moves.size(); i++)
-            black_possible_moves.push_back(to_uci(x, y, moves[i].first, moves[i].second));
+        if ((enPassantSq.first != 0 || enPassantSq.second != 0) && enPassantSq.first == 6) {
+            if (enPassantSq.first == x + 1 && enPassantSq.second == y - 1)
+                black_possible_moves.push_back(Move(x, y, x + 1, y - 1, Move::EnPassant, true));
+            if (enPassantSq.first == x + 1 && enPassantSq.second == y + 1)
+                black_possible_moves.push_back(Move(x, y, x + 1, y + 1, Move::EnPassant, true));
+        }
     }
 }
 
 void GameState::rook_moves(int x, int y, int team) {
     int x_offsets[] = { 0, 0, 1, -1 }; // defining an array of offsets to loop over and generate moves  
     int y_offsets[] = { 1, -1, 0, 0 }; // in the four vertical and horizontal directions.
-    myVector<myPair<int, int>> moves;
 
     for (int i = 0; i < 4; i++) {
         int target_x = x + x_offsets[i], target_y = y + y_offsets[i];
         while (in_board(target_x, target_y)) {
             int piece = board[target_x][target_y];
             if (piece * team > 0) break; // breaking before pushing the position of a friendly piece.
-            moves.push_back({ target_x, target_y });
+
+            if (team == 1)
+                white_possible_moves.push_back(Move(x, y, target_x, target_y, Move::None, (piece != 0)));
+            else
+                black_possible_moves.push_back(Move(x, y, target_x, target_y, Move::None, (piece != 0)));
+
             if (piece * team < 0) break; // breaking after pushing the position of exactly one enemy piece.
             target_x += x_offsets[i]; target_y += y_offsets[i];
         }
-    }
-
-    if (team == 1) {
-        for (int i = 0; i < moves.size(); i++)
-            white_possible_moves.push_back(to_uci(x, y, moves[i].first, moves[i].second));
-    }
-    else {
-        for (int i = 0; i < moves.size(); i++)
-            black_possible_moves.push_back(to_uci(x, y, moves[i].first, moves[i].second));
     }
 }
 
@@ -223,7 +281,7 @@ void GameState::rook_moves(int x, int y, int team) {
 void GameState::king_moves(int x, int y, int team) {
     int x_offsets[] = { 1, 1, 1, -1, -1, -1, 0, 0 };
     int y_offsets[] = { -1, 0, 1, -1, 0, 1, 1, -1 };
-    myVector<myPair<int, int>> moves;
+
 
     // Castling:
     //      a b c d e f g h
@@ -236,44 +294,37 @@ void GameState::king_moves(int x, int y, int team) {
     //  3   . . . . . . . .
     //  2   P P P P P P P P
     //  1   R N B Q K B N R
-
-    // In the rook_moved boolean array to check for castling rights the rook's indices are as follows:
-    // a8 -> 0, h8 -> 1, a1 -> 2, h1 -> 3
-
-    // And the king's in the king_moved array are: Black -> 0, White -> 1
-
-    if (team == 1) {
-        if (!board[7][1] && !board[7][2] && !board[7][3] && !rook_moved[2] && !king_moved[1])
-            if (!checked(7, 3, 1) && !checked(x, y, 1))
-                moves.push_back({ 7, 2 });
-        if (!board[7][5] && !board[7][6] && !rook_moved[3] && !king_moved[1])
-            if (!checked(7, 5, 1) && !checked(x, y, 1))
-                moves.push_back({ 7, 6 });
-    }
-    else {
-        if (!board[0][1] && !board[0][2] && !board[0][3] && !rook_moved[0] && !king_moved[0]) {
-            if (!checked(0, 3, -1) && !checked(x, y, -1))
-                moves.push_back({ 0, 2 });
-        }
-        if (!board[0][5] && !board[0][6] && !rook_moved[1] && !king_moved[0]) {
-            if (!checked(0, 5, -1) && !checked(x, y, -1))
-                moves.push_back({ 0, 6 });
-        }
-    }
+    // BQ -> a8, BK -> h8, WQ -> a1, WK -> h1
 
     for (int i = 0; i < 8; i++) {
         int target_x = x + x_offsets[i], target_y = y + y_offsets[i];
-        if (in_board(target_x, target_y) && board[target_x][target_y] * team <= 0)
-            moves.push_back({ target_x, target_y });
+        int piece = board[target_x][target_y];
+        if (in_board(target_x, target_y) && piece * team <= 0) {
+            if (team == 1)
+                white_possible_moves.push_back(Move(x, y, target_x, target_y, Move::None, (piece != 0)));
+            else
+                black_possible_moves.push_back(Move(x, y, target_x, target_y, Move::None, (piece != 0)));
+        }
     }
 
+
     if (team == 1) {
-        for (int i = 0; i < moves.size(); i++)
-            white_possible_moves.push_back(to_uci(x, y, moves[i].first, moves[i].second));
+        if (!board[7][1] && !board[7][2] && !board[7][3] && canCastle(WQueenSide))
+            if (!checked(7, 3, 1) && !checked(x, y, 1))
+                white_possible_moves.push_back(Move(x, y, 7, 2, Move::Castling));
+        if (!board[7][5] && !board[7][6] && canCastle(WKingSide))
+            if (!checked(7, 5, 1) && !checked(x, y, 1))
+                white_possible_moves.push_back(Move(x, y, 7, 6, Move::Castling));
     }
     else {
-        for (int i = 0; i < moves.size(); i++)
-            black_possible_moves.push_back(to_uci(x, y, moves[i].first, moves[i].second));
+        if (!board[0][1] && !board[0][2] && !board[0][3] && canCastle(BQueenSide)) {
+            if (!checked(0, 3, -1) && !checked(x, y, -1))
+                black_possible_moves.push_back(Move(x, y, 0, 2, Move::Castling));
+        }
+        if (!board[0][5] && !board[0][6] && canCastle(BKingSide)) {
+            if (!checked(0, 5, -1) && !checked(x, y, -1))
+                black_possible_moves.push_back(Move(x, y, 0, 6, Move::Castling));
+        }
     }
 }
 
@@ -281,47 +332,39 @@ void GameState::king_moves(int x, int y, int team) {
 void GameState::knight_moves(int x, int y, int team) {
     int x_offsets[] = { -2, -1, -2, -1, 1, 1, 2, 2 };
     int y_offsets[] = { 1, 2, -1, -2, -2, 2, -1, 1 };
-    myVector<myPair<int, int>> moves;
 
     for (int i = 0; i < 8; i++) {
         int target_x = x + x_offsets[i], target_y = y + y_offsets[i];
-        if (in_board(target_x, target_y) && board[target_x][target_y] * team <= 0)
-            moves.push_back({ target_x, target_y });
+        int piece = board[target_x][target_y];
+        if (in_board(target_x, target_y) && piece * team <= 0) {
+            if (team == 1)
+                white_possible_moves.push_back(Move(x, y, target_x, target_y, Move::None, (piece != 0)));
+            else
+                black_possible_moves.push_back(Move(x, y, target_x, target_y, Move::None, (piece != 0)));
+        }
     }
 
-    if (team == 1) {
-        for (int i = 0; i < moves.size(); i++)
-            white_possible_moves.push_back(to_uci(x, y, moves[i].first, moves[i].second));
-    }
-    else {
-        for (int i = 0; i < moves.size(); i++)
-            black_possible_moves.push_back(to_uci(x, y, moves[i].first, moves[i].second));
-    }
 }
 
 
 void GameState::bishop_moves(int x, int y, int team) {
     int x_offsets[] = { 1, 1, -1, -1 }; // defining an array of offsets like the rook function but
     int y_offsets[] = { 1, -1, 1, -1 }; // in the four diagonal directions.
-    myVector<myPair<int, int>> moves;
 
     for (int i = 0; i < 4; i++) {
         int target_x = x + x_offsets[i], target_y = y + y_offsets[i];
         while (in_board(target_x, target_y)) {
             int piece = board[target_x][target_y];
             if (piece * team > 0) break;
-            moves.push_back({ target_x, target_y });
+
+            if (team == 1)
+                white_possible_moves.push_back(Move(x, y, target_x, target_y, Move::None, (piece != 0)));
+            else
+                black_possible_moves.push_back(Move(x, y, target_x, target_y, Move::None, (piece != 0)));
+
             if (piece * team < 0) break;
             target_x += x_offsets[i]; target_y += y_offsets[i];
         }
-    }
-    if (team == 1) {
-        for (int i = 0; i < moves.size(); i++)
-            white_possible_moves.push_back(to_uci(x, y, moves[i].first, moves[i].second));
-    }
-    else {
-        for (int i = 0; i < moves.size(); i++)
-            black_possible_moves.push_back(to_uci(x, y, moves[i].first, moves[i].second));
     }
 }
 
@@ -329,26 +372,21 @@ void GameState::bishop_moves(int x, int y, int team) {
 void GameState::queen_moves(int x, int y, int team) {
     int x_offsets[] = { 1, 1, -1, -1, 0, 0, 1, -1 };
     int y_offsets[] = { 1, -1, 1, -1, 1, -1, 0, 0 };
-    myVector<myPair<int, int>> moves;
 
     for (int i = 0; i < 8; i++) {
         int target_x = x + x_offsets[i], target_y = y + y_offsets[i];
         while (in_board(target_x, target_y)) {
             int piece = board[target_x][target_y];
             if (piece * team > 0) break;
-            moves.push_back({ target_x, target_y });
+
+            if (team == 1)
+                white_possible_moves.push_back(Move(x, y, target_x, target_y, Move::None, (piece != 0)));
+            else
+                black_possible_moves.push_back(Move(x, y, target_x, target_y, Move::None, (piece != 0)));
+
             if (piece * team < 0) break;
             target_x += x_offsets[i]; target_y += y_offsets[i];
         }
-    }
-
-    if (team == 1) {
-        for (int i = 0; i < moves.size(); i++)
-            white_possible_moves.push_back(to_uci(x, y, moves[i].first, moves[i].second));
-    }
-    else {
-        for (int i = 0; i < moves.size(); i++)
-            black_possible_moves.push_back(to_uci(x, y, moves[i].first, moves[i].second));
     }
 }
 
@@ -371,10 +409,14 @@ void GameState::generate_piece_moves(int x, int y, int team, int type) {
 
 // Loops over the board to generate all the possible moves for each piece storing it 
 // in the object's white_possible_moves or black_possible_moves.
-void GameState::generate_all_possible_moves(int team) {
+void GameState::generate_all_possible_moves(int team, bool captures) {
     // White -> 1 , Black -> -1
     // If the parameter type == 1 then it will only generate moves for white
     // if it was -1 then it will only generate moves for black.
+
+    if (team == 1) white_possible_moves.clear();
+    else black_possible_moves.clear();
+
     for (int i = 0; i < 8; i++) {
         for (int j = 0; j < 8; j++) {
             int type = board[i][j];
@@ -389,28 +431,16 @@ void GameState::generate_all_possible_moves(int team) {
 }
 
 // A function used for testing and debugging.
-void GameState::display_possible_moves() {
-    myVector<string> possible;
-    if (player == 1) possible = white_possible_moves;
-    else  possible = black_possible_moves;
-    cout << "Possible moves: " << endl;
-    for (int i = 0; i < possible.size(); i++) {
-        cout << possible[i] << endl;
-    }
-}
+//void GameState::display_possible_moves() {
+    //myVector<string> possible;
+    //if (player == 1) possible = white_possible_moves;
+    //else  possible = black_possible_moves;
+    //cout << "Possible moves: " << endl;
+    //for (int i = 0; i < possible.size(); i++) {
+        //cout << possible[i] << endl;
+    //}
+//}
 
-// Takes the piece from the old position and puts it in the new position.
-void GameState::move_piece(int from_x, int from_y, int target_x, int target_y, int piece) {
-    board[target_x][target_y] = piece;
-    board[from_x][from_y] = 0;
-}
-
-// Promoting the pawn to a queen if it reached the other side of the board.
-void GameState::promotion(int x, int y) {
-    int piece = board[x][y];
-    if (piece == 6 && x == 0) board[x][y] = 2;
-    else if (piece == -6 && x == 7) board[x][y] = -2;
-}
 
 // Checks if this position is threatened by an enemy piece.
 bool GameState::checked(int kingx, int kingy, int type) {
@@ -476,151 +506,176 @@ bool GameState::checked(int kingx, int kingy, int type) {
 
 // Update the internal representation of the board inside the GameState object 
 // while handling special moves like en passants, castling and promotions.
-void GameState::update_board(int from_x, int from_y, int target_x, int target_y) {
-    int piece = board[from_x][from_y];
+void GameState::makeMove(Move& move) {
+    gameStateHistory.push_back(currentGameState);
 
-    move_piece(from_x, from_y, target_x, target_y, piece);
+    int fromX = move.FromX(), fromY = move.FromY();
+    int toX = move.ToX(), toY = move.ToY();
+    int pieceToMove = board[fromX][fromY], targetPiece = board[toX][toY];
 
-    promotion(target_x, target_y); // Promoting the pawn if possible.
+    currentGameState &= ~(63U << 4); // Clearing the enPassant bits.
 
-    // Flag the kings as moved to make them lose castling rights
-    if (piece == 1) { king_moved[1] = true; white_king = { target_x, target_y }; }
-    else if (piece == -1) { king_moved[0] = true; black_king = { target_x, target_y }; }
+    // Reassigning captured piece.
+    currentGameState &= ~(15U << 10);
+    currentGameState |= (abs(targetPiece) << 10);
+    if (targetPiece > 0) currentGameState |= (1 << 13);
 
-    if (board[0][0] != -3) rook_moved[0] = true; // Flagging the rooks as moved for castling.
-    if (board[0][7] != -3) rook_moved[1] = true;
-    if (board[7][0] != 3) rook_moved[2] = true;
-    if (board[7][7] != 3) rook_moved[3] = true;
-
-    // Check if the move is a pawn who moved twice to flag
-    // an en passant as an available move.
-    if (abs(piece) == 6 && abs(target_x - from_x) == 2) {
-        if (player == 1) {
-            en_passant = { { target_x + 1, target_y }, 1 }; // Flagging the sqaure behind the pawn as open for en passant.
-        }
-        else {
-            en_passant = { { target_x - 1, target_y }, 1 };
-        }
+    board[fromX][fromY] = 0;
+    board[toX][toY] = pieceToMove;
+    
+    // Changing the position of the white and black king used for O(1) access to king positions
+    // and changing castling rights if king or rook moved.
+    if (pieceToMove == 1) {
+        currentGameState &= ~(WQueenSide | WKingSide);
+        white_king = { toX, toY };
+    }
+    else if (pieceToMove == -1) {
+        currentGameState &= ~(BQueenSide | BKingSide);
+        black_king = { toX, toY };
+    }
+    else if (pieceToMove == -3){
+        if (fromY == 0 && fromX == 0) currentGameState &= ~(BQueenSide);
+        else if (fromY == 7 && fromX == 0) currentGameState &= ~(BKingSide);
+    }
+    else if (pieceToMove == 3) {
+        if (fromY == 0 && fromX == 7) currentGameState &= ~(WQueenSide);
+        else if (fromY == 7 && fromX == 7) currentGameState &= ~(WKingSide);
     }
 
-    // Check if the move is an en passant.
-    else if (target_x == en_passant.first.first && target_y == en_passant.first.second) {
-        if (player == 1 && piece == 6) {
-            board[target_x + 1][target_y] = 0;
+    if (move.IsPromotion()) {
+        board[toX][toY] = 2 * player;
+    }
+    else if (move.IsCastle()) {
+        // Flag the kings and rooks as moved to make them lose castling rights
+        if (toX == 0 && toY == 2) {
+            swap(board[0][0], board[0][3]);
         }
-        else if (player == -1 && piece == -6) {
-            board[target_x - 1][target_y] = 0;
+        else if (toX == 0 && toY == 6) {
+            swap(board[0][7], board[0][5]);
+        }
+        else if (toX == 7 && toY == 2) {
+            swap(board[7][0], board[7][3]);
+        }
+        else if (toX == 7 && toY == 6) {
+            swap(board[7][7], board[7][5]);
         }
     }
-
-    // Check if the move is a castling move.
-    else if (abs(piece) == 1 && abs(target_y - from_y) == 2) {
+    else if (move.IsPawnTwoMoves()) {
+        // Check if the move is a pawn who moved twice to flag
+        // an en passant as an available move.
         if (player == 1) {
-            if (target_y == 6) {
-                move_piece(from_x, 7, target_x, 5, 3); // move the rook to the right of thw white king.
-            }
-            else {
-                move_piece(from_x, 0, target_x, 3, 3); // move the rook to the left of the white king.
-            }
+            currentGameState |= ((toX + 1U) << 4); // Flagging the sqaure behind the pawn as open for en passant.
+            currentGameState |= (toY << 7); 
         }
         else {
-            if (target_y == 6) {
-                move_piece(from_x, 7, target_x, 5, -3); // move the rook to the right of the black king.
-            }
-            else {
-                move_piece(from_x, 0, target_x, 3, -3); // move the rook to the left of the black king.
-            }
+            currentGameState |= ((toX - 1U) << 4);
+            currentGameState |= (toY << 7);
+        }
+
+    }
+    else if (move.IsEnPassant()) {
+        if (player == 1) {
+            board[toX + 1][toY] = 0;
+        }
+        else {
+            board[toX - 1][toY] = 0;
         }
     }
 
     player *= -1;
-
-    if (en_passant.second) en_passant.second = 0; // Keeps the en passant open for one turn then restarts it.
-    else en_passant = { {-1, -1}, 0 };
-
 }
 
-// Creates and returns a copy of the current game state after simulating a specific move.
-// (Used in checking for checkmates and the minimax recursion).
-GameState GameState::simulate_move(int from_x, int from_y, int target_x, int target_y) {
-    GameState new_state;
+void GameState::unMakeMove(Move& move) {
+    int fromX = move.FromX(), fromY = move.FromY();
+    int toX = move.ToX(), toY = move.ToY();
+    int pieceToReturn = board[toX][toY], captured = capturedPiece();
 
-    // Iam implementing the copying myself because if i just use the 
-    // default copy constructor or assignment operator it copies
-    // the move vectors which wastes a lot of time as they will 
-    // be cleared and generated again after every move in the board.
+    board[fromX][fromY] = pieceToReturn;
+    board[toX][toY] = captured;
 
-    // Copy relevant member variables
-    new_state.player = player;
-    new_state.black_king = black_king;
-    new_state.white_king = white_king;
-    for (int i = 0; i < 4; i++)
-        new_state.rook_moved[i] = rook_moved[i];
-    for (int i = 0; i < 2; i++)
-        new_state.king_moved[i] = king_moved[i];
-    new_state.en_passant = en_passant;
+    player *= -1;
 
-    // Copy the board
-    for (int i = 0; i < 8; ++i) {
-        for (int j = 0; j < 8; ++j) {
-            new_state.board[i][j] = board[i][j];
+    if (pieceToReturn == 1) {
+        white_king = { fromX, fromY };
+    }
+    else if (pieceToReturn == -1) {
+        black_king = { fromX, fromY };
+    }
+
+    if (move.IsPromotion()) {
+        board[fromX][fromY] = 6 * player;
+    }
+    else if (move.IsCastle()) {
+        if (toX == 0 && toY == 2) {
+            swap(board[0][0], board[0][3]);
+        }
+        else if (toX == 0 && toY == 6) {
+            swap(board[0][7], board[0][5]);
+        }
+        else if (toX == 7 && toY == 2) {
+            swap(board[7][0], board[7][3]);
+        }
+        else if (toX == 7 && toY == 6) {
+            swap(board[7][7], board[7][5]);
+        }
+    }
+    else if (move.IsEnPassant()) {
+        if (player == 1) {
+            board[toX + 1][toY] = -6;
+        }
+        else {
+            board[toX - 1][toY] = 6;
         }
     }
 
-    // Don't copy the white and black possible moves vectors.
-
-    new_state.update_board(from_x, from_y, target_x, target_y);
-    return new_state;
+    currentGameState = gameStateHistory[gameStateHistory.size() - 1];
+    gameStateHistory.pop_back();
 }
 
 
-// checks if the move is legal by simulating a move and checking for checkmates.
-bool GameState::check_legal(int from_x, int from_y, int target_x, int target_y, int team) {
-    GameState new_state = simulate_move(from_x, from_y, target_x, target_y);
+// checks if the move is legal by simulating a move and checking for checkMates.
+bool GameState::check_legal(Move& move) { 
+    int kingx, kingy, current_player = player;
 
-    int kingx, kingy;
-    if (team == 1) {
-        kingx = new_state.white_king.first;
-        kingy = new_state.white_king.second;
+    makeMove(move);
+
+    if (current_player == 1) {
+        kingx = white_king.first;
+        kingy = white_king.second;
     }
     else {
-        kingx = new_state.black_king.first;
-        kingy = new_state.black_king.second;
+        kingx = black_king.first;
+        kingy = black_king.second;
     }
 
+    bool isLegal = true;
+    if (checked(kingx, kingy, current_player)) isLegal = false;
 
-    if (new_state.checked(kingx, kingy, team)) { return false; }
-    return true;
+    unMakeMove(move);
+
+    return isLegal;
 }
 
 // Checks if the given player has no moves and the king is checked meaning a checkmate.
-bool GameState::checkmate(int team) {
+bool GameState::checkMate(int team) {
 
-    if (team == 1) {
-        int size_of_vector = white_possible_moves.size();
+    if (team == 1 && player == 1) {
+        size_t size_of_vector = white_possible_moves.size();
         for (int i = 0; i < white_possible_moves.size(); i++)
         {
-            char a = white_possible_moves[i][0];
-            char b = white_possible_moves[i][1];
-            char c = white_possible_moves[i][2];
-            char d = white_possible_moves[i][3];
-            myPair<int, int>from = to_index(a, b), to = to_index(c, d);
-            if (!check_legal(from.first, from.second, to.first, to.second, 1))
+            Move move = white_possible_moves[i];
+            if (!check_legal(move))
                 size_of_vector--;
         }
         if (size_of_vector == 0 && checked(white_king.first, white_king.second, 1))
             return 1;
     }
-    if (team == -1) {
-        int size_of_vector = black_possible_moves.size();
+    else if (team == -1 && player == -1){
+        size_t size_of_vector = black_possible_moves.size();
         for (int i = 0; i < black_possible_moves.size(); i++)
         {
-            char a = black_possible_moves[i][0];
-            char b = black_possible_moves[i][1];
-            char c = black_possible_moves[i][2];
-            char d = black_possible_moves[i][3];
-            myPair<int, int>from = to_index(a, b), to = to_index(c, d);
-            if (!check_legal(from.first, from.second, to.first, to.second, -1))
+            Move move = black_possible_moves[i];
+            if (!check_legal(move))
                 size_of_vector--;
         }
         if (size_of_vector == 0 && checked(black_king.first, black_king.second, -1))
@@ -629,35 +684,27 @@ bool GameState::checkmate(int team) {
     return 0;
 }
 
-bool GameState::stalemate(int team) {
-    if (team == 1) {
-        int size_of_vector = white_possible_moves.size();
+bool GameState::staleMate(int team) {
+    if (team == 1 && player == 1) {
+        size_t size_of_vector = white_possible_moves.size();
         for (int i = 0; i < white_possible_moves.size(); i++)
         {
-            char a = white_possible_moves[i][0];
-            char b = white_possible_moves[i][1];
-            char c = white_possible_moves[i][2];
-            char d = white_possible_moves[i][3];
-            myPair<int, int>from = to_index(a, b), to = to_index(c, d);
-            if (!check_legal(from.first, from.second, to.first, to.second, 1))
+            Move move = white_possible_moves[i];
+            if (!check_legal(move))
                 size_of_vector--;
         }
-        if (size_of_vector == 0)
+        if (size_of_vector == 0 && !checked(white_king.first, white_king.second, 1))
             return 1;
     }
-    if (team == -1) {
-        int size_of_vector = black_possible_moves.size();
+    if (team == -1 && player == -1) {
+        size_t size_of_vector = black_possible_moves.size();
         for (int i = 0; i < black_possible_moves.size(); i++)
         {
-            char a = black_possible_moves[i][0];
-            char b = black_possible_moves[i][1];
-            char c = black_possible_moves[i][2];
-            char d = black_possible_moves[i][3];
-            myPair<int, int>from = to_index(a, b), to = to_index(c, d);
-            if (!check_legal(from.first, from.second, to.first, to.second, -1))
+            Move move = black_possible_moves[i];
+            if (!check_legal(move))
                 size_of_vector--;
         }
-        if (size_of_vector == 0)
+        if (size_of_vector == 0 && !checked(black_king.first, black_king.second, -1))
             return 1;
     }
     return 0;
@@ -679,12 +726,46 @@ void GameState::show() {
     }
 }
 
+myPair<int, int> GameState::enPassant() {
+    int x = (currentGameState >> 4) & 7;
+    int y = (currentGameState >> 7) & 7;
+
+    return { x, y };
+}
+
+bool GameState::canCastle(uint16_t side) {
+    return (currentGameState & side);
+}
+
+int GameState::capturedPiece() {
+    int type = (currentGameState >> 10) & 7;
+    int color = (currentGameState >> 13) & 1;
+    if (color == 1) return type;
+    else return -type;
+}
+
+Move GameState::findMove(int fromX, int fromY, int toX, int toY) {
+    for (int i = 0; i < white_possible_moves.size(); i++) {
+        Move move = white_possible_moves[i];
+        if (move.FromX() == fromX && move.FromY() == fromY && move.ToX() == toX && move.ToY() == toY) 
+            return move;
+    }
+    for (int i = 0; i < black_possible_moves.size(); i++) {
+        Move move = black_possible_moves[i];
+        if (move.FromX() == fromX && move.FromY() == fromY && move.ToX() == toX && move.ToY() == toY)
+            return move;
+    }
+}
+
 //Used to display the score the ai have given to every possible move.
 void Minimax::display_move_scores() {
     for (int i = 0; i < move_scores.size(); i++) {
-        cout << move_scores[i].second << " " << move_scores[i].first << endl;
+        Move move = move_scores[i].second;
+        cout << to_uci(move.FromX(), move.FromY(), move.ToX(), move.ToY()) << " " << move_scores[i].first << endl;
     }
 }
+
+Minimax::Minimax() {};
 
 void Minimax::assign_best_move(GameState& state) {
     if (state.player == 1) {
@@ -710,7 +791,7 @@ void Minimax::assign_best_move(GameState& state) {
 }
 
 
-void Minimax::merge(myVector<myPair<int, string>>& leftVec, myVector<myPair<int, string>>& rightVec, myVector<myPair<int, string>>& vec) {
+void Minimax::merge(myVector<myPair<int, Move>>& leftVec, myVector<myPair<int, Move>>& rightVec, myVector<myPair<int, Move>>& vec) {
     int left = 0, right = 0;
     vec.clear();
 
@@ -736,14 +817,14 @@ void Minimax::merge(myVector<myPair<int, string>>& leftVec, myVector<myPair<int,
 // Implements mergeSort to sort the moves in increasing order.
 // move oredering is important as we explore the best moves from the previous search depth
 // first which helps us prune more branches early on.
-void Minimax::mergeSort(myVector<myPair<int, string>>& vec) {
-    int size = vec.size();
+void Minimax::mergeSort(myVector<myPair<int, Move>>& vec) {
+    size_t size = vec.size();
     if (size <= 1) return;
 
     int mid = size / 2;
 
-    myVector<myPair<int, string>> leftVec;
-    myVector<myPair<int, string>> rightVec;
+    myVector<myPair<int, Move>> leftVec;
+    myVector<myPair<int, Move>> rightVec;
 
     for (int i = 0; i < mid; i++) {
         leftVec.push_back(vec[i]);
@@ -761,7 +842,7 @@ void Minimax::mergeSort(myVector<myPair<int, string>>& vec) {
 
 void Minimax::sort_moves(GameState& state) {
     mergeSort(move_scores);
-    int size = move_scores.size();
+    size_t size = move_scores.size();
     state.white_possible_moves.clear();
     state.black_possible_moves.clear();
 
@@ -775,6 +856,13 @@ void Minimax::sort_moves(GameState& state) {
             state.black_possible_moves.push_back(move_scores[i].second);
         }
     }
+}
+
+bool Minimax::timeLimitExceeded(chrono::steady_clock::time_point& start, chrono::milliseconds& duration, int& depth) {
+    auto current_time = chrono::steady_clock::now();
+    duration = chrono::duration_cast<std::chrono::milliseconds>(current_time - start_time);
+    if (duration.count() > time_limit && depth > least_depth) return true;
+    return false;
 }
 
 int Minimax::get_pcsq_value(int x, int y, int piece, bool endgame) {
@@ -881,7 +969,7 @@ int Minimax::evaluate_pawns(int team, int white_pawns_row[], int black_pawns_row
     return penalty + bonus;
 }
 
-int Minimax::evaluation(GameState& state, int depth) {
+int Minimax::evaluation(GameState& state) {
     int mgEval = 0;
     int egEval = 0;
     int gamePhase = 0;
@@ -933,68 +1021,82 @@ int Minimax::minimax(GameState& state, int depth, int end_depth, int alpha, int 
 
     if (depth == end_depth) {
         node_counter++;
-        int eval = evaluation(state, depth);
-        return eval;
+        if (state.capturedPiece() && depth >= 4) {
+            return quiescenceSearch(state, quiescenceMaxDepth, alpha, beta);
+        }
+        else {
+            int eval = evaluation(state);
+            return eval;
+        }
     }
 
     if (state.player == 1) {
-        int Size = state.white_possible_moves.size();
+        state.generate_all_possible_moves(1);
+        myVector<Move> Possible = state.white_possible_moves;
         int bestVal = INT_MIN;
-        for (int i = 0; i < Size; i++) {
-            string move = state.white_possible_moves[i];
+        bool noMoves = true;
+        for (int i = 0; i < Possible.size(); i++) {
+            Move move = Possible[i];
+            state.makeMove(move);
 
-            myPair<int, int> from = to_index(move[0], move[1]);
-            myPair<int, int> target = to_index(move[2], move[3]);
-            int from_x = from.first, from_y = from.second;
-            int target_x = target.first, target_y = target.second;
+            // Skip the move if it's not legal.
+            if (state.checked(state.white_king.first, state.white_king.second, 1)) {
+                state.unMakeMove(move);
+                continue;
+            }
 
-            GameState new_state = state.simulate_move(from_x, from_y, target_x, target_y);
-            if (new_state.checked(new_state.white_king.first, new_state.white_king.second, 1)) continue;
-            new_state.black_possible_moves.clear();
-            new_state.generate_all_possible_moves(-1);
+            noMoves = false;
 
-            int score = minimax(new_state, depth + 1, end_depth, alpha, beta);
+            int score = minimax(state, depth + 1, end_depth, alpha, beta);
 
             bestVal = max(bestVal, score);
 
             alpha = max(alpha, bestVal);
 
+            // Saves the moves to be sorted and assigned to best move after the search is finished.
             if (depth == 0) {
                 move_scores_in_loop.push_back({ score , move });
             }
 
-            if (beta < alpha) break;
+            state.unMakeMove(move);
+ 
+            if (beta <= alpha) {
+                bestVal = score;
+                break;
+            }
 
-            current_time = chrono::steady_clock::now();
-            duration = chrono::duration_cast<std::chrono::milliseconds>(current_time - start_time);
-            if (duration.count() > time_limit && end_depth > least_depth) { broke_early = true; return 0; }
+            // Break if the time limit was exceeded.
+            if (timeLimitExceeded(start_time, duration, end_depth)) { broke_early = true; return 0; }
 
         }
-        if (bestVal == INT_MIN) {
-            if (state.checked(state.white_king.first, state.white_king.second, 1)) return INT_MIN + 10000 * depth;
+
+        if (noMoves) {
+            if (state.checked(state.white_king.first, state.white_king.second, 1)) {
+                return INT_MIN + depth * 10000;
+            }
             else return 0;
         }
 
         return bestVal;
     }
     else {
-        int Size = state.black_possible_moves.size();
+        state.generate_all_possible_moves(-1);
+        myVector<Move> Possible = state.black_possible_moves;
         int bestVal = INT_MAX;
-        for (int i = 0; i < Size; i++) {
-            string move = state.black_possible_moves[i];
+        bool noMoves = true;
+        for (int i = 0; i < Possible.size(); i++) {
+            Move move = Possible[i];
+            state.makeMove(move);
 
-            myPair<int, int> from = to_index(move[0], move[1]);
-            myPair<int, int> target = to_index(move[2], move[3]);
-            int from_x = from.first, from_y = from.second;
-            int target_x = target.first, target_y = target.second;
+            if (state.checked(state.black_king.first, state.black_king.second, -1)) {
+                state.unMakeMove(move);
+                continue;
+            }
 
-            GameState new_state = state.simulate_move(from_x, from_y, target_x, target_y);
-            if (new_state.checked(new_state.black_king.first, new_state.black_king.second, -1)) continue;
-            new_state.white_possible_moves.clear();
-            new_state.generate_all_possible_moves(1);
+            noMoves = false;
 
-            int score = minimax(new_state, depth + 1, end_depth, alpha, beta);
-
+            int score = minimax(state, depth + 1, end_depth, alpha, beta);
+            
             bestVal = min(bestVal, score);
 
             beta = min(beta, score);
@@ -1003,15 +1105,31 @@ int Minimax::minimax(GameState& state, int depth, int end_depth, int alpha, int 
                 move_scores_in_loop.push_back({ score , move });
             }
 
-            if (beta < alpha) break;
+            //if (bestVal == INT_MIN) {
+            //    if (state.checked(state.white_king.first, state.white_king.second, 1)) {
+            //        state.unMakeMove(move);
+            //        return INT_MIN + (10000 * depth);
+            //    }
+            //    else {
+            //        state.unMakeMove(move);
+            //        return 0;
+            //    }
+            //}
 
-            current_time = chrono::steady_clock::now();
-            duration = chrono::duration_cast<std::chrono::milliseconds>(current_time - start_time);
-            if (duration.count() > time_limit && end_depth > least_depth) { broke_early = true; return 0; }
+            state.unMakeMove(move);
+
+            if (beta <= alpha) {
+                bestVal = score;
+                break;
+            }
+
+            if (timeLimitExceeded(start_time, duration, end_depth)) { broke_early = true; return 0; }
 
         }
-        if (bestVal == INT_MAX) {
-            if (state.checked(state.black_king.first, state.black_king.second, -1)) return INT_MAX - 10000 * depth;
+        if (noMoves) {
+            if (state.checked(state.black_king.first, state.black_king.second, -1)) {
+                return INT_MAX - depth * 10000;
+            }
             else return 0;
         }
 
@@ -1020,16 +1138,15 @@ int Minimax::minimax(GameState& state, int depth, int end_depth, int alpha, int 
 }
 
 void Minimax::iterative_deepening(GameState& state) {
-    node_counter = 0;
+    node_counter = 0, Q_nodes = 0;
     start_time = chrono::steady_clock::now();
+    move_scores.clear(); move_scores_in_loop.clear();
 
     int depth = 1; broke_early = false;
     while (true) {
         minimax(state, 0, depth);
 
-        current_time = chrono::steady_clock::now();
-        duration = chrono::duration_cast<std::chrono::milliseconds>(current_time - start_time);
-        if (duration.count() > time_limit && depth > least_depth) { broke_early = true; }
+        if (timeLimitExceeded(start_time, duration, depth)) { broke_early = true; }
 
         if (!broke_early) {
             move_scores = move_scores_in_loop;
@@ -1045,6 +1162,189 @@ void Minimax::iterative_deepening(GameState& state) {
     }
     reached_depth = depth - broke_early;
     assign_best_move(state);
-    move_scores.clear(); move_scores_in_loop.clear();
 }
 
+
+int Minimax::quiescenceSearch(GameState& state, int depth, int alpha, int beta) {
+    int staticEval = evaluation(state);
+    Q_nodes++;
+    if (depth == 0) return staticEval;
+
+    if (state.player == 1) {
+        alpha = max(alpha, staticEval);
+    }
+    else {
+        beta = min(beta, staticEval);
+    }
+
+    if (beta <= alpha) return staticEval;
+
+
+    state.generate_all_possible_moves(state.player);
+    myVector<Move> moves;
+    if (state.player == 1) {
+        //bool whiteChecked = state.checked(state.white_king.first, state.white_king.second, 1);
+        moves = state.white_possible_moves;
+        int bestVal = staticEval;
+        bool noMoves = true;
+        for (int i = 0; i < moves.size(); i++) {
+            Move move = moves[i];
+            state.makeMove(move);
+
+            if (state.checked(state.white_king.first, state.white_king.second, 1)) {
+                state.unMakeMove(move);
+                continue;
+            }
+
+            noMoves = false;
+
+            if (!move.IsCapture()) {
+                state.unMakeMove(move);
+                continue;
+            }
+
+            int score = quiescenceSearch(state, depth-1, alpha, beta);
+
+            bestVal = max(bestVal, score);
+            alpha = max(alpha, score);
+
+            state.unMakeMove(move);
+
+            if (beta <= alpha) return alpha;
+        }
+        if (noMoves) {
+            if (state.checked(state.white_king.first, state.white_king.second, 1)) {
+                return INT_MIN + (quiescenceMaxDepth - depth) * 10000;
+            }
+            else return staticEval;
+        }
+
+        return bestVal;
+    }
+    else {
+        //bool blackChecked = state.checked(state.black_king.first, state.black_king.second, -1);
+        moves = state.black_possible_moves;
+        int bestVal = staticEval;
+        bool noMoves = true;
+        for (int i = 0; i < moves.size(); i++) {
+            Move move = moves[i];
+            state.makeMove(move);
+
+            if (state.checked(state.black_king.first, state.black_king.second, -1)) {
+                state.unMakeMove(move);
+                continue;
+            }
+
+            noMoves = false;
+
+            if (!move.IsCapture()) {
+                state.unMakeMove(move);
+                continue;
+            }
+
+            int score = quiescenceSearch(state, depth-1, alpha, beta);
+
+            bestVal = min(bestVal, score);
+            beta = min(beta, score);
+
+            state.unMakeMove(move);
+
+            if (beta <= alpha) return beta;
+        }
+        if (noMoves) {
+            if (state.checked(state.black_king.first, state.black_king.second, -1)) {
+                return INT_MAX - (quiescenceMaxDepth - depth) * 10000;
+            }
+            else return staticEval;
+        }
+
+        return bestVal;
+    }
+}
+
+
+
+int node_counter = 0, capture_counter = 0, check_counter = 0, EP_counter = 0, promotion_counter = 0, castle_counter = 0;
+
+Minimax mini;
+
+void perftResults(GameState& state, int depth, int end_depth) {
+    if (depth == end_depth) {
+        node_counter++;
+        return;
+    }
+
+    if (state.player == 1) {
+        state.generate_all_possible_moves(1);
+        myVector<Move> Possible = state.white_possible_moves;
+        for (int i = 0; i < Possible.size(); i++) {
+            Move move = Possible[i];
+            state.makeMove(move);
+
+            if (state.checked(state.white_king.first, state.white_king.second, 1)) {
+                state.unMakeMove(move);
+                continue;
+            }
+
+            if (depth == end_depth - 1) {
+                if (state.capturedPiece() != 0) {
+                    capture_counter++;
+                }
+
+                if (move.IsCastle()) castle_counter++;
+                if (move.IsEnPassant()) { EP_counter++; capture_counter++; }
+                if (move.IsPromotion()) promotion_counter+=4;
+
+
+                if (state.checked(state.black_king.first, state.black_king.second, -1)) {
+                    check_counter++;
+                }
+            }
+
+            perftResults(state, depth + 1, end_depth);
+            state.unMakeMove(move);
+        }
+    }
+    else {
+        state.generate_all_possible_moves(-1);
+        myVector<Move> Possible = state.black_possible_moves;
+        for (int i = 0; i < Possible.size(); i++) {
+            Move move = Possible[i];
+            state.makeMove(move);
+
+            if (state.checked(state.black_king.first, state.black_king.second, -1)) {
+                state.unMakeMove(move);
+                continue;
+            }
+
+            if (depth == end_depth - 1) {
+                if (state.capturedPiece() != 0) {
+                    capture_counter++;
+                }
+
+                if (move.IsCastle()) castle_counter++;
+                if (move.IsEnPassant()) { EP_counter++; capture_counter++; }
+                if (move.IsPromotion()) promotion_counter+=4;
+
+
+                if (state.checked(state.white_king.first, state.white_king.second, 1)) {
+                    check_counter++;
+                }
+            }
+
+            perftResults(state, depth + 1, end_depth);
+            state.unMakeMove(move);;
+        }
+    }
+
+    if (depth == 0) {
+        cout << "Depth: " << end_depth << endl;
+        cout << "Nodes: " << node_counter << endl;
+        cout << "Captures: " << capture_counter << endl;
+        cout << "EP: " << EP_counter << endl;
+        cout << "Castles: " << castle_counter << endl;
+        cout << "Promotions: " << promotion_counter << endl;
+        cout << "Checks: " << check_counter << endl;
+        node_counter = 0, capture_counter = 0, check_counter = 0, EP_counter = 0, promotion_counter = 0, castle_counter = 0;
+    }
+}
