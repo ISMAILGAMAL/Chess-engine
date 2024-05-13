@@ -225,7 +225,7 @@ void GameState::pawn_moves(int x, int y, int team) {
         if (in_board(x - 1, y + 1) && board[x - 1][y + 1] < 0)
             white_possible_moves.push_back(Move(x, y, x - 1, y + 1, flag, true));
 
-        if ((enPassantSq.first != 0 || enPassantSq.second != 0) && enPassantSq.first == 1) {
+        if ((enPassantSq.first != 0 || enPassantSq.second != 0) && enPassantSq.first == 2) {
             if (enPassantSq.first == x - 1 && enPassantSq.second == y - 1)
                 white_possible_moves.push_back(Move(x, y, x - 1, y - 1, Move::EnPassant, true));  // En passant
             if (enPassantSq.first == x - 1 && enPassantSq.second == y + 1)
@@ -247,7 +247,7 @@ void GameState::pawn_moves(int x, int y, int team) {
         if (in_board(x + 1, y + 1) && board[x + 1][y + 1] > 0)
             black_possible_moves.push_back(Move(x, y, x + 1, y + 1, flag, true));
 
-        if ((enPassantSq.first != 0 || enPassantSq.second != 0) && enPassantSq.first == 6) {
+        if ((enPassantSq.first != 0 || enPassantSq.second != 0) && enPassantSq.first == 5) {
             if (enPassantSq.first == x + 1 && enPassantSq.second == y - 1)
                 black_possible_moves.push_back(Move(x, y, x + 1, y - 1, Move::EnPassant, true));
             if (enPassantSq.first == x + 1 && enPassantSq.second == y + 1)
