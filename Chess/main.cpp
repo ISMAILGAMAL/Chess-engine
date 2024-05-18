@@ -5,23 +5,30 @@
 #include "pcsq.h"
 #include "dataStructures.h"
 #include "logic.h"
+#include "TranspositionTable.h"
 #include "main_menu.h"
 #include <SFML/Graphics.hpp>
 #include <SFML/Audio.hpp>
+
 using namespace std;
 using namespace sf;
+
+
 bool firstenter = 1;
 float window_w = 850, window_h = 800;
 RenderWindow window(VideoMode(window_w, window_h), "Chess"); // Create SFML window
 const int SQUARE_SIZE = 100;
 const int BOARD_SIZE = 8;
-
 bool reset = 0;
 
-Vector2f calculateSquarePosition(int& row, int& col)
-{
+
+TranspositionTable Ttable(512);
+
+
+Vector2f calculateSquarePosition(int& row, int& col) {
     return Vector2f(col * SQUARE_SIZE, row * SQUARE_SIZE);
 }
+
 struct buttons
 {
     Texture sound_txt, main_txt, restart_txt;
@@ -65,11 +72,11 @@ struct buttons
         if (Mouse::isButtonPressed(Mouse::Left)) {
             if (main_button.getGlobalBounds().contains(mousePosition)) {
                 mainMenu.loadedMenu = 0;
-                current_state.initialize_board();
+                current_state.initialize_board(Ttable);
                 reset = 1;
             }
             if (restart_button.getGlobalBounds().contains(mousePosition)) {
-                current_state.initialize_board();
+                current_state.initialize_board(Ttable);
                 reset = 1;
             }
             if (sound_button.getGlobalBounds().contains(mousePosition)) {
@@ -300,7 +307,7 @@ struct End {
         if (Mouse::isButtonPressed(Mouse::Left)) {
             if (main_button.getGlobalBounds().contains(mousePosition)) {
                 mainMenu.loadedMenu = 0;
-                currentState.initialize_board();
+                currentState.initialize_board(Ttable);
                 reset = 1;
             }
             if (restart_button.getGlobalBounds().contains(mousePosition)) {
@@ -310,7 +317,7 @@ struct End {
                 //play sound
             }
             if (exit_button.getGlobalBounds().contains(mousePosition)) {
-                end_game = -10, end_game_ai = -10;
+                end_game = 0, end_game_ai = 0;
             }
         }
         else {
@@ -447,8 +454,7 @@ void applying_sounds(GameState& state, soundss& sounds, Move move, bool sound_st
         }
         else {
             state.unMakeMove(move);
-            if (state.board[move.FromX()][move.FromY()] == 6 && move.ToX() == 0 ||
-                state.board[move.FromX()][move.FromY()] == -6 && move.ToX() == 7)
+            if (move.IsPromotion())
                 sounds.promotion.play();
             else if (state.board[move.ToX()][move.ToY()])
                 sounds.capture.play();
@@ -466,10 +472,9 @@ void move_generation(GameState& current_state) {
 int main()
 {
     bool first_end = 1;
-    int end_game = -10, end_game_ai = -10;
+    int end_game = 0, end_game_ai = 0;
     GameState current_state;
-    Minimax AI;
-    //MainMenu mainMenu(window.getSize());
+    Minimax AI(Ttable);
     MainMenu mainMenu(window.getSize());
     //pieces
     piecess pieces;
@@ -493,7 +498,10 @@ int main()
     bool validPoints[8][8] = {}, mousePressed = false; // Array to hold valid points
     int lastPieceX, lastPieceY; // Variables to store last selected piece position
     int mouseY = 0, mouseX = 0; // Variables to store last position the mouse was clicked
-    current_state.initialize_board();
+    current_state.initialize_board(Ttable);
+
+    int n; cin >> n;
+
     while (window.isOpen())
     {
         sf::Event event;
@@ -502,14 +510,14 @@ int main()
             if (event.type == sf::Event::Closed)
                 window.close();
 
-            if (end_game != -10 || end_game_ai != -10)
+            if (end_game != 0 || end_game_ai != 0)
                 end.MouseClickButtons(mainMenu, current_state, end_game, end_game_ai);
 
             if (Keyboard::isKeyPressed(Keyboard::Z)) {//////////////////////REMOVE
                 end_game = 1;
             }
 
-            if (Keyboard::isKeyPressed(Keyboard::Num1)) {
+            else if (Keyboard::isKeyPressed(Keyboard::Num1)) {
                 if (mainMenu.settingsPage.getColor() == 1)
                     mainMenu.settingsPage.current_theme = "1w";
                 else
@@ -517,7 +525,7 @@ int main()
                 theme.change_theme(mainMenu, 1);
                 sounds.load_sounds(1);
             }
-            if (Keyboard::isKeyPressed(Keyboard::Num2)) {
+            else if (Keyboard::isKeyPressed(Keyboard::Num2)) {
                 if (mainMenu.settingsPage.getColor() == 1)
                     mainMenu.settingsPage.current_theme = "2w";
                 else
@@ -525,7 +533,7 @@ int main()
                 theme.change_theme(mainMenu, 2);
                 sounds.load_sounds(2);
             }
-            if (Keyboard::isKeyPressed(Keyboard::Num3)) {
+            else if (Keyboard::isKeyPressed(Keyboard::Num3)) {
                 if (mainMenu.settingsPage.getColor() == 1)
                     mainMenu.settingsPage.current_theme = "3w";
                 else
@@ -533,7 +541,7 @@ int main()
                 theme.change_theme(mainMenu, 3);
                 sounds.load_sounds(3);
             }
-            if (Keyboard::isKeyPressed(Keyboard::Num4)) {
+            else if (Keyboard::isKeyPressed(Keyboard::Num4)) {
                 if (mainMenu.settingsPage.getColor() == 1)
                     mainMenu.settingsPage.current_theme = "4w";
                 else
@@ -541,7 +549,7 @@ int main()
                 theme.change_theme(mainMenu, 4);
                 sounds.load_sounds(4);
             }
-            if (Keyboard::isKeyPressed(Keyboard::Num5)) {
+            else if (Keyboard::isKeyPressed(Keyboard::Num5)) {
                 if (mainMenu.settingsPage.getColor() == 1)
                     mainMenu.settingsPage.current_theme = "5w";
                 else
@@ -549,13 +557,12 @@ int main()
                 theme.change_theme(mainMenu, 5);
                 sounds.load_sounds(5);
             }
-            if (Keyboard::isKeyPressed(Keyboard::R) || reset) {
+            else if (Keyboard::isKeyPressed(Keyboard::R) || reset) {
                 reset_validpoints(validPoints);
-                current_state.initialize_board();
-                current_state.player = 1;
+                current_state.initialize_board(Ttable);
                 reset = 0;
-                end_game = -10;
-                end_game_ai = -10;
+                end_game = 0;
+                end_game_ai = 0;
             }
 
             if (Mouse::isButtonPressed(Mouse::Left)) {
@@ -567,14 +574,16 @@ int main()
             }
             else
                 mousePressed = false;
+
             auto mouse = window.mapPixelToCoords(sf::Mouse::getPosition(window));
             if (mainMenu.loadedMenu == 3) {
                 mainMenu.settingsPage.SettingsMouseClicks(mouse, window.getSize(), mainMenu.loadedMenu);
 
             }
-            if (mainMenu.loadedMenu == 1 || mainMenu.loadedMenu == 2)
+            else if (mainMenu.loadedMenu == 1 || mainMenu.loadedMenu == 2)
                 button.MouseClickButtons(mainMenu, current_state);
         }
+
         mainMenu.settingsPage.updateTheme();
         if (mainMenu.loadedMenu == 0) {
             auto mousePosition = window.mapPixelToCoords(Mouse::getPosition(window));
@@ -612,17 +621,14 @@ int main()
                     else if (current_state.staleMate(1) || current_state.staleMate(-1)) {
                         end_game = 2;//draw
                     }
-
-
                 }
             }
-
         }
         //menu 1 ai
         else if (mainMenu.loadedMenu == 1)
         {
             move_generation(current_state);
-            if (current_state.player == 1)
+            if (current_state.player == -n)
             {
                 if (mousePressed) {
                     if (current_state.board[mouseX][mouseY] * current_state.player > 0)
@@ -642,15 +648,12 @@ int main()
                     }
                 }
             }
-            else
+            else if (!end_game_ai)
             {
-                AI.iterative_deepening(current_state);
-                Move move = AI.best_move;
-                cout << "Best Move: " << to_uci(move.FromX(), move.FromY(), move.ToX(), move.ToY()) << " " << AI.best_score << endl;
-                cout << "Nodes Evaluated: " << AI.node_counter << endl;
-                cout << "Quiescent Nodes: " << AI.Q_nodes << endl;
-                cout << "Depth Reached: " << AI.reached_depth << endl;
-                cout << "Time Taken: " << AI.time_in_seconds << endl;
+                Move move = AI.iterative_deepening(current_state);
+                AI.display_move_scores();
+                AI.displayStatistics();
+                Ttable.displayFillPercentage();
                 applying_sounds(current_state, sounds, move, mainMenu.settingsPage.getSoundState());
                 current_state.makeMove(move);
                 current_state.show();
@@ -658,9 +661,9 @@ int main()
             move_generation(current_state);
             if (current_state.checkMate(1))
                 end_game_ai = -1; //you lost
-            if (current_state.checkMate(-1))
+            else if (current_state.checkMate(-1))
                 end_game_ai = 1; //you won
-            if (current_state.staleMate(1) || current_state.staleMate(-1))
+            else if (current_state.staleMate(1) || current_state.staleMate(-1))
                 end_game_ai = 2;//draw
         }
 
@@ -703,8 +706,6 @@ int main()
         }
 
         window.display(); // Display the window
-        current_state.white_possible_moves.clear();
-        current_state.black_possible_moves.clear();
     }
 
     return 0;

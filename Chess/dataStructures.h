@@ -73,6 +73,21 @@ public:
 
     }
 
+    void resize(int newCapacity) {
+        T* new_data = new T[newCapacity];
+
+        for (int i = 0; i < arr_size; i++) {
+            new_data[i] = data[i];
+        }
+
+        delete[] data;
+
+        data = new_data;
+
+        arr_capacity = newCapacity;
+        arr_size = newCapacity;
+    }
+
     void pop_back() {
         if (arr_size > 0) {
             arr_size--;

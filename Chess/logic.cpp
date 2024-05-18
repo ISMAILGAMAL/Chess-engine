@@ -5,8 +5,7 @@
 #include "pcsq.h"
 #include "dataStructures.h"
 #include "logic.h"
-#include <vector>
-#include <algorithm>
+#include "TranspositionTable.h"
 
 using namespace std;
 
@@ -115,7 +114,7 @@ bool Move::IsCapture() {
 // new game states to the searching Alpha-beta pruned minimax algorithm without 
 // needing complex logic to handle special moves and also allows us to interface with the gui.
 
-void GameState::initialize_board() {
+void GameState::initialize_board(TranspositionTable& Ttable) {
     
     //  resetting everything by initializing all the board's and array's values to zero.
 
@@ -141,11 +140,14 @@ void GameState::initialize_board() {
     board[7][2] = 5; board[7][5] = 5;
     board[0][3] = -2;  board[7][3] = 2; // queens
     board[0][4] = -1; board[7][4] = 1; // kings
+
+    table = &Ttable;
+    zobristKey = table->generateZobristKey(board);
 }
 
 // A constructor that allows us to copy any board fen strings from the internet 
 // and initialize the board to that state.
-void GameState::initialize_board(string FEN) {
+void GameState::initialize_board(TranspositionTable& Ttable, string FEN) {
     string board_fen = "", player_fen = "", castling_fen = "", en_passant_fen = "";
     int num_break = 0;
 
@@ -202,6 +204,11 @@ void GameState::initialize_board(string FEN) {
         currentGameState |= (rank << 4);
         currentGameState |= (file << 7);
     }
+
+    table = &Ttable;
+    zobristKey = table->generateZobristKey(board);
+
+    if (player == -1) zobristKey ^= table->blackToMove;
 }
 
 // The following functions all Generate pseudo-legal moves for the pieces and push it to the object's move vector.
@@ -409,7 +416,7 @@ void GameState::generate_piece_moves(int x, int y, int team, int type) {
 
 // Loops over the board to generate all the possible moves for each piece storing it 
 // in the object's white_possible_moves or black_possible_moves.
-void GameState::generate_all_possible_moves(int team, bool captures) {
+void GameState::generate_all_possible_moves(int team) {
     // White -> 1 , Black -> -1
     // If the parameter type == 1 then it will only generate moves for white
     // if it was -1 then it will only generate moves for black.
@@ -431,15 +438,16 @@ void GameState::generate_all_possible_moves(int team, bool captures) {
 }
 
 // A function used for testing and debugging.
-//void GameState::display_possible_moves() {
-    //myVector<string> possible;
-    //if (player == 1) possible = white_possible_moves;
-    //else  possible = black_possible_moves;
-    //cout << "Possible moves: " << endl;
-    //for (int i = 0; i < possible.size(); i++) {
-        //cout << possible[i] << endl;
-    //}
-//}
+void GameState::display_possible_moves() {
+    myVector<Move> possible;
+    if (player == 1) possible = white_possible_moves;
+    else  possible = black_possible_moves;
+    cout << "Possible moves: " << endl;
+    for (int i = 0; i < possible.size(); i++) {
+        Move move = possible[i];
+        cout << to_uci(move.FromX(), move.FromY(), move.ToX(), move.ToY()) << endl;
+    }
+}
 
 
 // Checks if this position is threatened by an enemy piece.
@@ -508,6 +516,7 @@ bool GameState::checked(int kingx, int kingy, int type) {
 // while handling special moves like en passants, castling and promotions.
 void GameState::makeMove(Move& move) {
     gameStateHistory.push_back(currentGameState);
+    zobristKeys.push_back(zobristKey);
 
     int fromX = move.FromX(), fromY = move.FromY();
     int toX = move.ToX(), toY = move.ToY();
@@ -522,6 +531,24 @@ void GameState::makeMove(Move& move) {
 
     board[fromX][fromY] = 0;
     board[toX][toY] = pieceToMove;
+
+    // Updating the zobrist key.
+    if (pieceToMove > 0) {
+        zobristKey ^= table->pieceKeys[0][pieceToMove][fromX][fromY];
+        zobristKey ^= table->pieceKeys[0][pieceToMove][toX][toY];
+    }
+    else {
+        zobristKey ^= table->pieceKeys[1][abs(pieceToMove)][fromX][fromY];
+        zobristKey ^= table->pieceKeys[1][abs(pieceToMove)][toX][toY];
+    }
+
+    if (targetPiece > 0) {
+        zobristKey ^= table->pieceKeys[0][targetPiece][toX][toY];
+    }
+    else if (targetPiece < 0) {
+        zobristKey ^= table->pieceKeys[1][abs(targetPiece)][toX][toY];
+    }
+
     
     // Changing the position of the white and black king used for O(1) access to king positions
     // and changing castling rights if king or rook moved.
@@ -544,20 +571,36 @@ void GameState::makeMove(Move& move) {
 
     if (move.IsPromotion()) {
         board[toX][toY] = 2 * player;
+        if (player == 1) {
+            zobristKey ^= table->pieceKeys[0][6][toX][toY];
+            zobristKey ^= table->pieceKeys[0][2][toX][toY];
+        }
+        else {
+            zobristKey ^= table->pieceKeys[1][6][toX][toY];
+            zobristKey ^= table->pieceKeys[1][2][toX][toY];
+        }
     }
     else if (move.IsCastle()) {
         // Flag the kings and rooks as moved to make them lose castling rights
         if (toX == 0 && toY == 2) {
-            swap(board[0][0], board[0][3]);
+            swap(board[0][0], board[0][3]);     
+            zobristKey ^= table->pieceKeys[1][3][0][0];
+            zobristKey ^= table->pieceKeys[1][3][0][3];
         }
         else if (toX == 0 && toY == 6) {
             swap(board[0][7], board[0][5]);
+            zobristKey ^= table->pieceKeys[1][3][0][7];
+            zobristKey ^= table->pieceKeys[1][3][0][5];
         }
         else if (toX == 7 && toY == 2) {
             swap(board[7][0], board[7][3]);
+            zobristKey ^= table->pieceKeys[0][3][7][0];
+            zobristKey ^= table->pieceKeys[0][3][7][3];
         }
         else if (toX == 7 && toY == 6) {
             swap(board[7][7], board[7][5]);
+            zobristKey ^= table->pieceKeys[0][3][7][7];
+            zobristKey ^= table->pieceKeys[0][3][7][5];
         }
     }
     else if (move.IsPawnTwoMoves()) {
@@ -576,13 +619,16 @@ void GameState::makeMove(Move& move) {
     else if (move.IsEnPassant()) {
         if (player == 1) {
             board[toX + 1][toY] = 0;
+            zobristKey ^= table->pieceKeys[1][6][toX + 1][toY];
         }
         else {
             board[toX - 1][toY] = 0;
+            zobristKey ^= table->pieceKeys[0][6][toX - 1][toY];
         }
     }
 
     player *= -1;
+    zobristKey ^= table->blackToMove;
 }
 
 void GameState::unMakeMove(Move& move) {
@@ -630,16 +676,19 @@ void GameState::unMakeMove(Move& move) {
 
     currentGameState = gameStateHistory[gameStateHistory.size() - 1];
     gameStateHistory.pop_back();
+
+    zobristKey = zobristKeys[zobristKeys.size() - 1];
+    zobristKeys.pop_back();
 }
 
 
 // checks if the move is legal by simulating a move and checking for checkMates.
 bool GameState::check_legal(Move& move) { 
-    int kingx, kingy, current_player = player;
+    int kingx, kingy, currentPlayer = player;
 
     makeMove(move);
 
-    if (current_player == 1) {
+    if (currentPlayer == 1) {
         kingx = white_king.first;
         kingy = white_king.second;
     }
@@ -649,7 +698,7 @@ bool GameState::check_legal(Move& move) {
     }
 
     bool isLegal = true;
-    if (checked(kingx, kingy, current_player)) isLegal = false;
+    if (checked(kingx, kingy, currentPlayer)) isLegal = false;
 
     unMakeMove(move);
 
@@ -660,7 +709,7 @@ bool GameState::check_legal(Move& move) {
 bool GameState::checkMate(int team) {
 
     if (team == 1 && player == 1) {
-        size_t size_of_vector = white_possible_moves.size();
+        int size_of_vector = white_possible_moves.size();
         for (int i = 0; i < white_possible_moves.size(); i++)
         {
             Move move = white_possible_moves[i];
@@ -671,7 +720,7 @@ bool GameState::checkMate(int team) {
             return 1;
     }
     else if (team == -1 && player == -1){
-        size_t size_of_vector = black_possible_moves.size();
+        int size_of_vector = black_possible_moves.size();
         for (int i = 0; i < black_possible_moves.size(); i++)
         {
             Move move = black_possible_moves[i];
@@ -686,7 +735,7 @@ bool GameState::checkMate(int team) {
 
 bool GameState::staleMate(int team) {
     if (team == 1 && player == 1) {
-        size_t size_of_vector = white_possible_moves.size();
+        int size_of_vector = white_possible_moves.size();
         for (int i = 0; i < white_possible_moves.size(); i++)
         {
             Move move = white_possible_moves[i];
@@ -697,7 +746,7 @@ bool GameState::staleMate(int team) {
             return 1;
     }
     if (team == -1 && player == -1) {
-        size_t size_of_vector = black_possible_moves.size();
+        int size_of_vector = black_possible_moves.size();
         for (int i = 0; i < black_possible_moves.size(); i++)
         {
             Move move = black_possible_moves[i];
@@ -739,23 +788,24 @@ bool GameState::canCastle(uint16_t side) {
 
 int GameState::capturedPiece() {
     int type = (currentGameState >> 10) & 7;
-    int color = (currentGameState >> 13) & 1;
-    if (color == 1) return type;
+    // The 13th bit contains the color of the captured piece. W->1, B->0
+    if ((currentGameState >> 13) & 1) return type;
     else return -type;
 }
 
+// Given the indices in the board finds the corresponding move which contains
+// additional information. like, if it was a castling move, en Passant etc...
 Move GameState::findMove(int fromX, int fromY, int toX, int toY) {
-    for (int i = 0; i < white_possible_moves.size(); i++) {
-        Move move = white_possible_moves[i];
+    myVector<Move> possible = (board[fromX][fromY] > 0) ? white_possible_moves : black_possible_moves;
+    for (int i = 0; i < possible.size(); i++) {
+        Move move = possible[i];
         if (move.FromX() == fromX && move.FromY() == fromY && move.ToX() == toX && move.ToY() == toY) 
             return move;
     }
-    for (int i = 0; i < black_possible_moves.size(); i++) {
-        Move move = black_possible_moves[i];
-        if (move.FromX() == fromX && move.FromY() == fromY && move.ToX() == toX && move.ToY() == toY)
-            return move;
-    }
 }
+
+
+Minimax::Minimax(TranspositionTable& Ttable) : table(&Ttable) {}
 
 //Used to display the score the ai have given to every possible move.
 void Minimax::display_move_scores() {
@@ -764,8 +814,6 @@ void Minimax::display_move_scores() {
         cout << to_uci(move.FromX(), move.FromY(), move.ToX(), move.ToY()) << " " << move_scores[i].first << endl;
     }
 }
-
-Minimax::Minimax() {};
 
 void Minimax::assign_best_move(GameState& state) {
     if (state.player == 1) {
@@ -1018,17 +1066,45 @@ int Minimax::evaluation(GameState& state) {
 
 
 int Minimax::minimax(GameState& state, int depth, int end_depth, int alpha, int beta) {
-
-    if (depth == end_depth) {
         node_counter++;
-        if (state.capturedPiece() && depth >= 4) {
-            return quiescenceSearch(state, quiescenceMaxDepth, alpha, beta);
+    if (depth == end_depth) {
+        bool blackChecked = state.checked(state.black_king.first, state.black_king.second, -1);
+        bool whiteChecked = state.checked(state.white_king.first, state.white_king.second, 1);
+        int eval;
+        if ((state.capturedPiece() || blackChecked || whiteChecked)) {
+            eval = quiescenceSearch(state, quiescenceMaxDepth, end_depth, alpha, beta, blackChecked || whiteChecked);
         }
         else {
-            int eval = evaluation(state);
-            return eval;
+            eval = evaluation(state);
+        }
+        //int eval = evaluation(state);
+
+        table->storeTransposition(state.zobristKey, Transposition::Exact, (end_depth - depth), eval);
+        return eval;
+    }
+
+    Transposition trans;
+
+    if (depth != 0 && table->probeTransposition(state.zobristKey, trans)) {
+        if (trans.depth  >= (end_depth - depth)) {
+            if (trans.flag == Transposition::Exact) {
+                skips++;
+                return trans.value;
+            }
+            else if (trans.flag == Transposition::Alpha) {
+                alpha = max(alpha, trans.value);
+            }
+            else if (trans.flag == Transposition::Beta) {
+                beta = min(beta, trans.value);
+            }
+
+            if (beta <= alpha) {
+                skips++;
+                return trans.value;
+            }
         }
     }
+
 
     if (state.player == 1) {
         state.generate_all_possible_moves(1);
@@ -1048,6 +1124,7 @@ int Minimax::minimax(GameState& state, int depth, int end_depth, int alpha, int 
             noMoves = false;
 
             int score = minimax(state, depth + 1, end_depth, alpha, beta);
+            state.unMakeMove(move);
 
             bestVal = max(bestVal, score);
 
@@ -1058,25 +1135,24 @@ int Minimax::minimax(GameState& state, int depth, int end_depth, int alpha, int 
                 move_scores_in_loop.push_back({ score , move });
             }
 
-            state.unMakeMove(move);
- 
-            if (beta <= alpha) {
-                bestVal = score;
-                break;
-            }
 
             // Break if the time limit was exceeded.
             if (timeLimitExceeded(start_time, duration, end_depth)) { broke_early = true; return 0; }
-
+ 
+            if (beta <= alpha) {
+                table->storeTransposition(state.zobristKey, Transposition::Alpha, (end_depth - depth), alpha);
+                return alpha;
+            }
         }
 
         if (noMoves) {
             if (state.checked(state.white_king.first, state.white_king.second, 1)) {
-                return INT_MIN + depth * 10000;
+                return INT_MIN + depth;
             }
             else return 0;
         }
 
+        table->storeTransposition(state.zobristKey, Transposition::Exact, (end_depth - depth), bestVal);
         return bestVal;
     }
     else {
@@ -1096,6 +1172,7 @@ int Minimax::minimax(GameState& state, int depth, int end_depth, int alpha, int 
             noMoves = false;
 
             int score = minimax(state, depth + 1, end_depth, alpha, beta);
+            state.unMakeMove(move);
             
             bestVal = min(bestVal, score);
 
@@ -1105,39 +1182,28 @@ int Minimax::minimax(GameState& state, int depth, int end_depth, int alpha, int 
                 move_scores_in_loop.push_back({ score , move });
             }
 
-            //if (bestVal == INT_MIN) {
-            //    if (state.checked(state.white_king.first, state.white_king.second, 1)) {
-            //        state.unMakeMove(move);
-            //        return INT_MIN + (10000 * depth);
-            //    }
-            //    else {
-            //        state.unMakeMove(move);
-            //        return 0;
-            //    }
-            //}
-
-            state.unMakeMove(move);
+            
+            if (timeLimitExceeded(start_time, duration, end_depth)) { broke_early = true; return 0; }
 
             if (beta <= alpha) {
-                bestVal = score;
-                break;
+                table->storeTransposition(state.zobristKey, Transposition::Beta, (end_depth - depth), beta);
+                return beta;
             }
-
-            if (timeLimitExceeded(start_time, duration, end_depth)) { broke_early = true; return 0; }
 
         }
         if (noMoves) {
             if (state.checked(state.black_king.first, state.black_king.second, -1)) {
-                return INT_MAX - depth * 10000;
+                return INT_MAX - depth;
             }
             else return 0;
         }
 
+        table->storeTransposition(state.zobristKey, Transposition::Exact, (end_depth - depth), bestVal);
         return bestVal;
     }
 }
 
-void Minimax::iterative_deepening(GameState& state) {
+Move Minimax::iterative_deepening(GameState& state) {
     node_counter = 0, Q_nodes = 0;
     start_time = chrono::steady_clock::now();
     move_scores.clear(); move_scores_in_loop.clear();
@@ -1162,10 +1228,11 @@ void Minimax::iterative_deepening(GameState& state) {
     }
     reached_depth = depth - broke_early;
     assign_best_move(state);
+    return best_move;
 }
 
 
-int Minimax::quiescenceSearch(GameState& state, int depth, int alpha, int beta) {
+int Minimax::quiescenceSearch(GameState& state, int depth, int mainSearchDepth, int alpha, int beta, bool isCheck) {
     int staticEval = evaluation(state);
     Q_nodes++;
     if (depth == 0) return staticEval;
@@ -1177,16 +1244,39 @@ int Minimax::quiescenceSearch(GameState& state, int depth, int alpha, int beta) 
         beta = min(beta, staticEval);
     }
 
-    if (beta <= alpha) return staticEval;
+    if (beta <= alpha && !isCheck) return staticEval;
+
+
+    Transposition trans;
+    if (table->probeTransposition(state.zobristKey, trans)) {
+        if (trans.depth >= depth) {
+            if (trans.flag == Transposition::Exact) {
+                skips++;
+                return trans.value;
+            }
+            else if (trans.flag == Transposition::Alpha) {
+                alpha = max(alpha, trans.value);
+            }
+            else if (trans.flag == Transposition::Beta) {
+                beta = min(beta, trans.value);
+            }
+
+            if (beta <= alpha) {
+                skips++;
+                return trans.value;
+            }
+        }
+    }
 
 
     state.generate_all_possible_moves(state.player);
     myVector<Move> moves;
     if (state.player == 1) {
-        //bool whiteChecked = state.checked(state.white_king.first, state.white_king.second, 1);
         moves = state.white_possible_moves;
         int bestVal = staticEval;
         bool noMoves = true;
+        bool whiteChecked = state.checked(state.white_king.first, state.white_king.second, 1);
+        bool blackChecked = false;
         for (int i = 0; i < moves.size(); i++) {
             Move move = moves[i];
             state.makeMove(move);
@@ -1198,34 +1288,43 @@ int Minimax::quiescenceSearch(GameState& state, int depth, int alpha, int beta) 
 
             noMoves = false;
 
-            if (!move.IsCapture()) {
-                state.unMakeMove(move);
-                continue;
+
+            if (!move.IsCapture() && !whiteChecked) {
+                blackChecked = state.checked(state.black_king.first, state.black_king.second, -1);
+                if (!blackChecked) {
+                    state.unMakeMove(move);
+                    continue;
+                }
             }
 
-            int score = quiescenceSearch(state, depth-1, alpha, beta);
+            int score = quiescenceSearch(state, depth - 1, mainSearchDepth, alpha, beta, (whiteChecked || blackChecked));
+            state.unMakeMove(move);
 
             bestVal = max(bestVal, score);
             alpha = max(alpha, score);
 
-            state.unMakeMove(move);
 
-            if (beta <= alpha) return alpha;
+            if (beta <= alpha) {
+                table->storeTransposition(state.zobristKey, Transposition::Alpha, depth, alpha);
+                return alpha;
+            }
         }
         if (noMoves) {
             if (state.checked(state.white_king.first, state.white_king.second, 1)) {
-                return INT_MIN + (quiescenceMaxDepth - depth) * 10000;
+                return INT_MIN + (mainSearchDepth + quiescenceMaxDepth - depth);
             }
             else return staticEval;
         }
 
+        table->storeTransposition(state.zobristKey, Transposition::Exact, depth, bestVal);
         return bestVal;
     }
     else {
-        //bool blackChecked = state.checked(state.black_king.first, state.black_king.second, -1);
         moves = state.black_possible_moves;
         int bestVal = staticEval;
         bool noMoves = true;
+        bool blackChecked = state.checked(state.black_king.first, state.black_king.second, -1);
+        bool whiteChecked = false;
         for (int i = 0; i < moves.size(); i++) {
             Move move = moves[i];
             state.makeMove(move);
@@ -1237,36 +1336,65 @@ int Minimax::quiescenceSearch(GameState& state, int depth, int alpha, int beta) 
 
             noMoves = false;
 
-            if (!move.IsCapture()) {
-                state.unMakeMove(move);
-                continue;
+            
+
+            if (!move.IsCapture() && !blackChecked) {
+                whiteChecked = state.checked(state.white_king.first, state.white_king.second, 1);
+                if (!whiteChecked) {
+                    state.unMakeMove(move);
+                    continue;
+                }
             }
 
-            int score = quiescenceSearch(state, depth-1, alpha, beta);
+            int score = quiescenceSearch(state, depth-1, mainSearchDepth, alpha, beta, (whiteChecked || blackChecked));
+            state.unMakeMove(move);
 
             bestVal = min(bestVal, score);
             beta = min(beta, score);
 
-            state.unMakeMove(move);
 
-            if (beta <= alpha) return beta;
+            if (beta <= alpha) {
+                table->storeTransposition(state.zobristKey, Transposition::Beta, depth, beta);
+                return beta;
+            }
         }
         if (noMoves) {
             if (state.checked(state.black_king.first, state.black_king.second, -1)) {
-                return INT_MAX - (quiescenceMaxDepth - depth) * 10000;
+                return INT_MAX - (mainSearchDepth + quiescenceMaxDepth - depth);
             }
             else return staticEval;
         }
 
+        table->storeTransposition(state.zobristKey, Transposition::Exact, depth, bestVal);
         return bestVal;
     }
+}
+
+void Minimax::displayStatistics() {
+    Move move = best_move;
+    cout << "Best Move: " << to_uci(move.FromX(), move.FromY(), move.ToX(), move.ToY()) << " ";
+    if (abs(best_score) > 1e9) {
+        if (abs(INT_MAX - abs(best_score)) / 2 > 0)
+            cout << "Mate In: " << abs(INT_MAX - abs(best_score)) / 2;
+        else
+            cout << "Checkmate! ";
+        if (best_score > 1e9) cout << " For White." << endl;
+        else cout << " For Black." << endl;
+    }
+    else {
+        cout << best_score << endl;
+    }
+    cout << "Nodes Evaluated: " << node_counter << endl;
+    cout << "Quiescent Nodes: " << Q_nodes << endl;
+    cout << "Depth Reached: " << reached_depth << endl;
+    cout << "Time Taken: " << time_in_seconds << endl;
+    cout << "Num skips: " << skips << endl;
+    skips = 0;
 }
 
 
 
 int node_counter = 0, capture_counter = 0, check_counter = 0, EP_counter = 0, promotion_counter = 0, castle_counter = 0;
-
-Minimax mini;
 
 void perftResults(GameState& state, int depth, int end_depth) {
     if (depth == end_depth) {
