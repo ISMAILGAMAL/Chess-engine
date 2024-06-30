@@ -417,7 +417,7 @@ void reset_validpoints(bool validPoints[][8]) {
         for (int j = 0; j < 8; j++)
             validPoints[i][j] = false;
 }
-void valid_moves(GameState& current_state, bool validPoints[][8], int& lastPieceX, int& lastPieceY) {
+void valid_moves(GameState& current_state, bool validPoints[8][8], int& lastPieceX, int& lastPieceY) {
     reset_validpoints(validPoints);
 
     if (current_state.player == 1)
@@ -427,7 +427,7 @@ void valid_moves(GameState& current_state, bool validPoints[][8], int& lastPiece
             Move move = current_state.white_possible_moves[i];
             int fromX = move.FromX(), fromY = move.FromY();
             int toX = move.ToX(), toY = move.ToY();
-            if (lastPieceX == fromX && lastPieceY == fromY && current_state.check_legal(move))
+            if (lastPieceX == fromX && lastPieceY == fromY)
                 validPoints[toX][toY] = 1;
         }
     }
@@ -438,7 +438,7 @@ void valid_moves(GameState& current_state, bool validPoints[][8], int& lastPiece
             Move move = current_state.black_possible_moves[i];
             int fromX = move.FromX(), fromY = move.FromY();
             int toX = move.ToX(), toY = move.ToY();
-            if (lastPieceX == fromX && lastPieceY == fromY && current_state.check_legal(move))
+            if (lastPieceX == fromX && lastPieceY == fromY)
                 validPoints[toX][toY] = 1;
         }
     }
@@ -496,11 +496,9 @@ int main()
 
     // Array to hold piece sprites
     bool validPoints[8][8] = {}, mousePressed = false; // Array to hold valid points
-    int lastPieceX, lastPieceY; // Variables to store last selected piece position
+    int lastPieceX = 0, lastPieceY = 0; // Variables to store last selected piece position
     int mouseY = 0, mouseX = 0; // Variables to store last position the mouse was clicked
     current_state.initialize_board(Ttable);
-
-    int n; cin >> n;
 
     while (window.isOpen())
     {
@@ -598,7 +596,7 @@ int main()
         }
 
         //menu 2 2players
-        if (mainMenu.loadedMenu == 2) {
+        else if (mainMenu.loadedMenu == 2) {
             move_generation(current_state);
             if (mousePressed) {
                 if (current_state.board[mouseX][mouseY] * current_state.player > 0)
@@ -628,7 +626,7 @@ int main()
         else if (mainMenu.loadedMenu == 1)
         {
             move_generation(current_state);
-            if (current_state.player == -n)
+            if (current_state.player == 1)
             {
                 if (mousePressed) {
                     if (current_state.board[mouseX][mouseY] * current_state.player > 0)
@@ -648,11 +646,10 @@ int main()
                     }
                 }
             }
-            else if (!end_game_ai)
+            else if (end_game_ai != 1 && end_game_ai != -1)
             {
                 Move move = AI.iterative_deepening(current_state);
-                AI.display_move_scores();
-                AI.displayStatistics();
+                AI.displayStatistics(current_state);
                 Ttable.displayFillPercentage();
                 applying_sounds(current_state, sounds, move, mainMenu.settingsPage.getSoundState());
                 current_state.makeMove(move);

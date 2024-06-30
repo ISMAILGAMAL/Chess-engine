@@ -4,8 +4,9 @@
 #include <chrono>
 #include "pcsq.h"
 #include "dataStructures.h"
-#include "logic.h"
 #include "TranspositionTable.h"
+#include "move.h"
+#include "logic.h"
 
 using namespace std;
 
@@ -59,56 +60,6 @@ char match_to_char(int piece) {
     return piece_char;
 }
 
-
-// Some functions to make using moves more convenient handling all the bitwise operations.
-
-Move::Move(int fromX, int fromY, int toX, int toY, int flag, bool capture) {
-    move = 0;
-    move |= fromX;
-    move |= (fromY << 3);
-    move |= (toX << 6);
-    move |= (toY << 9);
-    move |= (flag << 12);
-    if (capture) move |= (1 << 15);
-}
-
-Move::Move() {};
-
-uint16_t Move::FromX() {
-    return move & 7U;
-}
-
-uint16_t Move::FromY() {
-    return (move >> 3) & 7U;
-}
-
-uint16_t Move::ToX() {
-    return (move >> 6) & 7U;
-}
-
-uint16_t Move::ToY() {
-    return (move >> 9) & 7U;
-}
-
-bool Move::IsPromotion() {
-    return ((move >> 12) & 7U) == Promotion;
-}
-
-bool Move::IsCastle() {
-    return ((move >> 12) & 7U) == Castling;
-}
-
-bool Move::IsEnPassant() {
-    return ((move >> 12) & 7U) == EnPassant;
-}
-
-bool Move::IsPawnTwoMoves() {
-    return ((move >> 12) & 7U) == PawnTwoMoves;
-}
-
-bool Move::IsCapture() {
-    return ((move >> 15) & 1);
-}
 
 // A struct that encapsulates an entire game state which helps us to copy and pass 
 // new game states to the searching Alpha-beta pruned minimax algorithm without 
@@ -222,21 +173,40 @@ void GameState::pawn_moves(int x, int y, int team) {
 
         if (x - 1 == 0) flag = Move::Promotion;
 
-        if (in_board(x - 1, y) && board[x - 1][y] == 0) // Moving once.
-            white_possible_moves.push_back(Move(x, y, x - 1, y, flag));
-        if (in_board(x - 2, y) && board[x - 2][y] == 0 && board[x - 1][y] == 0 && x == 6) // Moving twice.
-            white_possible_moves.push_back(Move(x, y, x - 2, y, Move::PawnTwoMoves));
+        if (in_board(x - 1, y) && board[x - 1][y] == 0){ // Moving once.
+            Move move(x, y, x - 1, y, flag);
+            if (check_legal(move))
+                white_possible_moves.push_back(move);
+        }
+        if (in_board(x - 2, y) && board[x - 2][y] == 0 && board[x - 1][y] == 0 && x == 6) { // Moving twice.
+            Move move(x, y, x - 2, y, Move::PawnTwoMoves);
+            if (check_legal(move))
+                white_possible_moves.push_back(move);
+        }
 
-        if (in_board(x - 1, y - 1) && board[x - 1][y - 1] < 0)
-            white_possible_moves.push_back(Move(x, y, x - 1, y - 1, flag, true));   // Diagonal piece capturing.
-        if (in_board(x - 1, y + 1) && board[x - 1][y + 1] < 0)
-            white_possible_moves.push_back(Move(x, y, x - 1, y + 1, flag, true));
+        if (in_board(x - 1, y - 1) && board[x - 1][y - 1] < 0) {
+            Move move(x, y, x - 1, y - 1, flag, true);
+            white_possible_moves.push_back(move);   // Diagonal piece capturing.
+            if (check_legal(move))
+                white_possible_moves.push_back(move);
+        }
+        if (in_board(x - 1, y + 1) && board[x - 1][y + 1] < 0) {
+            Move move(x, y, x - 1, y + 1, flag, true);
+            if (check_legal(move))
+                white_possible_moves.push_back(move);
+        }
 
         if ((enPassantSq.first != 0 || enPassantSq.second != 0) && enPassantSq.first == 2) {
-            if (enPassantSq.first == x - 1 && enPassantSq.second == y - 1)
-                white_possible_moves.push_back(Move(x, y, x - 1, y - 1, Move::EnPassant, true));  // En passant
-            if (enPassantSq.first == x - 1 && enPassantSq.second == y + 1)
-                white_possible_moves.push_back(Move(x, y, x - 1, y + 1, Move::EnPassant, true));
+            if (enPassantSq.first == x - 1 && enPassantSq.second == y - 1) {
+                Move move(x, y, x - 1, y - 1, Move::EnPassant, true); // En passant
+                if (check_legal(move))
+                    white_possible_moves.push_back(move);  
+            }
+            if (enPassantSq.first == x - 1 && enPassantSq.second == y + 1) {
+                Move move(x, y, x - 1, y + 1, Move::EnPassant, true);
+                if (check_legal(move))
+                    white_possible_moves.push_back(move);
+            }
         }
 
     }
@@ -244,21 +214,39 @@ void GameState::pawn_moves(int x, int y, int team) {
 
         if (x + 1 == 7) flag = Move::Promotion;
 
-        if (in_board(x + 1, y) && board[x + 1][y] == 0)
-            black_possible_moves.push_back(Move(x, y, x + 1, y, flag));
-        if (in_board(x + 2, y) && board[x + 2][y] == 0 && board[x + 1][y] == 0 && x == 1)
-            black_possible_moves.push_back(Move(x, y, x + 2, y, Move::PawnTwoMoves));
+        if (in_board(x + 1, y) && board[x + 1][y] == 0) {
+            Move move(x, y, x + 1, y, flag);
+            if (check_legal(move))
+                black_possible_moves.push_back(move);
+        }
+        if (in_board(x + 2, y) && board[x + 2][y] == 0 && board[x + 1][y] == 0 && x == 1) {
+            Move move(x, y, x + 2, y, Move::PawnTwoMoves);
+            if (check_legal(move))
+                black_possible_moves.push_back(move);
+        }
 
-        if (in_board(x + 1, y - 1) && board[x + 1][y - 1] > 0)
-            black_possible_moves.push_back(Move(x, y, x + 1, y - 1, flag, true));
-        if (in_board(x + 1, y + 1) && board[x + 1][y + 1] > 0)
-            black_possible_moves.push_back(Move(x, y, x + 1, y + 1, flag, true));
+        if (in_board(x + 1, y - 1) && board[x + 1][y - 1] > 0) {
+            Move move(x, y, x + 1, y - 1, flag, true);
+            if (check_legal(move))
+                black_possible_moves.push_back(move);
+        }
+        if (in_board(x + 1, y + 1) && board[x + 1][y + 1] > 0) {
+            Move move(x, y, x + 1, y + 1, flag, true);
+            if (check_legal(move))
+                black_possible_moves.push_back(move);
+        }
 
         if ((enPassantSq.first != 0 || enPassantSq.second != 0) && enPassantSq.first == 5) {
-            if (enPassantSq.first == x + 1 && enPassantSq.second == y - 1)
-                black_possible_moves.push_back(Move(x, y, x + 1, y - 1, Move::EnPassant, true));
-            if (enPassantSq.first == x + 1 && enPassantSq.second == y + 1)
-                black_possible_moves.push_back(Move(x, y, x + 1, y + 1, Move::EnPassant, true));
+            if (enPassantSq.first == x + 1 && enPassantSq.second == y - 1) {
+                Move move(x, y, x + 1, y - 1, Move::EnPassant, true);
+                if (check_legal(move))
+                    black_possible_moves.push_back(move);
+            }
+            if (enPassantSq.first == x + 1 && enPassantSq.second == y + 1) {
+                Move move(x, y, x + 1, y + 1, Move::EnPassant, true);
+                if (check_legal(move))
+                    black_possible_moves.push_back(move);
+            }
         }
     }
 }
@@ -273,10 +261,11 @@ void GameState::rook_moves(int x, int y, int team) {
             int piece = board[target_x][target_y];
             if (piece * team > 0) break; // breaking before pushing the position of a friendly piece.
 
-            if (team == 1)
-                white_possible_moves.push_back(Move(x, y, target_x, target_y, Move::None, (piece != 0)));
-            else
-                black_possible_moves.push_back(Move(x, y, target_x, target_y, Move::None, (piece != 0)));
+            Move move(x, y, target_x, target_y, Move::None, (piece != 0));
+            if (team == 1 && check_legal(move)) 
+                white_possible_moves.push_back(move);
+            else if (team != 1 && check_legal(move))
+                black_possible_moves.push_back(move);
 
             if (piece * team < 0) break; // breaking after pushing the position of exactly one enemy piece.
             target_x += x_offsets[i]; target_y += y_offsets[i];
@@ -307,30 +296,44 @@ void GameState::king_moves(int x, int y, int team) {
         int target_x = x + x_offsets[i], target_y = y + y_offsets[i];
         int piece = board[target_x][target_y];
         if (in_board(target_x, target_y) && piece * team <= 0) {
-            if (team == 1)
-                white_possible_moves.push_back(Move(x, y, target_x, target_y, Move::None, (piece != 0)));
-            else
-                black_possible_moves.push_back(Move(x, y, target_x, target_y, Move::None, (piece != 0)));
+            Move move(x, y, target_x, target_y, Move::None, (piece != 0));
+            if (team == 1 && check_legal(move))
+                white_possible_moves.push_back(move);
+            else if (team != 1 && check_legal(move))
+                black_possible_moves.push_back(move);
         }
     }
 
 
     if (team == 1) {
         if (!board[7][1] && !board[7][2] && !board[7][3] && canCastle(WQueenSide))
-            if (!checked(7, 3, 1) && !checked(x, y, 1))
-                white_possible_moves.push_back(Move(x, y, 7, 2, Move::Castling));
+            if (!checked(7, 3, 1) && !checked(x, y, 1)) {
+                Move move(x, y, 7, 2, Move::Castling);
+                if (check_legal(move))
+                    white_possible_moves.push_back(move);
+            }
         if (!board[7][5] && !board[7][6] && canCastle(WKingSide))
-            if (!checked(7, 5, 1) && !checked(x, y, 1))
-                white_possible_moves.push_back(Move(x, y, 7, 6, Move::Castling));
+            if (!checked(7, 5, 1) && !checked(x, y, 1)) {
+                Move move(x, y, 7, 6, Move::Castling);
+                white_possible_moves.push_back(move);
+                if (check_legal(move))
+                    white_possible_moves.push_back(move);
+            }
     }
     else {
         if (!board[0][1] && !board[0][2] && !board[0][3] && canCastle(BQueenSide)) {
-            if (!checked(0, 3, -1) && !checked(x, y, -1))
-                black_possible_moves.push_back(Move(x, y, 0, 2, Move::Castling));
+            if (!checked(0, 3, -1) && !checked(x, y, -1)) {
+                Move move(x, y, 0, 2, Move::Castling);
+                if (check_legal(move))
+                    black_possible_moves.push_back(move);
+            }
         }
         if (!board[0][5] && !board[0][6] && canCastle(BKingSide)) {
-            if (!checked(0, 5, -1) && !checked(x, y, -1))
-                black_possible_moves.push_back(Move(x, y, 0, 6, Move::Castling));
+            if (!checked(0, 5, -1) && !checked(x, y, -1)) {
+                Move move(x, y, 0, 6, Move::Castling);
+                if (check_legal(move))
+                    black_possible_moves.push_back(move);
+            }
         }
     }
 }
@@ -344,10 +347,11 @@ void GameState::knight_moves(int x, int y, int team) {
         int target_x = x + x_offsets[i], target_y = y + y_offsets[i];
         int piece = board[target_x][target_y];
         if (in_board(target_x, target_y) && piece * team <= 0) {
-            if (team == 1)
-                white_possible_moves.push_back(Move(x, y, target_x, target_y, Move::None, (piece != 0)));
-            else
-                black_possible_moves.push_back(Move(x, y, target_x, target_y, Move::None, (piece != 0)));
+            Move move(x, y, target_x, target_y, Move::None, (piece != 0));
+            if (team == 1 && check_legal(move))
+                white_possible_moves.push_back(move);
+            else if (team != 1 && check_legal(move))
+                black_possible_moves.push_back(move);
         }
     }
 
@@ -364,10 +368,11 @@ void GameState::bishop_moves(int x, int y, int team) {
             int piece = board[target_x][target_y];
             if (piece * team > 0) break;
 
-            if (team == 1)
-                white_possible_moves.push_back(Move(x, y, target_x, target_y, Move::None, (piece != 0)));
-            else
-                black_possible_moves.push_back(Move(x, y, target_x, target_y, Move::None, (piece != 0)));
+            Move move(x, y, target_x, target_y, Move::None, (piece != 0));
+            if (team == 1 && check_legal(move))
+                white_possible_moves.push_back(move);
+            else if (team != 1 && check_legal(move))
+                black_possible_moves.push_back(move);
 
             if (piece * team < 0) break;
             target_x += x_offsets[i]; target_y += y_offsets[i];
@@ -386,10 +391,11 @@ void GameState::queen_moves(int x, int y, int team) {
             int piece = board[target_x][target_y];
             if (piece * team > 0) break;
 
-            if (team == 1)
-                white_possible_moves.push_back(Move(x, y, target_x, target_y, Move::None, (piece != 0)));
-            else
-                black_possible_moves.push_back(Move(x, y, target_x, target_y, Move::None, (piece != 0)));
+            Move move(x, y, target_x, target_y, Move::None, (piece != 0));
+            if (team == 1 && check_legal(move))
+                white_possible_moves.push_back(move);
+            else if (team != 1 && check_legal(move))
+                black_possible_moves.push_back(move);
 
             if (piece * team < 0) break;
             target_x += x_offsets[i]; target_y += y_offsets[i];
@@ -421,16 +427,18 @@ void GameState::generate_all_possible_moves(int team) {
     // If the parameter type == 1 then it will only generate moves for white
     // if it was -1 then it will only generate moves for black.
 
+    if (team != player) runtime_error("Can generate possible moves only for the current player");
+
     if (team == 1) white_possible_moves.clear();
     else black_possible_moves.clear();
 
     for (int i = 0; i < 8; i++) {
         for (int j = 0; j < 8; j++) {
             int type = board[i][j];
-            if (board[i][j] > 0 && team == 1) {
+            if (board[i][j] > 0 && player == 1) {
                 generate_piece_moves(i, j, 1, type);
             }
-            else if (board[i][j] < 0 && team != 1) {
+            else if (board[i][j] < 0 && player != 1) {
                 generate_piece_moves(i, j, -1, abs(type));
             }
         }
@@ -709,25 +717,11 @@ bool GameState::check_legal(Move& move) {
 bool GameState::checkMate(int team) {
 
     if (team == 1 && player == 1) {
-        int size_of_vector = white_possible_moves.size();
-        for (int i = 0; i < white_possible_moves.size(); i++)
-        {
-            Move move = white_possible_moves[i];
-            if (!check_legal(move))
-                size_of_vector--;
-        }
-        if (size_of_vector == 0 && checked(white_king.first, white_king.second, 1))
+        if (white_possible_moves.empty() && checked(white_king.first, white_king.second, 1))
             return 1;
     }
     else if (team == -1 && player == -1){
-        int size_of_vector = black_possible_moves.size();
-        for (int i = 0; i < black_possible_moves.size(); i++)
-        {
-            Move move = black_possible_moves[i];
-            if (!check_legal(move))
-                size_of_vector--;
-        }
-        if (size_of_vector == 0 && checked(black_king.first, black_king.second, -1))
+        if (black_possible_moves.empty() && checked(black_king.first, black_king.second, -1))
             return 1;
     }
     return 0;
@@ -735,26 +729,10 @@ bool GameState::checkMate(int team) {
 
 bool GameState::staleMate(int team) {
     if (team == 1 && player == 1) {
-        int size_of_vector = white_possible_moves.size();
-        for (int i = 0; i < white_possible_moves.size(); i++)
-        {
-            Move move = white_possible_moves[i];
-            if (!check_legal(move))
-                size_of_vector--;
-        }
-        if (size_of_vector == 0 && !checked(white_king.first, white_king.second, 1))
-            return 1;
+        if (white_possible_moves.empty() && !checked(white_king.first, white_king.second, 1)) return 1;
     }
     if (team == -1 && player == -1) {
-        int size_of_vector = black_possible_moves.size();
-        for (int i = 0; i < black_possible_moves.size(); i++)
-        {
-            Move move = black_possible_moves[i];
-            if (!check_legal(move))
-                size_of_vector--;
-        }
-        if (size_of_vector == 0 && !checked(black_king.first, black_king.second, -1))
-            return 1;
+        if (black_possible_moves.empty() && !checked(black_king.first, black_king.second, -1)) return 1;
     }
     return 0;
 }
@@ -808,103 +786,13 @@ Move GameState::findMove(int fromX, int fromY, int toX, int toY) {
 Minimax::Minimax(TranspositionTable& Ttable) : table(&Ttable) {}
 
 //Used to display the score the ai have given to every possible move.
-void Minimax::display_move_scores() {
-    for (int i = 0; i < move_scores.size(); i++) {
-        Move move = move_scores[i].second;
-        cout << to_uci(move.FromX(), move.FromY(), move.ToX(), move.ToY()) << " " << move_scores[i].first << endl;
-    }
-}
+//void Minimax::display_move_scores() {
+//    for (int i = 0; i < move_scores.size(); i++) {
+//        Move move = move_scores[i].second;
+//        cout << to_uci(move.FromX(), move.FromY(), move.ToX(), move.ToY()) << " " << move_scores[i].first << endl;
+//    }
+//}
 
-void Minimax::assign_best_move(GameState& state) {
-    if (state.player == 1) {
-        best_score = LLONG_MIN;
-        for (int i = 0; i < move_scores.size(); i++) {
-            int score = move_scores[i].first;
-            if (score > best_score) {
-                best_score = score;
-                best_move = move_scores[i].second;
-            }
-        }
-    }
-    else {
-        best_score = LLONG_MAX;
-        for (int i = 0; i < move_scores.size(); i++) {
-            int score = move_scores[i].first;
-            if (score < best_score) {
-                best_score = score;
-                best_move = move_scores[i].second;
-            }
-        }
-    }
-}
-
-
-void Minimax::merge(myVector<myPair<int, Move>>& leftVec, myVector<myPair<int, Move>>& rightVec, myVector<myPair<int, Move>>& vec) {
-    int left = 0, right = 0;
-    vec.clear();
-
-    while (left < leftVec.size() && right < rightVec.size()) {
-        if (leftVec[left].first < rightVec[right].first) {
-            vec.push_back(leftVec[left++]);
-        }
-        else {
-            vec.push_back(rightVec[right++]);
-        }
-    }
-
-    while (left < leftVec.size()) {
-        vec.push_back(leftVec[left++]);
-    }
-
-    while (right < rightVec.size()) {
-        vec.push_back(rightVec[right++]);
-    }
-}
-
-
-// Implements mergeSort to sort the moves in increasing order.
-// move oredering is important as we explore the best moves from the previous search depth
-// first which helps us prune more branches early on.
-void Minimax::mergeSort(myVector<myPair<int, Move>>& vec) {
-    size_t size = vec.size();
-    if (size <= 1) return;
-
-    int mid = size / 2;
-
-    myVector<myPair<int, Move>> leftVec;
-    myVector<myPair<int, Move>> rightVec;
-
-    for (int i = 0; i < mid; i++) {
-        leftVec.push_back(vec[i]);
-    }
-    for (int i = mid; i < size; i++) {
-        rightVec.push_back(vec[i]);
-    }
-
-    mergeSort(leftVec);
-    mergeSort(rightVec);
-
-    merge(leftVec, rightVec, vec);
-}
-
-
-void Minimax::sort_moves(GameState& state) {
-    mergeSort(move_scores);
-    size_t size = move_scores.size();
-    state.white_possible_moves.clear();
-    state.black_possible_moves.clear();
-
-    if (state.player == 1) {
-        for (int i = size - 1; i >= 0; i--) {
-            state.white_possible_moves.push_back(move_scores[i].second);
-        }
-    }
-    else {
-        for (int i = 0; i < size; i++) {
-            state.black_possible_moves.push_back(move_scores[i].second);
-        }
-    }
-}
 
 bool Minimax::timeLimitExceeded(chrono::steady_clock::time_point& start, chrono::milliseconds& duration, int& depth) {
     auto current_time = chrono::steady_clock::now();
@@ -1050,8 +938,8 @@ int Minimax::evaluation(GameState& state) {
         }
     }
 
-    if (black_bishops == 2) bishops_bonus -= 150;
-    if (white_bishops == 2) bishops_bonus += 150;
+    if (black_bishops == 2) bishops_bonus -= 100;
+    if (white_bishops == 2) bishops_bonus += 100;
 
     int pawnStructure = 0;
 
@@ -1061,343 +949,224 @@ int Minimax::evaluation(GameState& state) {
     int mgPhase = min(gamePhase, 24);
     int egPhase = 24 - mgPhase;
 
-    return (mgEval * mgPhase + egEval * egPhase) / 24 + pawnStructure + bishops_bonus;
+    int eval = (mgEval * mgPhase + egEval * egPhase) / 24 + pawnStructure + bishops_bonus;
+    return (state.player == 1) ? eval : -eval;
 }
 
 
-int Minimax::minimax(GameState& state, int depth, int end_depth, int alpha, int beta) {
-        node_counter++;
-    if (depth == end_depth) {
-        bool blackChecked = state.checked(state.black_king.first, state.black_king.second, -1);
-        bool whiteChecked = state.checked(state.white_king.first, state.white_king.second, 1);
-        int eval;
-        if ((state.capturedPiece() || blackChecked || whiteChecked)) {
-            eval = quiescenceSearch(state, quiescenceMaxDepth, end_depth, alpha, beta, blackChecked || whiteChecked);
-        }
-        else {
-            eval = evaluation(state);
-        }
-        //int eval = evaluation(state);
+int Minimax::minimax(GameState& state, int plyRemaining, int depth, int alpha, int beta) {
+    int plyFromRoot = depth - plyRemaining;
 
-        table->storeTransposition(state.zobristKey, Transposition::Exact, (end_depth - depth), eval);
+    if (plyRemaining == 0) {
+        node_counter++;
+        int eval = quiescenceSearch(state, quiescenceMaxDepth, depth, alpha, beta);
+        //int eval = evaluation(state);
         return eval;
     }
 
-    Transposition trans;
+    bool positionInTable = false;
 
-    if (depth != 0 && table->probeTransposition(state.zobristKey, trans)) {
-        if (trans.depth  >= (end_depth - depth)) {
-            if (trans.flag == Transposition::Exact) {
-                skips++;
-                return trans.value;
-            }
-            else if (trans.flag == Transposition::Alpha) {
-                alpha = max(alpha, trans.value);
-            }
-            else if (trans.flag == Transposition::Beta) {
-                beta = min(beta, trans.value);
-            }
+    int transpositionValue = table->lookupEvaluation(state.zobristKey, plyRemaining, alpha, beta, positionInTable, false);
 
-            if (beta <= alpha) {
-                skips++;
-                return trans.value;
-            }
+    if (positionInTable) {
+        if (plyFromRoot == 0) {
+            Transposition pos;
+            table->probeTransposition(state.zobristKey, pos);
+            bestMoveThisIteration = pos.move;
+            bestScoreThisIteration = pos.value;
         }
+        tableUses++;
+        return transpositionValue;
     }
 
+    state.generate_all_possible_moves(state.player);
+    myVector<Move> moves = (state.player == 1) ? state.white_possible_moves : state.black_possible_moves;
+    moveOrderer.sortMoves(moves, state.board);
 
-    if (state.player == 1) {
-        state.generate_all_possible_moves(1);
-        myVector<Move> Possible = state.white_possible_moves;
-        int bestVal = INT_MIN;
-        bool noMoves = true;
-        for (int i = 0; i < Possible.size(); i++) {
-            Move move = Possible[i];
-            state.makeMove(move);
+    if (moves.empty()) {
+        myPair<int, int> king = (state.player == 1) ? state.white_king : state.black_king;
+        if (state.checked(king.first, king.second, state.player)) {
+            return INT_MIN + 2;
+        }
+        else return 0;
+    }
 
-            // Skip the move if it's not legal.
-            if (state.checked(state.white_king.first, state.white_king.second, 1)) {
-                state.unMakeMove(move);
-                continue;
-            }
+    uint8_t evaluationBound = Transposition::Alpha;
+    Move bestMoveInPos = moves[0];
 
-            noMoves = false;
+    for (int i = 0; i < moves.size(); i++) {
 
-            int score = minimax(state, depth + 1, end_depth, alpha, beta);
-            state.unMakeMove(move);
+        state.makeMove(moves[i]);
+        int score = -minimax(state, plyRemaining - 1, depth, -beta, -alpha);
+        state.unMakeMove(moves[i]);
 
-            bestVal = max(bestVal, score);
+        // Break if the time limit was exceeded.
+        if (timeLimitExceeded(start_time, duration, depth)) { 
+            broke_early = true; 
+            return 0; 
+        }
 
-            alpha = max(alpha, bestVal);
+        // A Beta-cutoff meaning the opponent won't choose this move as they have a better option.
+        if (score >= beta) {
+            table->storeTransposition(state.zobristKey, Transposition::Beta, plyRemaining, beta, moves[i]);
+            return beta;
+        }
+
+        // Found a new move that is better than the current best.
+        if (score > alpha) {
+            alpha = score;
+            evaluationBound = Transposition::Exact;
+            bestMoveInPos = moves[i];
 
             // Saves the moves to be sorted and assigned to best move after the search is finished.
-            if (depth == 0) {
-                move_scores_in_loop.push_back({ score , move });
-            }
-
-
-            // Break if the time limit was exceeded.
-            if (timeLimitExceeded(start_time, duration, end_depth)) { broke_early = true; return 0; }
- 
-            if (beta <= alpha) {
-                table->storeTransposition(state.zobristKey, Transposition::Alpha, (end_depth - depth), alpha);
-                return alpha;
+            if (plyFromRoot == 0) {
+                bestMoveThisIteration = moves[i];
+                bestScoreThisIteration = score;
             }
         }
-
-        if (noMoves) {
-            if (state.checked(state.white_king.first, state.white_king.second, 1)) {
-                return INT_MIN + depth;
-            }
-            else return 0;
-        }
-
-        table->storeTransposition(state.zobristKey, Transposition::Exact, (end_depth - depth), bestVal);
-        return bestVal;
     }
-    else {
-        state.generate_all_possible_moves(-1);
-        myVector<Move> Possible = state.black_possible_moves;
-        int bestVal = INT_MAX;
-        bool noMoves = true;
-        for (int i = 0; i < Possible.size(); i++) {
-            Move move = Possible[i];
-            state.makeMove(move);
 
-            if (state.checked(state.black_king.first, state.black_king.second, -1)) {
-                state.unMakeMove(move);
-                continue;
-            }
-
-            noMoves = false;
-
-            int score = minimax(state, depth + 1, end_depth, alpha, beta);
-            state.unMakeMove(move);
-            
-            bestVal = min(bestVal, score);
-
-            beta = min(beta, score);
-
-            if (depth == 0) {
-                move_scores_in_loop.push_back({ score , move });
-            }
-
-            
-            if (timeLimitExceeded(start_time, duration, end_depth)) { broke_early = true; return 0; }
-
-            if (beta <= alpha) {
-                table->storeTransposition(state.zobristKey, Transposition::Beta, (end_depth - depth), beta);
-                return beta;
-            }
-
-        }
-        if (noMoves) {
-            if (state.checked(state.black_king.first, state.black_king.second, -1)) {
-                return INT_MAX - depth;
-            }
-            else return 0;
-        }
-
-        table->storeTransposition(state.zobristKey, Transposition::Exact, (end_depth - depth), bestVal);
-        return bestVal;
-    }
+    if (abs(alpha) > 1e9) alpha = (alpha > 0) ? alpha - 1 : alpha + 1;
+    table->storeTransposition(state.zobristKey, evaluationBound, plyRemaining, alpha, bestMoveInPos);
+    return alpha;
 }
 
 Move Minimax::iterative_deepening(GameState& state) {
-    node_counter = 0, Q_nodes = 0;
+    node_counter = 0, Q_nodes = 0; bestScore = INT_MIN + 1, bestScoreThisIteration + INT_MIN + 1, tableUses = 0;
     start_time = chrono::steady_clock::now();
-    move_scores.clear(); move_scores_in_loop.clear();
+    state.generate_all_possible_moves(state.player);
+
+    if (state.player == 1) bestMoveThisIteration = state.white_possible_moves[0];
+    else bestMoveThisIteration = state.black_possible_moves[0];
 
     int depth = 1; broke_early = false;
-    while (true) {
-        minimax(state, 0, depth);
+
+    while (depth <= 255) {
+        int score = minimax(state, depth, depth, INT_MIN + 1, INT_MAX);
 
         if (timeLimitExceeded(start_time, duration, depth)) { broke_early = true; }
 
-        if (!broke_early) {
-            move_scores = move_scores_in_loop;
-            move_scores_in_loop.clear();
-            sort_moves(state);
+        if (bestScoreThisIteration > 1e9) {
+            broke_early = true;
+            bestMove = bestMoveThisIteration;
+            bestScore = bestScoreThisIteration;
         }
-        else {
-            sort_moves(state);
+
+        if (!broke_early) {
+            bestMove = bestMoveThisIteration;
+            bestScore = bestScoreThisIteration;
+        }
+        else{
             time_in_seconds = duration.count() / 1000.0;
             break;
         }
         depth++;
     }
     reached_depth = depth - broke_early;
-    assign_best_move(state);
-    return best_move;
+    return bestMove;
 }
 
 
-int Minimax::quiescenceSearch(GameState& state, int depth, int mainSearchDepth, int alpha, int beta, bool isCheck) {
+int Minimax::quiescenceSearch(GameState& state, int plyRemaining, int mainSearchDepth, int alpha, int beta) {
     int staticEval = evaluation(state);
     Q_nodes++;
-    if (depth == 0) return staticEval;
 
-    if (state.player == 1) {
-        alpha = max(alpha, staticEval);
+    if (plyRemaining == 0) return staticEval;
+
+    if (staticEval >= beta) {
+        return beta;
     }
-    else {
-        beta = min(beta, staticEval);
-    }
-
-    if (beta <= alpha && !isCheck) return staticEval;
-
-
-    Transposition trans;
-    if (table->probeTransposition(state.zobristKey, trans)) {
-        if (trans.depth >= depth) {
-            if (trans.flag == Transposition::Exact) {
-                skips++;
-                return trans.value;
-            }
-            else if (trans.flag == Transposition::Alpha) {
-                alpha = max(alpha, trans.value);
-            }
-            else if (trans.flag == Transposition::Beta) {
-                beta = min(beta, trans.value);
-            }
-
-            if (beta <= alpha) {
-                skips++;
-                return trans.value;
-            }
-        }
+    if (staticEval > alpha) {
+        alpha = staticEval;
     }
 
+    bool positionInTable = false;
+
+    int transpositionValue = table->lookupEvaluation(state.zobristKey, plyRemaining, alpha, beta, positionInTable, true);
+
+    if (positionInTable) {
+        tableUses++;
+        return transpositionValue;
+    }
 
     state.generate_all_possible_moves(state.player);
-    myVector<Move> moves;
-    if (state.player == 1) {
-        moves = state.white_possible_moves;
-        int bestVal = staticEval;
-        bool noMoves = true;
-        bool whiteChecked = state.checked(state.white_king.first, state.white_king.second, 1);
-        bool blackChecked = false;
-        for (int i = 0; i < moves.size(); i++) {
-            Move move = moves[i];
-            state.makeMove(move);
+    myVector<Move> moves = (state.player == 1) ? state.white_possible_moves : state.black_possible_moves;
+    moveOrderer.sortMoves(moves, state.board);
 
-            if (state.checked(state.white_king.first, state.white_king.second, 1)) {
-                state.unMakeMove(move);
-                continue;
-            }
-
-            noMoves = false;
-
-
-            if (!move.IsCapture() && !whiteChecked) {
-                blackChecked = state.checked(state.black_king.first, state.black_king.second, -1);
-                if (!blackChecked) {
-                    state.unMakeMove(move);
-                    continue;
-                }
-            }
-
-            int score = quiescenceSearch(state, depth - 1, mainSearchDepth, alpha, beta, (whiteChecked || blackChecked));
-            state.unMakeMove(move);
-
-            bestVal = max(bestVal, score);
-            alpha = max(alpha, score);
-
-
-            if (beta <= alpha) {
-                table->storeTransposition(state.zobristKey, Transposition::Alpha, depth, alpha);
-                return alpha;
-            }
+    if (moves.empty()) {
+        myPair<int, int> king = (state.player == 1) ? state.white_king : state.black_king;
+        if (state.checked(king.first, king.second, state.player)) {
+            return INT_MIN + 2;
         }
-        if (noMoves) {
-            if (state.checked(state.white_king.first, state.white_king.second, 1)) {
-                return INT_MIN + (mainSearchDepth + quiescenceMaxDepth - depth);
-            }
-            else return staticEval;
-        }
-
-        table->storeTransposition(state.zobristKey, Transposition::Exact, depth, bestVal);
-        return bestVal;
+        else return 0;
     }
-    else {
-        moves = state.black_possible_moves;
-        int bestVal = staticEval;
-        bool noMoves = true;
-        bool blackChecked = state.checked(state.black_king.first, state.black_king.second, -1);
-        bool whiteChecked = false;
-        for (int i = 0; i < moves.size(); i++) {
-            Move move = moves[i];
-            state.makeMove(move);
 
-            if (state.checked(state.black_king.first, state.black_king.second, -1)) {
-                state.unMakeMove(move);
-                continue;
-            }
+    uint8_t evaluationBound = Transposition::QAlpha;
+    Move bestMoveInPos = moves[0];
 
-            noMoves = false;
+    for (int i = 0; i < moves.size(); i++) {
 
-            
+        if (!moves[i].IsCapture()) continue;
 
-            if (!move.IsCapture() && !blackChecked) {
-                whiteChecked = state.checked(state.white_king.first, state.white_king.second, 1);
-                if (!whiteChecked) {
-                    state.unMakeMove(move);
-                    continue;
-                }
-            }
+        state.makeMove(moves[i]);
+        int score = -quiescenceSearch(state, plyRemaining - 1, mainSearchDepth, -beta, -alpha);
+        state.unMakeMove(moves[i]);
 
-            int score = quiescenceSearch(state, depth-1, mainSearchDepth, alpha, beta, (whiteChecked || blackChecked));
-            state.unMakeMove(move);
-
-            bestVal = min(bestVal, score);
-            beta = min(beta, score);
-
-
-            if (beta <= alpha) {
-                table->storeTransposition(state.zobristKey, Transposition::Beta, depth, beta);
-                return beta;
-            }
+        if (score >= beta) {
+            table->storeTransposition(state.zobristKey, Transposition::QBeta, plyRemaining, beta, moves[i]);
+            return beta;
         }
-        if (noMoves) {
-            if (state.checked(state.black_king.first, state.black_king.second, -1)) {
-                return INT_MAX - (mainSearchDepth + quiescenceMaxDepth - depth);
-            }
-            else return staticEval;
+        if (score > alpha) {
+            alpha = score;
+            evaluationBound = Transposition::QExact;
+            bestMoveInPos = moves[i];
         }
-
-        table->storeTransposition(state.zobristKey, Transposition::Exact, depth, bestVal);
-        return bestVal;
     }
+
+    if (abs(alpha) > 1e9) alpha = (alpha > 0) ? alpha - 1 : alpha + 1;
+    table->storeTransposition(state.zobristKey, evaluationBound, plyRemaining, alpha, bestMoveInPos);
+    return alpha;
 }
 
-void Minimax::displayStatistics() {
-    Move move = best_move;
+
+void Minimax::displayStatistics(GameState& state) {
+    Move move = bestMove;
     cout << "Best Move: " << to_uci(move.FromX(), move.FromY(), move.ToX(), move.ToY()) << " ";
-    if (abs(best_score) > 1e9) {
-        if (abs(INT_MAX - abs(best_score)) / 2 > 0)
-            cout << "Mate In: " << abs(INT_MAX - abs(best_score)) / 2;
+    if (abs(bestScore) > 1e9) {
+        //cout << bestScore << "   " << bestScoreThisIteration << "    " << (abs(INT_MAX - abs(bestScore))) + 1 << endl;
+        if ((abs(INT_MAX - abs(bestScore)) - 1) / 2 > 0)
+            cout << "Mate In: " << (abs(INT_MAX - abs(bestScore)) - 1) / 2;
         else
             cout << "Checkmate! ";
-        if (best_score > 1e9) cout << " For White." << endl;
-        else cout << " For Black." << endl;
+        if (bestScore > 1e9) {
+            if (state.player == 1)
+                cout << " For White." << endl;
+            else 
+                cout << " For Black." << endl;
+        }
+        else {
+            if (state.player == 1)
+                cout << " For Black." << endl;
+            else
+                cout << " For White." << endl;
+        }
     }
     else {
-        cout << best_score << endl;
+        cout << bestScore << endl;
     }
     cout << "Nodes Evaluated: " << node_counter << endl;
     cout << "Quiescent Nodes: " << Q_nodes << endl;
     cout << "Depth Reached: " << reached_depth << endl;
     cout << "Time Taken: " << time_in_seconds << endl;
-    cout << "Num skips: " << skips << endl;
-    skips = 0;
+    cout << "Table uses: " << tableUses << endl;
 }
 
 
 
 int node_counter = 0, capture_counter = 0, check_counter = 0, EP_counter = 0, promotion_counter = 0, castle_counter = 0;
 
-void perftResults(GameState& state, int depth, int end_depth) {
-    if (depth == end_depth) {
+void perftResults(GameState& state, int depth, int startDepth) {
+    if (depth == 0) {
         node_counter++;
         return;
     }
@@ -1409,12 +1178,7 @@ void perftResults(GameState& state, int depth, int end_depth) {
             Move move = Possible[i];
             state.makeMove(move);
 
-            if (state.checked(state.white_king.first, state.white_king.second, 1)) {
-                state.unMakeMove(move);
-                continue;
-            }
-
-            if (depth == end_depth - 1) {
+            if (depth == 1) {
                 if (state.capturedPiece() != 0) {
                     capture_counter++;
                 }
@@ -1429,7 +1193,7 @@ void perftResults(GameState& state, int depth, int end_depth) {
                 }
             }
 
-            perftResults(state, depth + 1, end_depth);
+            perftResults(state, depth - 1, startDepth);
             state.unMakeMove(move);
         }
     }
@@ -1440,12 +1204,7 @@ void perftResults(GameState& state, int depth, int end_depth) {
             Move move = Possible[i];
             state.makeMove(move);
 
-            if (state.checked(state.black_king.first, state.black_king.second, -1)) {
-                state.unMakeMove(move);
-                continue;
-            }
-
-            if (depth == end_depth - 1) {
+            if (depth == 1) {
                 if (state.capturedPiece() != 0) {
                     capture_counter++;
                 }
@@ -1460,13 +1219,13 @@ void perftResults(GameState& state, int depth, int end_depth) {
                 }
             }
 
-            perftResults(state, depth + 1, end_depth);
+            perftResults(state, depth - 1, startDepth);
             state.unMakeMove(move);;
         }
     }
 
-    if (depth == 0) {
-        cout << "Depth: " << end_depth << endl;
+    if (depth == startDepth) {
+        cout << "Depth: " << startDepth << endl;
         cout << "Nodes: " << node_counter << endl;
         cout << "Captures: " << capture_counter << endl;
         cout << "EP: " << EP_counter << endl;

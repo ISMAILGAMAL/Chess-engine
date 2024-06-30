@@ -12,35 +12,6 @@ string to_uci(int from_x, int from_y, int target_x, int target_y);
 myPair<int, int> to_index(char file, char rank);
 char match_to_char(int piece);
 
-struct Move {
-    static constexpr uint16_t None = 0;
-    static constexpr uint16_t EnPassant = 1;
-    static constexpr uint16_t Castling = 2;
-    static constexpr uint16_t Promotion = 3;
-    static constexpr uint16_t PawnTwoMoves = 4;
-
-    // Moves are stored as 16 bit numbers divided as follows:
-    //    4  +  3  +  3  +  3   +   3  =  16 bits
-    // |0000| |000| |000| |000|   |000|
-    //  Flag   Toy   ToX  FromY   FromX
-    // The flag can be any of the static constexpr above essentially 
-    // flagging the move as any of the special moves and the last bit stores if it's a capture or not.
-    uint16_t move = 0;
-
-    Move(int fromX, int fromY, int toX, int toY, int flag = 0, bool capture = false);
-    Move();
-
-    uint16_t FromX();
-    uint16_t FromY();
-    uint16_t ToX();
-    uint16_t ToY();
-    bool IsPromotion();
-    bool IsCastle();
-    bool IsEnPassant();
-    bool IsPawnTwoMoves();
-    bool IsCapture();
-};
-
 // A struct that encapsulates an entire game state which helps us to copy and pass 
 // new game states to the searching Alpha-beta pruned minimax algorithm without 
 // needing complex logic to handle special moves and also allows us to interface with the gui.
@@ -114,31 +85,30 @@ private:
     static constexpr int isolatedPawnPenaltyByCount[9] = { 0, -10, -25, -50, -75, -75, -75, -75, -75 };
 
     TranspositionTable* table;
-    myVector<myPair<int, Move>> move_scores, move_scores_in_loop;
-    Move best_move;
-    int node_counter = 0, reached_depth, time_limit = 3000, least_depth = 4, Q_nodes = 0, quiescenceMaxDepth = 3;
-    long long best_score, skips = 0;
+    MoveOrderer moveOrderer;
+    Move bestMove, bestMoveThisIteration;
+    int node_counter = 0, reached_depth, time_limit = 3000, least_depth = 4, Q_nodes = 0, quiescenceMaxDepth = 32;
+    int bestScore, bestScoreThisIteration, tableUses = 0, maxDepth = 255;
     double time_in_seconds;
     chrono::steady_clock::time_point start_time;
     chrono::milliseconds duration;
     bool broke_early = false;
 
-    void assign_best_move(GameState& state);
     void merge(myVector<myPair<int, Move>>& leftVec, myVector<myPair<int, Move>>& rightVec, myVector<myPair<int, Move>>& vec);
     void mergeSort(myVector<myPair<int, Move>>& vec);
     void sort_moves(GameState& state);
     bool timeLimitExceeded(chrono::steady_clock::time_point& start, chrono::milliseconds& duration, int& depth);
     int get_pcsq_value(int x, int y, int piece, bool endgame);
     int evaluate_pawns(int team, int white_pawns_row[], int black_pawns_row[]);
-    int minimax(GameState& state, int depth = 0, int end_depth = 3, int alpha = INT_MIN, int beta = INT_MAX);
+    int minimax(GameState& state, int plyRemaining = 3, int depth = 3, int alpha = INT_MIN + 1, int beta = INT_MAX);
     int evaluation(GameState& state);
-    int quiescenceSearch(GameState& state, int depth, int mainSearchDepth, int alpha, int beta, bool isChecked);
+    int quiescenceSearch(GameState& state, int depth, int mainSearchDepth, int alpha, int beta);
 public:
     Minimax(TranspositionTable& Ttable);
     Move iterative_deepening(GameState& state);
-    void display_move_scores();
-    void displayStatistics();
+    //void display_move_scores();
+    void displayStatistics(GameState& state);
 
 };
 
-void perftResults(GameState& state, int depth = 0, int end_depth=1);
+void perftResults(GameState& state, int depth = 0, int startDepth=1);
